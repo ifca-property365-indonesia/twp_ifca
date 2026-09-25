@@ -693,7 +693,6 @@ class TicketController extends Controller
             $body.='TWP System<br>';
             
             $subj = 'Ticket number '.$number.' opened';
-            // DB::connection('dblive')->statement("exec mgr.x_send_mail_twp '$email','$subj','$body'");
 
             $callback = array(
                 "pesan" => $msg,

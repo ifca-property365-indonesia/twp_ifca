@@ -185,9 +185,6 @@ class OvertimeController extends Controller
             return $this->fail(__('common.save_failed', ['message' => $ex->getMessage()]));
         }
 
-        // Notifikasi email ke building management (mgr.x_send_mail_twp) belum dipakai:
-        // SP itu belum ada di jbc_live, sama seperti pengiriman email lain di project ini.
-
         return response()->json(['status' => 'OK', 'pesan' => __('tenant/overtime.saved')]);
     }
 

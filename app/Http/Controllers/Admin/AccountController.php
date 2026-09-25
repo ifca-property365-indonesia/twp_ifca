@@ -167,7 +167,6 @@ class AccountController extends Controller
                     ->table('all_login')
                     ->where($criteria)
                     ->update($data);
-                // DB::connection('ifcapb')->statement("exec mgr.x_send_mail_twp '$emailsend','$subj','$body'");
                 $msg = __('common.updated');
                 $st  = 'OK';
              
