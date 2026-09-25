@@ -1,7 +1,0 @@
-Business_ID	Name	Salutation	Address_Line_1	Address_Line_2	Address_Line_3	E_Mail
-863	Azmi Bin Othman	Mr.	No 30, Road SS 19/2	Petaling Jaya	Selangor Darul Ehsan	azmi@tm.net.my
-864	Shafirah binti Ali	Mrs.	No 17, USJ 6/5	Subang Jaya	Kuala Lumpur, Malaysia	sharifah@worldwide.com
-865	Jasmi bin Abdullah	Mr.	No 55, USJ 9/1	Subang Jaya	Kuala Lumpur, Malaysia	jasmi@jtobacco.com
-887	Mazli bin Johan	Mr.	No 18, Road 7/18A	Sri Endah Gardens	Kuala Lumpur	mazli@tm.net.my
-894	Yasin bin Ahmad	Mr.	No 8A, Willow Heights Condominium	Road 3/78A, Petaling Jaya	Selangor Darul Ehsan	yasin@je.com.my
-A 00009	Tri Heru Sulistianto	Mr.	Jalan Kolonel Sugiono No. 53/55	Purwodadi - Grobogan	Jawa Tengah	heru@ifca.com.my
