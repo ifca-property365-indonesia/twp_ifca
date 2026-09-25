@@ -13,7 +13,7 @@
     <div class="sidebar-header border-bottom">
         <div class="sidebar-brand">
             <a href="{{ url('/admin/dash') }}" class="d-flex align-items-center gap-2 text-decoration-none text-white">
-                <img src="{{ url('/images/logoweb/logoweb.png') }}" alt="IFCA">
+                <img src="{{ url('/images/logo/logoweb.png') }}" alt="IFCA">
                 <span class="fw-bold">{{ __('admin.menu.brand') }}</span>
             </a>
         </div>
@@ -90,6 +90,11 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->is('admin/overtime/posting*') ? 'active' : '' }}" href="{{ url('/admin/overtime/posting') }}">
                         <span class="nav-icon"><span class="nav-icon-bullet"></span></span> {{ __('admin.menu.overtime_posting') }}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('admin/overtime/layout*') ? 'active' : '' }}" href="{{ url('/admin/overtime/layout') }}">
+                        <span class="nav-icon"><span class="nav-icon-bullet"></span></span> {{ __('admin.menu.overtime_layout') }}
                     </a>
                 </li>
                 <li class="nav-item">

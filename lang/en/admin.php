@@ -30,6 +30,7 @@ return [
         'overtime'         => 'Overtime',
         'overtime_approval'=> 'Approval',
         'overtime_posting' => 'Posting',
+        'overtime_layout'  => 'Floor Layout',
         'overtime_history' => 'Overtime History',
         'history'          => 'History',
         'ticket'           => 'Ticket',

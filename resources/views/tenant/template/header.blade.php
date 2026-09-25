@@ -6,7 +6,7 @@
     $contact    = Session::get('Tuname');                                        // tenant.contact_name
     $useremail  = Session::get('Tenemail');
     $pict       = Session::get('Tpict');
-    $pict       = ($pict && !str_ends_with($pict, '/')) ? $pict : url('img/defaultUser.png');   // data lama bisa berisi '.../img/user/' tanpa nama file
+    $pict       = ($pict && !str_ends_with($pict, '/')) ? $pict : url('images/default/defaultUser.png');   // data lama bisa berisi '.../images/user/' tanpa nama file
 @endphp
 <header class="header header-sticky p-0 mb-0">
     <div class="container-fluid border-bottom px-3 px-lg-4">

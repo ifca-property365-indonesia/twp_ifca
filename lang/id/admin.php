@@ -30,6 +30,7 @@ return [
         'overtime'         => 'Lembur',
         'overtime_approval'=> 'Persetujuan',
         'overtime_posting' => 'Posting',
+        'overtime_layout'  => 'Denah Lantai',
         'overtime_history' => 'Riwayat Lembur',
         'history'          => 'Riwayat',
         'ticket'           => 'Tiket',

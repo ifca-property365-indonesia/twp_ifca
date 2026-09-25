@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Support\FloorLayout;
 use App\Support\OvertimeHours;
 use App\Support\TenantScope;
 use Illuminate\Http\Request;
@@ -82,10 +83,11 @@ class OvertimeController extends Controller
 
         $html = '';
         foreach ($plans as $plan) {
-            $file = $this->floorPlanFile(trim((string) $plan->picture));
+            // denah di images/layout/<entity>/<project>/ (diunggah admin: Overtime -> Floor Layout)
+            $file = FloorLayout::find($tenancy->entity_cd, $tenancy->project_no, $plan->picture);
             $html .= '<figure class="text-center mb-3">'
                 . ($file
-                    ? '<img src="' . e(url('public/image/Res/' . rawurlencode($file))) . '" class="img-fluid border rounded" alt="">'
+                    ? '<img src="' . e(FloorLayout::url($file)) . '" class="img-fluid border rounded" alt="">'
                     : '<div class="text-body-secondary py-4 border rounded">' . e(__('tenant/overtime.no_layout_image')) . '</div>')
                 . '<figcaption class="form-note">' . e(__('common.floor')) . ' ' . e(trim($plan->level_no)) . '</figcaption></figure>';
         }
@@ -214,20 +216,6 @@ class OvertimeController extends Controller
             ->get(['tl.lot_no', 'l.level_no'])
             ->map(function ($l) { $l->lot_no = trim($l->lot_no); return $l; })
             ->all();
-    }
-
-    /** File denah di public/image/Res (nama di pm_floor_plan tanpa ekstensi). */
-    private function floorPlanFile($picture)
-    {
-        if ($picture === '' || !preg_match('/^[\w .()-]+$/', $picture)) {
-            return null;
-        }
-        foreach (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'JPG', 'JPEG', 'PNG', 'BMP'] as $ext) {
-            if (is_file(public_path('image/Res/' . $picture . '.' . $ext))) {
-                return $picture . '.' . $ext;
-            }
-        }
-        return null;
     }
 
     /** Lembur untuk hari ini hanya bisa diajukan sebelum jam SAME_DAY_CUTOFF. */

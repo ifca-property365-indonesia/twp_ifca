@@ -14,7 +14,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="Tenant Web Portal">
-    <link rel="shortcut icon" href="{{ url('img/logoweb/logoweb.png') }}">
+    <link rel="shortcut icon" href="{{ url('images/logo/logoweb.png') }}">
     <title>@hasSection('title')@yield('title') - @endif{{ $appTitle ?? 'IFCA' }}</title>
 
     <!-- CoreUI -->

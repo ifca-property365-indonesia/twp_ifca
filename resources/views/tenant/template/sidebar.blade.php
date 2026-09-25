@@ -7,7 +7,7 @@
     <div class="sidebar-header border-bottom">
         <div class="sidebar-brand sidebar-brand-tenant">
             <a href="https://carstensz.co.id/mall" target="_blank" rel="noopener noreferrer">
-                <img src="{{ url('/img/logoweb/carstensz-logo-new2.png') }}" alt="Carstensz">
+                <img src="{{ url('/images/logo/carstensz-logo-new2.png') }}" alt="Carstensz">
             </a>
         </div>
         <button class="btn-close d-lg-none" type="button" data-coreui-theme="dark" aria-label="Close"

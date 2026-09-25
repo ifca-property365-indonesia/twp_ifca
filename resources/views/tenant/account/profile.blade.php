@@ -14,7 +14,7 @@
     <div class="col-md-5">
         {{-- Tahap 1: preview foto --}}
         <div class="text-center" id="avatarStage">
-            <img id="picturebox" class="avatar-preview mb-3 pictured" src="{{ url('img/defaultUser.png') }}" alt="{{ __('tenant/account.profile_picture') }}">
+            <img id="picturebox" class="avatar-preview mb-3 pictured" src="{{ url('images/default/defaultUser.png') }}" alt="{{ __('tenant/account.profile_picture') }}">
             <div class="mb-2">
                 <label for="userfile" class="btn btn-outline-primary btn-sm"><i class="cil-cloud-upload"></i><span>{{ __('tenant/account.change_picture') }}</span></label>
                 <input type="file" id="userfile" name="userfile" class="d-none" accept="image/png,image/jpeg,image/gif">

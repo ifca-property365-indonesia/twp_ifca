@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\PermitController as Permit;
 use App\Http\Controllers\Admin\ManagementController as Management;
 use App\Http\Controllers\Admin\NewSurveyController as NewSurvey;
 use App\Http\Controllers\Admin\OvertimeController as Overtime;
+use App\Http\Controllers\Admin\FloorLayoutController as FloorLayout;
 use Illuminate\Support\Facades\Route;
 
 // /admin -> dashboard kalau sudah login, kalau belum ke halaman login "/"
@@ -80,6 +81,11 @@ Route::group(['middleware' => ['admin-auth', 'revalidate']], function () {
     Route::get('/overtime/posting', [Overtime::class, 'posting']);
     Route::post('/overtime/posting/data', [Overtime::class, 'postingTable']);
     Route::post('/overtime/posting/save', [Overtime::class, 'postingSave']);
+    // FloorLayoutController (denah lantai form Overtime tenant, images/layout/)
+    Route::get('/overtime/layout', [FloorLayout::class, 'index']);
+    Route::post('/overtime/layout/data', [FloorLayout::class, 'data']);
+    Route::post('/overtime/layout/upload', [FloorLayout::class, 'upload']);
+    Route::post('/overtime/layout/delete', [FloorLayout::class, 'delete']);
 
     // HistoryController
     Route::get('/history/ticket', [History::class, 'ticket']);

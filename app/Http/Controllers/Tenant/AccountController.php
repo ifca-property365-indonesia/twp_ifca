@@ -43,7 +43,7 @@ class AccountController extends Controller
         echo json_encode($data);
     }
     /**
-     * Unggah foto profil ke img/user/ (dipanggil dari modal profil setelah foto dipotong).
+     * Unggah foto profil ke images/user/ (dipanggil dari modal profil setelah foto dipotong).
      * Balasan JSON: status OK|Failed, pesan, url (absolut), picname.
      */
     public function savepic(Request $request)
@@ -70,7 +70,7 @@ class AccountController extends Controller
         $base    = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $base    = preg_replace('/[^A-Za-z0-9_-]+/', '_', $base) ?: 'profile';
         $picname = $base . '_' . date('YmdHis') . '.' . $ext;
-        $target  = base_path('img/user');
+        $target  = base_path('images/user');
 
         try {
             if (!is_dir($target)) {
@@ -84,7 +84,7 @@ class AccountController extends Controller
         return response()->json([
             'status'  => 'OK',
             'pesan'   => __('common.upload_done', ['name' => $picname]),
-            'url'     => url('img/user/' . $picname),
+            'url'     => url('images/user/' . $picname),
             'picname' => $picname,
         ]);
     }
@@ -104,11 +104,11 @@ class AccountController extends Controller
         );
 
         // Foto: labelimage berisi nama file hasil savepic atau URL lama.
-        // Kosong -> foto yang tersimpan tidak diubah (dulu tersimpan '.../img/user/' tanpa nama file).
+        // Kosong -> foto yang tersimpan tidak diubah (dulu tersimpan '.../images/user/' tanpa nama file).
         $images = trim((string) $images);
         $image  = null;
         if ($images !== '') {
-            $image = filter_var($images, FILTER_VALIDATE_URL) ? $images : url('img/user/' . basename($images));
+            $image = filter_var($images, FILTER_VALIDATE_URL) ? $images : url('images/user/' . basename($images));
             $data['pict'] = $image;
         }
         $criteria = array('email' => $email);
