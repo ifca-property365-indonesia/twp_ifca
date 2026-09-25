@@ -27,6 +27,7 @@ use App\Http\Controllers\Tenant\InvoiceController as Invoice;
 use App\Http\Controllers\Tenant\UserSurveyController as UserSurvey;
 use App\Http\Controllers\Tenant\PermitController as Permit;
 use App\Http\Controllers\Tenant\OvertimeController as Overtime;
+use App\Http\Controllers\Tenant\FinancialsController as Financials;
 
 // /tenant -> dashboard kalau sudah login, kalau belum ke halaman login "/"
 Route::get('/', [Login::class, 'index']);
@@ -95,6 +96,12 @@ Route::group(['middleware' => ['tenant-auth', 'revalidate']], function () {
 	Route::get('/overtime/hours', [Overtime::class, 'hours']);
 	Route::post('/overtime/layout', [Overtime::class, 'layout']);
 	Route::post('/overtime/save', [Overtime::class, 'save']);
+
+	// FinancialsController (Overview, Profit & Loss, Balance Sheet, Cash Flow; data contoh, sama dengan admin)
+	Route::get('/financials', [Financials::class, 'overview']);
+	Route::get('/financials/profit-loss', [Financials::class, 'profitLoss']);
+	Route::get('/financials/balance-sheet', [Financials::class, 'balanceSheet']);
+	Route::get('/financials/cash-flow', [Financials::class, 'cashFlow']);
 
 	// NewsController
 	Route::get('/news', [News::class, 'index']);

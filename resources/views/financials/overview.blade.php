@@ -1,18 +1,18 @@
-@extends('admin.template.layout2.base')
+@extends($layout)
 @section('title', __('admin/financials.tab_overview') . ' — ' . __('admin/financials.menu'))
 
 @use('App\Support\FinancialsDemo', 'F')
 @php
     $cards = [
-        ['icon' => 'cil-chart-line', 'title' => __('admin/financials.tab_pl'), 'desc' => __('admin/financials.pl_desc'), 'url' => url('/admin/financials/profit-loss')],
-        ['icon' => 'cil-balance-scale', 'title' => __('admin/financials.tab_bs'), 'desc' => __('admin/financials.bs_desc'), 'url' => url('/admin/financials/balance-sheet')],
-        ['icon' => 'cil-money', 'title' => __('admin/financials.tab_cf'), 'desc' => __('admin/financials.cf_desc'), 'url' => url('/admin/financials/cash-flow')],
+        ['icon' => 'cil-chart-line', 'title' => __('admin/financials.tab_pl'), 'desc' => __('admin/financials.pl_desc'), 'url' => url($base . '/profit-loss')],
+        ['icon' => 'cil-balance-scale', 'title' => __('admin/financials.tab_bs'), 'desc' => __('admin/financials.bs_desc'), 'url' => url($base . '/balance-sheet')],
+        ['icon' => 'cil-money', 'title' => __('admin/financials.tab_cf'), 'desc' => __('admin/financials.cf_desc'), 'url' => url($base . '/cash-flow')],
     ];
 @endphp
 
 @section('content')
 <div class="page-body">
-    @include('admin.financials._head', [
+    @include('financials._head', [
         'title' => __('admin/financials.overview_title'),
         'desc'  => __('admin/financials.overview_desc', ['period' => $period]),
         'tab'   => 'overview',

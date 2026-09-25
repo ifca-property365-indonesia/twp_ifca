@@ -1,4 +1,4 @@
-@extends('admin.template.layout2.base')
+@extends($layout)
 @section('title', __('admin/financials.tab_cf') . ' — ' . __('admin/financials.menu'))
 
 @use('App\Support\FinancialsDemo', 'F')
@@ -16,7 +16,7 @@
 
 @section('content')
 <div class="page-body">
-    @include('admin.financials._head', [
+    @include('financials._head', [
         'title' => __('admin/financials.cf_title'),
         'desc'  => __('admin/financials.period_idr', ['period' => $period]),
         'tab'   => 'cf',
@@ -90,11 +90,9 @@ $(function () {
     var LBL = @json($lbl);
     var monthLabel = function (m) { var d = new Date(m + '-01T00:00:00'); return d.toLocaleString('en-US', { month: 'short' }) + ' ' + String(d.getFullYear()).slice(2); };
 
-    // Waterfall: kas awal & akhir penuh dari 0, pergerakan melayang dari saldo berjalan
-    var running = CF.beginning, steps = [[0, CF.beginning]];
-    ['operating', 'investing', 'financing'].forEach(function (k) { steps.push([running, running + CF[k]]); running += CF[k]; });
-    steps.push([0, CF.ending]);
+    // Pergerakan kas: semua batang mulai dari 0 (sama dengan referensi); arus keluar di bawah 0
     var amounts = [CF.beginning, CF.operating, CF.investing, CF.financing, CF.ending];
+    var steps = amounts;
     new Chart(document.getElementById('chartWaterfall'), {
         type: 'bar',
         data: {

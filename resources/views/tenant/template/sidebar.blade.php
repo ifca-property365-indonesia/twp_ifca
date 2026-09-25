@@ -2,6 +2,7 @@
     // Menu aktif mengikuti URL saat ini.
     $isOperational = session('Tflag') == 'O';
     $historyOpen = request()->is('tenant/history*');
+    $financialsOpen = request()->is('tenant/financials*');
 @endphp
 <div class="sidebar sidebar-dark sidebar-fixed border-end" id="sidebar">
     <div class="sidebar-header border-bottom">
@@ -44,6 +45,29 @@
             </a>
         </li>
         @endunless
+        {{-- Financials: klik judul = Overview; submenu = tab lain (sama dengan admin) --}}
+        <li class="nav-group {{ $financialsOpen ? 'show' : '' }}">
+            <a class="nav-link nav-group-toggle {{ rtrim(request()->path(), '/') === 'tenant/financials' ? 'active' : '' }}" id="navFinancials" href="{{ url('/tenant/financials') }}">
+                <i class="nav-icon cil-chart-line"></i> {{ __('admin/financials.menu') }}
+            </a>
+            <ul class="nav-group-items compact">
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('tenant/financials/profit-loss*') ? 'active' : '' }}" href="{{ url('/tenant/financials/profit-loss') }}">
+                        <span class="nav-icon"><span class="nav-icon-bullet"></span></span> {{ __('admin/financials.tab_pl') }}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('tenant/financials/balance-sheet*') ? 'active' : '' }}" href="{{ url('/tenant/financials/balance-sheet') }}">
+                        <span class="nav-icon"><span class="nav-icon-bullet"></span></span> {{ __('admin/financials.tab_bs') }}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('tenant/financials/cash-flow*') ? 'active' : '' }}" href="{{ url('/tenant/financials/cash-flow') }}">
+                        <span class="nav-icon"><span class="nav-icon-bullet"></span></span> {{ __('admin/financials.tab_cf') }}
+                    </a>
+                </li>
+            </ul>
+        </li>
         <li class="nav-group {{ $historyOpen ? 'show' : '' }}">
             <a class="nav-link nav-group-toggle" href="#">
                 <i class="nav-icon cil-history"></i> {{ __('tenant.menu.history') }}
@@ -85,3 +109,13 @@
         </li>
     </ul>
 </div>
+@unless ($financialsOpen)
+<script>
+    // Dari halaman lain, judul grup Financials langsung membuka Overview. Di halaman Financials
+    // sendiri tidak dipasang: klik judul hanya membuka/menutup grup (perilaku CoreUI), tanpa reload.
+    document.getElementById('navFinancials').addEventListener('click', function (e) {
+        e.stopPropagation();
+        window.location.href = this.href;
+    });
+</script>
+@endunless

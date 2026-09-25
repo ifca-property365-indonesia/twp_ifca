@@ -5,10 +5,10 @@
 --}}
 @php
     $tabs = [
-        'overview' => ['url' => url('/admin/financials'), 'label' => __('admin/financials.tab_overview')],
-        'pl'       => ['url' => url('/admin/financials/profit-loss'), 'label' => __('admin/financials.tab_pl')],
-        'bs'       => ['url' => url('/admin/financials/balance-sheet'), 'label' => __('admin/financials.tab_bs')],
-        'cf'       => ['url' => url('/admin/financials/cash-flow'), 'label' => __('admin/financials.tab_cf')],
+        'overview' => ['url' => url($base), 'label' => __('admin/financials.tab_overview')],
+        'pl'       => ['url' => url($base . '/profit-loss'), 'label' => __('admin/financials.tab_pl')],
+        'bs'       => ['url' => url($base . '/balance-sheet'), 'label' => __('admin/financials.tab_bs')],
+        'cf'       => ['url' => url($base . '/cash-flow'), 'label' => __('admin/financials.tab_cf')],
     ];
 @endphp
 

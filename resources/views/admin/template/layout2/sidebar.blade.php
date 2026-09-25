@@ -5,6 +5,7 @@
     $historyOpen  = request()->is('admin/history*') && !request()->is('admin/history/overtime*');
     $overtimeOpen = request()->is('admin/overtime*') || request()->is('admin/history/overtime*');
     $passwordOpen = request()->is('admin/account/reset*') || request()->is('admin/systemspec/defaultpass*');
+    $financialsOpen = request()->is('admin/financials*');
     $isExact = function ($path) {
         return rtrim(request()->path(), '/') === trim($path, '/');
     };
@@ -72,10 +73,26 @@
         </li>
         @endif
 
-        <li class="nav-item">
-            <a class="nav-link {{ request()->is('admin/financials*') ? 'active' : '' }}" href="{{ url('/admin/financials') }}">
-                <i class="nav-icon cil-chart-line"></i> {{ __('admin/financials.menu') }}
-            </a>
+        {{-- Financials: klik judul = Overview; submenu = tab lain (Profit & Loss, Balance Sheet, Cash Flow) --}}
+        <li class="nav-group {{ $financialsOpen ? 'show' : '' }}">
+            <a class="nav-link nav-group-toggle {{ $isExact('admin/financials') ? 'active' : '' }}" id="navFinancials" href="{{ url('/admin/financials') }}"><i class="nav-icon cil-chart-line"></i> {{ __('admin/financials.menu') }}</a>
+            <ul class="nav-group-items compact">
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('admin/financials/profit-loss*') ? 'active' : '' }}" href="{{ url('/admin/financials/profit-loss') }}">
+                        <span class="nav-icon"><span class="nav-icon-bullet"></span></span> {{ __('admin/financials.tab_pl') }}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('admin/financials/balance-sheet*') ? 'active' : '' }}" href="{{ url('/admin/financials/balance-sheet') }}">
+                        <span class="nav-icon"><span class="nav-icon-bullet"></span></span> {{ __('admin/financials.tab_bs') }}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('admin/financials/cash-flow*') ? 'active' : '' }}" href="{{ url('/admin/financials/cash-flow') }}">
+                        <span class="nav-icon"><span class="nav-icon-bullet"></span></span> {{ __('admin/financials.tab_cf') }}
+                    </a>
+                </li>
+            </ul>
         </li>
 
         <li class="nav-item">
@@ -146,3 +163,13 @@
         </li>
     </ul>
 </div>
+@unless ($financialsOpen)
+<script>
+    // Dari halaman lain, judul grup Financials langsung membuka Overview. Di halaman Financials
+    // sendiri tidak dipasang: klik judul hanya membuka/menutup grup (perilaku CoreUI), tanpa reload.
+    document.getElementById('navFinancials').addEventListener('click', function (e) {
+        e.stopPropagation();
+        window.location.href = this.href;
+    });
+</script>
+@endunless

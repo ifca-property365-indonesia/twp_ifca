@@ -7,14 +7,20 @@ use App\Support\FinancialsDemo;
 use Illuminate\Support\Carbon;
 
 /**
- * Menu Admin -> Financials: Overview, Profit & Loss, Balance Sheet, Cash Flow.
- * Sementara memakai data contoh (App\Support\FinancialsDemo); tampilan mengikuti template admin.
+ * Menu Financials: Overview, Profit & Loss, Balance Sheet, Cash Flow.
+ * Dipakai portal admin dan tenant (Tenant\FinancialsController) dengan view yang sama
+ * (resources/views/financials); layout & URL mengikuti portal.
+ * Sementara memakai data contoh (App\Support\FinancialsDemo).
  */
 class FinancialsController extends Controller
 {
+    /** Layout portal & prefix URL halaman Financials. */
+    protected $layout = 'admin.template.layout2.base';
+    protected $base = '/admin/financials';
+
     public function overview()
     {
-        return view('admin.financials.overview', $this->common() + [
+        return view('financials.overview', $this->common() + [
             'kpi'    => FinancialsDemo::overview(),
             'series' => FinancialsDemo::monthly(12),
         ]);
@@ -22,7 +28,7 @@ class FinancialsController extends Controller
 
     public function profitLoss()
     {
-        return view('admin.financials.profit_loss', $this->common() + [
+        return view('financials.profit_loss', $this->common() + [
             'kpis'      => FinancialsDemo::plKpis(),
             'statement' => FinancialsDemo::plStatement(),
             'monthly'   => FinancialsDemo::monthly(12),
@@ -32,23 +38,25 @@ class FinancialsController extends Controller
 
     public function balanceSheet()
     {
-        return view('admin.financials.balance_sheet', $this->common() + [
+        return view('financials.balance_sheet', $this->common() + [
             'bs' => FinancialsDemo::balanceSheet(),
         ]);
     }
 
     public function cashFlow()
     {
-        return view('admin.financials.cash_flow', $this->common() + [
+        return view('financials.cash_flow', $this->common() + [
             'cf'     => FinancialsDemo::cashFlow(),
             'series' => FinancialsDemo::monthly(12),
         ]);
     }
 
-    /** Periode laporan untuk judul, mis. "August 2026" / "Agustus 2026". */
+    /** Layout, prefix URL, dan periode laporan untuk judul (mis. "August 2026" / "Agustus 2026"). */
     private function common(): array
     {
         return [
+            'layout' => $this->layout,
+            'base'   => $this->base,
             'period' => Carbon::parse(FinancialsDemo::PERIOD . '-01')->locale(app()->getLocale())->translatedFormat('F Y'),
         ];
     }

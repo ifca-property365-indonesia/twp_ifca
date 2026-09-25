@@ -1,4 +1,4 @@
-@extends('admin.template.layout2.base')
+@extends($layout)
 @section('title', __('admin/financials.tab_bs') . ' — ' . __('admin/financials.menu'))
 
 @use('App\Support\FinancialsDemo', 'F')
@@ -11,7 +11,7 @@
 
 @section('content')
 <div class="page-body">
-    @include('admin.financials._head', [
+    @include('financials._head', [
         'title' => __('admin/financials.bs_title'),
         'desc'  => __('admin/financials.bs_desc_period', ['period' => $period]),
         'tab'   => 'bs',
