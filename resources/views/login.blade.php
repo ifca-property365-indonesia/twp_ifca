@@ -52,8 +52,8 @@
         <div class="login-demo mt-3">
             <div class="fw-semibold">{{ __('shared/login.demo_title') }}</div>
             <div class="login-demo-note">
-                {!! __('shared/login.demo_password', ['password' => '<code>' . e(config('demo_accounts.password')) . '</code>']) !!}
-                · {{ __('shared/login.demo_hint') }}
+                <div>{!! __('shared/login.demo_password', ['password' => '<code>' . e(config('demo_accounts.password')) . '</code>']) !!}</div>
+                <div>{{ __('shared/login.demo_hint') }}</div>
             </div>
             @foreach (config('demo_accounts.accounts') as $acc)
                 <button type="button" class="login-demo-item" data-email="{{ $acc['email'] }}">
