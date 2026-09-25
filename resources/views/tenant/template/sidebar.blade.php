@@ -49,6 +49,11 @@
                         <span class="nav-icon"><span class="nav-icon-bullet"></span></span> {{ __('tenant.menu.history_ticket') }}
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('tenant/history/overtime*') ? 'active' : '' }}" href="{{ url('/tenant/history/overtime') }}">
+                        <span class="nav-icon"><span class="nav-icon-bullet"></span></span> {{ __('tenant.menu.history_overtime') }}
+                    </a>
+                </li>
                 @unless($isOperational)
                 <li class="nav-item">
                     <a class="nav-link {{ request()->is('tenant/history/invoice*') ? 'active' : '' }}" href="{{ url('/tenant/history/invoice') }}" id="hb">
@@ -66,6 +71,11 @@
         <li class="nav-item">
             <a class="nav-link {{ request()->is('tenant/usersurvey*') || request()->is('tenant/online_survey*') ? 'active' : '' }}" href="{{ url('/tenant/usersurvey/index') }}">
                 <i class="nav-icon cil-task"></i> {{ __('tenant.menu.online_survey') }}
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {{ request()->is('tenant/overtime*') ? 'active' : '' }}" href="{{ url('/tenant/overtime') }}">
+                <i class="nav-icon cil-clock"></i> {{ __('tenant.menu.overtime') }}
             </a>
         </li>
         <li class="nav-item">

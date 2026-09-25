@@ -37,10 +37,10 @@ return [
 
     // status overtime (ot_trx.status)
     'overtime_statuses' => [
-        'N'      => 'Menunggu diaktifkan',
-        'A'      => 'Aktif',
+        'N'      => 'Menunggu persetujuan',
+        'A'      => 'Disetujui',
         'X'      => 'Dibatalkan',
-        'closed' => 'Ditutup',
+        'closed' => 'Sudah ditagih',
     ],
 
     // status ticket di luar common.statuses (kode dari sistem IFCA)

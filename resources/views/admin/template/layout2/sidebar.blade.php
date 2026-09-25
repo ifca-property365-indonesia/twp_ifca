@@ -2,7 +2,8 @@
     // Menu aktif mengikuti URL saat ini.
     $newsOpen     = request()->is('admin/news*');
     $surveyOpen   = request()->is('admin/usersurvey*');
-    $historyOpen  = request()->is('admin/history*');
+    $historyOpen  = request()->is('admin/history*') && !request()->is('admin/history/overtime*');
+    $overtimeOpen = request()->is('admin/overtime*') || request()->is('admin/history/overtime*');
     $passwordOpen = request()->is('admin/account/reset*') || request()->is('admin/systemspec/defaultpass*');
     $isExact = function ($path) {
         return rtrim(request()->path(), '/') === trim($path, '/');
@@ -75,6 +76,28 @@
             <a class="nav-link {{ request()->is('admin/permit*') ? 'active' : '' }}" href="{{ url('/admin/permit/index') }}">
                 <i class="nav-icon cil-clipboard"></i> {{ __('admin.menu.letter_permit') }}
             </a>
+        </li>
+
+        {{-- Overtime --}}
+        <li class="nav-group {{ $overtimeOpen ? 'show' : '' }}">
+            <a class="nav-link nav-group-toggle" href="#"><i class="nav-icon cil-clock"></i> {{ __('admin.menu.overtime') }}</a>
+            <ul class="nav-group-items compact">
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('admin/overtime/approval*') ? 'active' : '' }}" href="{{ url('/admin/overtime/approval') }}">
+                        <span class="nav-icon"><span class="nav-icon-bullet"></span></span> {{ __('admin.menu.overtime_approval') }}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('admin/overtime/posting*') ? 'active' : '' }}" href="{{ url('/admin/overtime/posting') }}">
+                        <span class="nav-icon"><span class="nav-icon-bullet"></span></span> {{ __('admin.menu.overtime_posting') }}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->is('admin/history/overtime*') ? 'active' : '' }}" href="{{ url('/admin/history/overtime') }}">
+                        <span class="nav-icon"><span class="nav-icon-bullet"></span></span> {{ __('admin.menu.overtime_history') }}
+                    </a>
+                </li>
+            </ul>
         </li>
 
         {{-- History --}}

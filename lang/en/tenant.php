@@ -27,5 +27,7 @@ return [
         'news'                => 'News',
         'online_survey'       => 'Online Survey',
         'letter_permit'       => 'Letter Permit',
+        'overtime'            => 'Overtime',
+        'history_overtime'    => 'Overtime',
     ],
 ];

@@ -1,0 +1,52 @@
+<?php
+
+// Admin: Lembur (admin/overtime/approval, admin/overtime/posting).
+return [
+    'approval_title'  => 'Persetujuan Lembur',
+    'approval_desc'   => 'Setujui atau batalkan request lembur dari tenant.',
+    'tab_new'         => 'Request Baru',
+    'tab_approved'    => 'Disetujui',
+    'tab_cancelled'   => 'Dibatalkan',
+    'start_overtime'  => 'Mulai Lembur',
+    'end_overtime'    => 'Selesai Lembur',
+    'approve'         => 'Setujui',
+    'approve_title'   => 'Setujui Lembur',
+    'approve_confirm' => 'Yakin ingin menyetujui request lembur ini?',
+    'cancel_title'    => 'Batalkan Lembur',
+    'cancel_confirm'  => 'Yakin ingin membatalkan request lembur ini?',
+    'approved_msg'    => 'Request lembur berhasil disetujui.',
+    'cancelled_msg'   => 'Request lembur berhasil dibatalkan.',
+    'not_waiting'     => 'Request lembur ini sudah tidak menunggu persetujuan.',
+
+    // ot_trx.status
+    'statuses' => [
+        'N' => 'Menunggu persetujuan',
+        'A' => 'Disetujui',
+        'X' => 'Dibatalkan',
+        'Z' => 'Sudah ditagih',
+    ],
+
+    'posting_title'   => 'Posting Lembur',
+    'posting_desc'    => 'Buat tagihan lembur yang sudah disetujui ke billing IFCA per periode.',
+    'entity'          => 'Entity',
+    'project'         => 'Project',
+    'ph_entity'       => 'Pilih entity',
+    'ph_project'      => 'Pilih project',
+    'post_date'       => 'Tanggal Posting',
+    'period_from'     => 'Periode Dari',
+    'period_to'       => 'Periode Sampai',
+    'business_id'     => 'Business ID',
+    'debtor_name'     => 'Nama',
+    'post'            => 'Posting',
+    'post_title'      => 'Posting Lembur',
+    'post_confirm'    => 'Yakin ingin memposting data lembur :name (:id)?',
+    'please_fill'     => 'Silakan isi :field.',
+    'posting_incomplete' => 'Entity, project, tanggal posting, periode dan keterangan wajib diisi.',
+    'invalid_period'  => 'Periode akhir tidak boleh sebelum periode awal.',
+    'no_ot_spec'      => 'Setting lembur (mgr.ot_spec: trx_type, tax_cd) belum tersedia di IFCA.',
+    'no_debtor'       => 'Data debtor tidak ditemukan di mgr.v_ot_debtor_tenancy.',
+    'nothing_to_post' => 'Tidak ada lembur yang disetujui di periode ini.',
+    'no_lot_rate'     => 'Zona / tarif lembur untuk unit :lot belum diatur di IFCA (mgr.pm_lot, ot_type).',
+    'posted_msg'      => ':count lembur berhasil diposting.',
+    'posting_unavailable' => 'Posting lembur belum bisa dipakai: :message',
+];

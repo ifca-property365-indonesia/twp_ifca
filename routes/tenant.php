@@ -26,6 +26,7 @@ use App\Http\Controllers\Tenant\BillingOutstandingController as BillingOutstandi
 use App\Http\Controllers\Tenant\InvoiceController as Invoice;
 use App\Http\Controllers\Tenant\UserSurveyController as UserSurvey;
 use App\Http\Controllers\Tenant\PermitController as Permit;
+use App\Http\Controllers\Tenant\OvertimeController as Overtime;
 
 // /tenant -> dashboard kalau sudah login, kalau belum ke halaman login "/"
 Route::get('/', [Login::class, 'index']);
@@ -85,6 +86,13 @@ Route::group(['middleware' => ['tenant-auth', 'revalidate']], function () {
 	Route::post('/hovertimeSearch', [History::class, 'overtimeSearch']);
 	Route::post('/hbillingSearch', [History::class, 'billingSearch']);
 	Route::post('/gethistorybillingtable', [NewHistory::class, 'getbillingtable']);
+
+	// OvertimeController (request lembur; riwayat: /history/overtime)
+	Route::get('/overtime', [Overtime::class, 'index']);
+	Route::get('/overtime/lots/{id_tenancy}', [Overtime::class, 'lots'])->whereNumber('id_tenancy');
+	Route::get('/overtime/hours', [Overtime::class, 'hours']);
+	Route::post('/overtime/layout', [Overtime::class, 'layout']);
+	Route::post('/overtime/save', [Overtime::class, 'save']);
 
 	// NewsController
 	Route::get('/news', [News::class, 'index']);

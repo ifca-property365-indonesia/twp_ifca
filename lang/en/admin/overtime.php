@@ -1,0 +1,52 @@
+<?php
+
+// Admin: Overtime (admin/overtime/approval, admin/overtime/posting).
+return [
+    'approval_title'  => 'Overtime Approval',
+    'approval_desc'   => 'Approve or cancel overtime requests from tenants.',
+    'tab_new'         => 'New Requests',
+    'tab_approved'    => 'Approved',
+    'tab_cancelled'   => 'Cancelled',
+    'start_overtime'  => 'Start Overtime',
+    'end_overtime'    => 'End Overtime',
+    'approve'         => 'Approve',
+    'approve_title'   => 'Approve Overtime',
+    'approve_confirm' => 'Are you sure you want to approve this overtime request?',
+    'cancel_title'    => 'Cancel Overtime',
+    'cancel_confirm'  => 'Are you sure you want to cancel this overtime request?',
+    'approved_msg'    => 'Overtime request has been approved.',
+    'cancelled_msg'   => 'Overtime request has been cancelled.',
+    'not_waiting'     => 'This overtime request is no longer waiting for approval.',
+
+    // ot_trx.status
+    'statuses' => [
+        'N' => 'Waiting for approval',
+        'A' => 'Approved',
+        'X' => 'Cancelled',
+        'Z' => 'Billed',
+    ],
+
+    'posting_title'   => 'Overtime Posting',
+    'posting_desc'    => 'Bill approved overtime to IFCA billing per period.',
+    'entity'          => 'Entity',
+    'project'         => 'Project',
+    'ph_entity'       => 'Choose entity',
+    'ph_project'      => 'Choose project',
+    'post_date'       => 'Post Date',
+    'period_from'     => 'Period From',
+    'period_to'       => 'Period To',
+    'business_id'     => 'Business ID',
+    'debtor_name'     => 'Name',
+    'post'            => 'Post',
+    'post_title'      => 'Post Overtime',
+    'post_confirm'    => 'Are you sure you want to post the overtime of :name (:id)?',
+    'please_fill'     => 'Please fill in :field.',
+    'posting_incomplete' => 'Entity, project, post date, period and remarks are required.',
+    'invalid_period'  => 'The end of the period cannot be before the start.',
+    'no_ot_spec'      => 'Overtime setting (mgr.ot_spec: trx_type, tax_cd) is not available in IFCA yet.',
+    'no_debtor'       => 'Debtor not found in mgr.v_ot_debtor_tenancy.',
+    'nothing_to_post' => 'There is no approved overtime in this period.',
+    'no_lot_rate'     => 'Overtime zone / rate for unit :lot is not set in IFCA (mgr.pm_lot, ot_type).',
+    'posted_msg'      => ':count overtime record(s) posted successfully.',
+    'posting_unavailable' => 'Overtime posting is not available yet: :message',
+];

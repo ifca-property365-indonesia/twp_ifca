@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\SysSpecController as SysSpec;
 use App\Http\Controllers\Admin\PermitController as Permit;
 use App\Http\Controllers\Admin\ManagementController as Management;
 use App\Http\Controllers\Admin\NewSurveyController as NewSurvey;
+use App\Http\Controllers\Admin\OvertimeController as Overtime;
 use Illuminate\Support\Facades\Route;
 
 // /admin -> dashboard kalau sudah login, kalau belum ke halaman login "/"
@@ -70,6 +71,15 @@ Route::group(['middleware' => ['admin-auth', 'revalidate']], function () {
     Route::post('/news/save', [NewsPromo::class, 'save']);
     Route::post('/news/savepic', [NewsPromo::class, 'savePic']);
     Route::post('/news/delete', [NewsPromo::class, 'delete']);
+
+    // OvertimeController (approval request lembur tenant & posting ke billing IFCA)
+    Route::get('/overtime/approval', [Overtime::class, 'approval']);
+    Route::post('/overtime/data/{tab}', [Overtime::class, 'table'])->whereIn('tab', ['new', 'approved', 'cancelled']);
+    Route::post('/overtime/approve', [Overtime::class, 'approve']);
+    Route::post('/overtime/cancel', [Overtime::class, 'cancel']);
+    Route::get('/overtime/posting', [Overtime::class, 'posting']);
+    Route::post('/overtime/posting/data', [Overtime::class, 'postingTable']);
+    Route::post('/overtime/posting/save', [Overtime::class, 'postingSave']);
 
     // HistoryController
     Route::get('/history/ticket', [History::class, 'ticket']);
