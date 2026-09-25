@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Support\LoginLog;
 use App\Support\Password;
 use App\Support\UserLocale;
 use Illuminate\Http\Request;
@@ -22,11 +23,6 @@ class LoginController extends Controller
             return redirect('/tenant/dash');
         }
         return redirect('/');
-    }
-
-    function ip_address()
-    {
-        return getenv('HTTP_X_FORWARDED_FOR') ?: getenv('REMOTE_ADDR');
     }
 
     public function login(Request $request)
@@ -110,12 +106,8 @@ class LoginController extends Controller
         $portals = Session::get('portals', array());
         Session::put('Tall_tenants', !empty($portals['admin']));
 
-        $ipA = $this->ip_address();
-        $dtL = array(
-            'idforeign' => $tenantId,
-            'logintime' => date('Y-m-d H:i:s'),
-            'ipaddress' => $ipA);
-        DB::table('mgr.log_login')->insert($dtL);
+        // email yang diketik di halaman login (session login_email), kalau tidak ada: email akun
+        LoginLog::record(LoginLog::TENANT, $tenantId, Session::get('login_email') ?: ($login->email ?? $dataTenant->email));
     }
 
     /**

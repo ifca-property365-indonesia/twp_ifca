@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Support\LoginLog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
@@ -43,6 +44,8 @@ class LoginController extends Controller
             ->first();
         Session::put('Tsdisplay_name', $login->name ?? $dataAdmin[0]->name);
         Session::put('Tspict', !empty($login->pict) ? $login->pict : '');
+
+        LoginLog::record(LoginLog::ADMIN, $adminId, $email);
     }
 
     public function logout()

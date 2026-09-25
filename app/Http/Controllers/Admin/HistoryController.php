@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Support\LoginLog;
 use App\Support\PdfTable;
 use App\Support\TicketHd;
 
@@ -131,15 +132,53 @@ class HistoryController extends Controller
         }else{
             $date_start=$date_start." 00:00:00";
         }
-        $sql ="SELECT * FROM (
-            SELECT 
-                ROW_NUMBER() OVER (ORDER BY log_login.id) AS [row_number],idforeign,logintime,ipaddress,name,email 
-            FROM mgr.log_login join mgr.tenant on tenant.id = log_login.idforeign
-            ) sub
-        where sub.logintime between ? and ?";
-        $query = DB::connection('ifcaadm')->select($sql, [$date_start, $date_end]);
-        return DataTables::of($query)->make(true);
-        
+        return DataTables::of($this->logRows($date_start, $date_end, (string) $request->account))->make(true);
+    }
+
+    /**
+     * Log login admin & tenant (mgr.log_login, App\Support\LoginLog) di rentang waktu, login
+     * terbaru di atas, beserta data akunnya:
+     *   tenant : nama business, contact name, business ID, tenant no, tipe akun Finance / Operational
+     *   admin  : nama administrator, nama tampilan all_login, tipe akun Administrator
+     * email = email yang dipakai saat login (baris lama: email akun). $account: '' | tenant | administrator.
+     */
+    private function logRows($date_start, $date_end, $account = '')
+    {
+        $sql = "SELECT ROW_NUMBER() OVER (ORDER BY l.logintime DESC, l.id DESC) AS [row_number],
+                    l.idforeign, COALESCE(l.tableforeign, 'tenant') AS tableforeign,
+                    l.logintime, l.ipaddress, l.user_agent,
+                    CASE WHEN l.tableforeign = 'administrator' THEN ad.name ELSE t.name END AS name,
+                    CASE WHEN l.tableforeign = 'administrator' THEN al.name ELSE t.contact_name END AS contact_name,
+                    COALESCE(NULLIF(l.email, ''), NULLIF(al.email, ''), t.email) AS email,
+                    t.business_no, t.tenant_no_df AS tenant_no, t.flag
+                FROM mgr.log_login l
+                LEFT JOIN mgr.tenant t ON COALESCE(l.tableforeign, 'tenant') = 'tenant' AND t.id = l.idforeign
+                LEFT JOIN mgr.administrator ad ON l.tableforeign = 'administrator' AND ad.id = l.idforeign
+                OUTER APPLY (
+                    SELECT TOP 1 a.email, a.name FROM mgr.all_login a
+                    WHERE a.tableforeign = COALESCE(l.tableforeign, 'tenant') AND a.idforeign = l.idforeign
+                    ORDER BY a.id
+                ) al
+                WHERE l.logintime BETWEEN ? AND ?";
+        $bindings = [$date_start, $date_end];
+        if (in_array($account, [LoginLog::TENANT, LoginLog::ADMIN], true)) {
+            $sql .= " AND COALESCE(l.tableforeign, 'tenant') = ?";
+            $bindings[] = $account;
+        }
+        $sql .= " ORDER BY l.logintime DESC, l.id DESC";
+
+        $rows = DB::connection('ifcaadm')->select($sql, $bindings);
+        foreach ($rows as $row) {
+            $flag = strtoupper(trim((string) $row->flag));
+            if ($row->tableforeign === LoginLog::ADMIN) {
+                $row->account_type = __('admin/history.log_type_admin');
+            } else {
+                $row->account_type = $flag === 'F' ? __('admin/history.log_type_finance')
+                    : ($flag === 'O' ? __('admin/history.log_type_operational') : __('admin/history.log_type_tenant'));
+            }
+            $row->device = LoginLog::device($row->user_agent);
+        }
+        return $rows;
     }
     public function dlpdf(Request $request)
     {
@@ -151,6 +190,7 @@ class HistoryController extends Controller
         Session::put('date_end', $date_end);
         Session::put('date_start', $date_start);
         Session::put('debtor', $debtor);
+        Session::put('log_account', (string) $request->account);
         echo url('admin/history/export/'.$type);
     }
     /** Keterangan filter di bawah judul PDF: periode (dd/mm/yyyy) & tenant */
@@ -250,20 +290,18 @@ class HistoryController extends Controller
                 ]);
 
             case 'log':
-                $sql ="SELECT * FROM (
-                    SELECT
-                        ROW_NUMBER() OVER (ORDER BY log_login.id) AS [row_number],idforeign,logintime,ipaddress,name,email
-                    FROM mgr.log_login join mgr.tenant on tenant.id = log_login.idforeign
-                    ) sub
-                where sub.logintime between ? and ?";
-                $dtUsers = DB::connection('ifcaadm')->select($sql, [$date_start, $date_end]);
                 $rows = [];
-                foreach ($dtUsers as $i => $logUsers) {
+                foreach ($this->logRows($date_start, $date_end, (string) Session::get('log_account')) as $i => $logUsers) {
                     $rows[] = [
                         $i + 1,
                         $this->pdfDate($logUsers->logintime, true),
                         $logUsers->name,
+                        $logUsers->contact_name,
+                        $logUsers->email,
+                        trim(trim((string) $logUsers->business_no) . ' / ' . trim((string) $logUsers->tenant_no), ' /'),
+                        $logUsers->account_type,
                         $logUsers->ipaddress,
+                        $logUsers->device,
                     ];
                 }
 
@@ -271,10 +309,15 @@ class HistoryController extends Controller
                     'title' => __('admin/history.log_user_history'),
                     'filters' => $this->pdfFilters($rawStart, $rawEnd),
                     'columns' => [
-                        ['label' => __('admin/history.col_no'), 'align' => 'center', 'width' => '7%'],
-                        ['label' => __('admin/history.login_date'), 'align' => 'center', 'width' => '22%'],
+                        ['label' => __('admin/history.col_no'), 'align' => 'center', 'width' => '4%'],
+                        ['label' => __('admin/history.login_date'), 'align' => 'center', 'width' => '10%'],
                         ['label' => __('admin/history.user_name'), 'align' => 'left'],
-                        ['label' => __('admin/history.login_from'), 'align' => 'left', 'width' => '22%'],
+                        ['label' => __('admin/history.log_contact_name'), 'align' => 'left', 'width' => '11%'],
+                        ['label' => __('admin/history.log_email'), 'align' => 'left', 'width' => '16%'],
+                        ['label' => __('admin/history.log_business_id') . ' / ' . __('admin/history.log_tenant_no'), 'align' => 'center', 'width' => '11%'],
+                        ['label' => __('admin/history.log_account_type'), 'align' => 'center', 'width' => '9%'],
+                        ['label' => __('admin/history.log_ip'), 'align' => 'left', 'width' => '9%'],
+                        ['label' => __('admin/history.log_device'), 'align' => 'left', 'width' => '11%'],
                     ],
                     'rows' => $rows,
                     'disclaimer' => $disclaimer,
