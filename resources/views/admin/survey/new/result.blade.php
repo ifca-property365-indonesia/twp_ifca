@@ -111,9 +111,11 @@
             </div>
 
         @else
+            {{-- tampilan kosong sama dengan halaman News tenant --}}
             <div class="card">
-                <div class="card-body">
-                    <p class="card-text badge badge-soft-secondary mb-0">{{ __('admin/survey.no_survey_available') }}</p>
+                <div class="card-body text-center py-5 text-body-secondary">
+                    <i class="cil-chart-pie fs-1 d-block mb-2"></i>
+                    {{ __('admin/survey.no_survey_available') }}
                 </div>
             </div>
         @endif
