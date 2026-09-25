@@ -24,4 +24,8 @@ return [
         'email'    => 'email',
         'password' => 'kata sandi',
     ],
+    // kotak Demo accounts (config/demo_accounts.php)
+    'demo_title'        => 'Akun demo',
+    'demo_password'     => 'Password semua akun: :password',
+    'demo_hint'         => 'Klik akun untuk mengisi form.',
 ];

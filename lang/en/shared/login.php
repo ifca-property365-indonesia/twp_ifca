@@ -24,4 +24,8 @@ return [
         'email'    => 'email',
         'password' => 'password',
     ],
+    // kotak Demo accounts (config/demo_accounts.php)
+    'demo_title'        => 'Demo accounts',
+    'demo_password'     => 'Password for every account: :password',
+    'demo_hint'         => 'Click an account to fill in the form.',
 ];

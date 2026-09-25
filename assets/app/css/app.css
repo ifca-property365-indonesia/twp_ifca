@@ -557,3 +557,11 @@ table.dataTable > thead > tr > th.dt-ordering-asc span.dt-column-order::before,
 table.dataTable > thead > tr > th.dt-ordering-desc span.dt-column-order::after { opacity: 1; }
 table.dataTable > thead > tr > th:not(.dt-ordering-asc):not(.dt-ordering-desc) span.dt-column-order::before,
 table.dataTable > thead > tr > th:not(.dt-ordering-asc):not(.dt-ordering-desc) span.dt-column-order::after { opacity: .45; }
+
+/* akun demo di bawah form login (config/demo_accounts.php) */
+.login-demo { background: rgba(255, 255, 255, .92); border: 1px solid var(--cui-border-color); border-radius: .5rem; padding: .85rem 1rem; font-size: .85rem; color: #1f2937; }
+.login-demo-note { color: #6b7280; margin-bottom: .5rem; }
+.login-demo-note code { color: #1f2937; background: #eceef2; padding: .05rem .35rem; border-radius: .25rem; }
+.login-demo-item { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 1rem; padding: .3rem .45rem; border: 0; border-radius: .35rem; background: transparent; color: inherit; text-align: left; }
+.login-demo-item:hover, .login-demo-item:focus-visible { background: #eef0ff; }
+.login-demo-item .font-monospace { font-size: .8rem; color: #4b5563; overflow-wrap: anywhere; }

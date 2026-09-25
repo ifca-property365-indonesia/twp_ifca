@@ -46,6 +46,23 @@
 
         <button type="submit" class="btn btn-lg btn-primary w-100">{{ __('shared/login.log_in') }}</button>
     </form>
+
+    {{-- Akun demo: hanya kalau LOGIN_DEMO_ACCOUNTS=true di .env (config/demo_accounts.php) --}}
+    @if (config('demo_accounts.enabled') && config('demo_accounts.accounts'))
+        <div class="login-demo mt-3">
+            <div class="fw-semibold">{{ __('shared/login.demo_title') }}</div>
+            <div class="login-demo-note">
+                {!! __('shared/login.demo_password', ['password' => '<code>' . e(config('demo_accounts.password')) . '</code>']) !!}
+                · {{ __('shared/login.demo_hint') }}
+            </div>
+            @foreach (config('demo_accounts.accounts') as $acc)
+                <button type="button" class="login-demo-item" data-email="{{ $acc['email'] }}">
+                    <span class="font-monospace">{{ $acc['email'] }}</span>
+                    <span class="fw-semibold">{{ $acc['role'] }}</span>
+                </button>
+            @endforeach
+        </div>
+    @endif
 @endsection
 
 @push('scripts')
@@ -60,6 +77,7 @@
         var passwordPlaceholder = passwordEl.placeholder;
         var lastEmail = null;
         var timer = null;
+        var demoPassword = null;   // diisi saat klik akun demo, dipakai setelah render()
 
         function lockPassword(checking) {
             passwordEl.disabled = true;
@@ -82,6 +100,7 @@
             var list = tenants.slice();
 
             unlockPassword();
+            if (demoPassword !== null) { passwordEl.value = demoPassword; demoPassword = null; }
             select.innerHTML = '';
             if (!tenants.length) {
                 group.style.display = 'none';
@@ -133,6 +152,19 @@
             timer = setTimeout(load, 500);
         });
         if (emailEl.value) load();
+
+        // Akun demo: klik -> isi email, muat business, lalu isi password (setelah render(),
+        // karena email yang berubah mengosongkan password lewat lockPassword())
+        var DEMO_PASSWORD = @json(config('demo_accounts.enabled') ? config('demo_accounts.password') : null);
+        document.querySelectorAll('.login-demo-item').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                clearTimeout(timer);
+                demoPassword = DEMO_PASSWORD;
+                emailEl.value = btn.getAttribute('data-email');
+                lastEmail = null;
+                load();
+            });
+        });
     })();
 </script>
 @endpush
