@@ -73,6 +73,12 @@
         @endif
 
         <li class="nav-item">
+            <a class="nav-link {{ request()->is('admin/financials*') ? 'active' : '' }}" href="{{ url('/admin/financials') }}">
+                <i class="nav-icon cil-chart-line"></i> {{ __('admin/financials.menu') }}
+            </a>
+        </li>
+
+        <li class="nav-item">
             <a class="nav-link {{ request()->is('admin/permit*') ? 'active' : '' }}" href="{{ url('/admin/permit/index') }}">
                 <i class="nav-icon cil-clipboard"></i> {{ __('admin.menu.letter_permit') }}
             </a>

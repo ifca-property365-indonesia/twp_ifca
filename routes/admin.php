@@ -26,6 +26,7 @@ use App\Http\Controllers\Admin\ManagementController as Management;
 use App\Http\Controllers\Admin\NewSurveyController as NewSurvey;
 use App\Http\Controllers\Admin\OvertimeController as Overtime;
 use App\Http\Controllers\Admin\FloorLayoutController as FloorLayout;
+use App\Http\Controllers\Admin\FinancialsController as Financials;
 use Illuminate\Support\Facades\Route;
 
 // /admin -> dashboard kalau sudah login, kalau belum ke halaman login "/"
@@ -47,6 +48,12 @@ Route::group(['middleware' => ['admin-auth', 'revalidate']], function () {
     Route::get('/management/ar-aging', [Management::class, 'getArAging']);
     Route::get('/management/revenue-data', [Management::class, 'getRevenueData']);
     Route::get('/management/expense-data', [Management::class, 'getExpenseData']);
+
+    // FinancialsController (Overview, Profit & Loss, Balance Sheet, Cash Flow; data contoh)
+    Route::get('/financials', [Financials::class, 'overview']);
+    Route::get('/financials/profit-loss', [Financials::class, 'profitLoss']);
+    Route::get('/financials/balance-sheet', [Financials::class, 'balanceSheet']);
+    Route::get('/financials/cash-flow', [Financials::class, 'cashFlow']);
 
     // AccountController
     Route::view('/account/profile', 'admin.account.profile');
