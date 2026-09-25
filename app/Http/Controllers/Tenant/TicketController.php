@@ -151,7 +151,7 @@ class TicketController extends Controller
                 $crit_cat = array('complain_type' => $ticket_type);
                 $data_cat = DB::connection('dblive')
                     ->table('mgr.sv_category')
-                    ->whereIn('category_cd', ['ENG', 'HS', 'OT'])
+                    ->orderBy('descs')   // semua kategori (dulu hanya ENG, HS, OT)
                     ->get();
 
                 if(!empty($data_cat)) {
@@ -170,7 +170,7 @@ class TicketController extends Controller
         $crit_cat = array('complain_type' => $complain_type);
         $data_cat = DB::connection('dblive')
             ->table('mgr.sv_category')
-            ->whereIn('category_cd', ['ENG', 'HS', 'OT'])
+            ->orderBy('descs')   // semua kategori (dulu hanya ENG, HS, OT)
             ->get();
 
         if(!empty($data_cat)) {
@@ -370,7 +370,6 @@ class TicketController extends Controller
             $dataspec = DB::connection('dblive')
                 ->table('mgr.sv_category')
                 ->where($crit_spec)
-                ->whereIn('category_cd', ['ENG', 'HS', 'OT'])
                 ->get();
                 
             $assign_to = $dataspec[0]->descs ?? null;
