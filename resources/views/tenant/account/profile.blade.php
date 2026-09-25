@@ -68,7 +68,9 @@
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">{{ __('common.email') }}</label>
-                        <input type="text" class="form-control" id="email" name="email" readonly>
+                        {{-- readonly: email diatur dari IFCA. Ganti email (App\Support\LoginEmail, konfirmasi password)
+                             tetap tersedia: cukup hapus readonly untuk mengaktifkannya lagi. --}}
+                        <input type="email" class="form-control" id="email" name="email" maxlength="100" autocomplete="email" readonly>
                     </div>
                     <div class="mb-3">
                         <label for="handphone" class="form-label">{{ __('tenant/account.handphone') }} <span class="text-danger">*</span></label>
@@ -119,7 +121,7 @@
     }, @json(__('tenant/account.password_mismatch')));
 
     $('#frmEditor').validate($.extend({}, validateOpts, {
-        rules: { name: { required: true }, handphone: { required: true } }
+        rules: { name: { required: true }, email: { required: true, email: true }, handphone: { required: true } }
     }));
 
     $('#frmchangepass').validate($.extend({}, validateOpts, {
@@ -255,8 +257,30 @@
             return;
         }
 
+        // email = identitas login: kalau diganti, minta password saat ini dulu
+        var newEmail = $.trim($('#email').val());
+        if (newEmail.toLowerCase() !== String($('#email').data('original') || '').toLowerCase()) {
+            Swal.fire({
+                title: @json(__('shared/account.email_confirm_title')),
+                text: @json(__('shared/account.email_confirm_text')).replace(':email', newEmail),
+                input: 'password',
+                inputPlaceholder: @json(__('shared/account.current_password')),
+                inputAttributes: { autocomplete: 'current-password' },
+                // di dalam modal profil: fokus modal CoreUI tidak mengunci kotak password
+                target: document.getElementById('modal') || 'body',
+                showCancelButton: true,
+                confirmButtonText: @json(__('common.save')),
+                cancelButtonText: @json(__('common.cancel')),
+                inputValidator: function (v) { return v ? null : @json(__('shared/account.password_required')); }
+            }).then(function (r) { if (r.isConfirmed) { saveProfile(r.value, true); } });
+            return;
+        }
+        saveProfile('', false);
+    });
+
+    function saveProfile(currentPassword, emailChanged) {
         var dataform = $('#frmEditor').serializeArray();
-        dataform.push({ name: 'isFile', value: false }, { name: 'labelimage', value: $('#labelimage').val() });
+        dataform.push({ name: 'isFile', value: false }, { name: 'labelimage', value: $('#labelimage').val() }, { name: 'current_password', value: currentPassword });
 
         $.ajax({
             url: "{{ url('tenant/account/updateprofile') }}",
@@ -273,11 +297,11 @@
                 $('#pictureHint').addClass('d-none');
             }
             Swal.fire({ title: @json(__('common.information')), text: res.pesan, icon: res.status === 'OK' ? 'success' : 'error' })
-                .then(function () { if (res.status === 'OK') { $('#modal').modal('hide'); } });
+                .then(function () { if (res.status === 'OK') { if (emailChanged) { location.reload(); } else { $('#modal').modal('hide'); } } });
         }).fail(function (xhr, textStatus, errorThrown) {
             Swal.fire({ title: @json(__('common.error')), text: textStatus + ' : ' + errorThrown, icon: 'error' });
         });
-    });
+    }
 
     $('#btnSavepass').on('click', function () {
         if (!$('#frmchangepass').valid()) { return; }
@@ -310,7 +334,7 @@
             $('#name').val(data[0].name);
             $('#handphone').val(data[0].handphone);
             $('#contact_name').val(data[0].contact_name || '');
-            $('#email').val(data[0].email);
+            $('#email').val(data[0].email).data('original', data[0].email);
             $('#image').val(data[0].pict);
             $('#labelimage').val(data[0].pict);
             if (data[0].pict) {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Support\DefaultPassword;
+use App\Support\LoginEmail;
 use App\Support\Password;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -74,7 +75,28 @@ class AccountController extends Controller
         $name       = $request->name;
         $telp       = $request->handphone;
         $images      = $request->labelimage;
-        $email      = $request->email;
+        // akun yang diubah = akun yang sedang login (field email di form = email baru)
+        $email      = (string) Session::get('Tsemail');
+        if ($email === '') {
+            return response()->json(['status' => 'Failed', 'pesan' => __('common.error_occurred', ['message' => 'session'])], 403);
+        }
+
+        // Ganti email login: email baru harus valid & belum dipakai, dan password saat ini benar
+        $newEmail = $request->has('email') ? LoginEmail::normalize($request->email) : LoginEmail::normalize($email);
+        $emailChanged = $newEmail !== LoginEmail::normalize($email);
+        if ($emailChanged) {
+            $error = LoginEmail::validate($email, $newEmail);
+            if ($error === null && trim((string) $request->current_password) === '') {
+                $error = __('shared/account.password_required');
+            }
+            if ($error === null && !LoginEmail::passwordMatches('administrator', Session::get('Tsuser_id'), $request->current_password)) {
+                $error = __('shared/account.password_wrong');
+            }
+            if ($error !== null) {
+                return response()->json(['status' => 'Failed', 'pesan' => $error]);
+            }
+        }
+
         $data = array(
             'name' => $name,
             'handphone' => $telp,
@@ -99,14 +121,17 @@ class AccountController extends Controller
                     ->update($data);
 
                 // header memakai nilai dari session
-                if ($email === Session::get('Tsemail')) {
-                    Session::put('Tsdisplay_name', $name);
-                    if ($image !== null) {
-                        Session::put('Tspict', $image);
-                    }
+                Session::put('Tsdisplay_name', $name);
+                if ($image !== null) {
+                    Session::put('Tspict', $image);
                 }
-                
+
                 $msg = __('common.updated');
+                if ($emailChanged) {
+                    // semua akun email lama (all_login, tenant, bahasa) + session -> email baru
+                    LoginEmail::change($email, $newEmail);
+                    $msg = __('shared/account.email_changed', ['email' => $newEmail]);
+                }
                 $st  = 'OK';
              
         } catch(\Illuminate\Database\QueryException $ex){ 
@@ -124,7 +149,8 @@ class AccountController extends Controller
         $data = array(
             'password' => $password
         );
-        $criteria = array('email' => $request->email);
+        // password akun yang sedang login (bukan email dari form, yang sekarang bisa diedit)
+        $criteria = array('email' => (string) Session::get('Tsemail'));
         try { 
             
                 DB::connection('ifcaadm')

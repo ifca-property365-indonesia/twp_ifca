@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
+use App\Support\LoginEmail;
 use App\Support\Password;
 
 use Illuminate\Http\Request;
@@ -98,6 +99,22 @@ class AccountController extends Controller
             return $this->forbidden();
         }
 
+        // Ganti email login: email baru harus valid & belum dipakai, dan password saat ini benar
+        $newEmail = $request->has('email') ? LoginEmail::normalize($request->email) : LoginEmail::normalize($email);
+        $emailChanged = $newEmail !== LoginEmail::normalize($email);
+        if ($emailChanged) {
+            $error = LoginEmail::validate($email, $newEmail);
+            if ($error === null && trim((string) $request->current_password) === '') {
+                $error = __('shared/account.password_required');
+            }
+            if ($error === null && !LoginEmail::passwordMatches('tenant', Session::get('Tuser_id'), $request->current_password)) {
+                $error = __('shared/account.password_wrong');
+            }
+            if ($error !== null) {
+                return response()->json(['status' => 'Failed', 'pesan' => $error]);
+            }
+        }
+
         $data = array(
             'name' => $name,
             'handphone' => $telp,
@@ -134,8 +151,13 @@ class AccountController extends Controller
                 if ($image !== null) {
                     Session::put('Tpict', $image);
                 }
-                
+
                 $msg = __('common.updated');
+                if ($emailChanged) {
+                    // semua akun email lama (all_login, tenant, bahasa) + session -> email baru
+                    LoginEmail::change($email, $newEmail);
+                    $msg = __('shared/account.email_changed', ['email' => $newEmail]);
+                }
                 $st  = 'OK';
              
         } catch(\Illuminate\Database\QueryException $ex){ 
