@@ -553,6 +553,7 @@ class TicketController extends Controller
                             'lot_no'          => $lot_no,
                             'request_type'    => $ticket_type,
                             'category_cd'     => $category,
+                            'assign_to'       => $this->hdAssignTo($db, $category),
                             'note1'           => $typeformat2,   // complain_no sv_entry_multi
                         ]);
 
@@ -697,6 +698,29 @@ class TicketController extends Controller
                 'line' => $e->getLine()
             ], 500);
         }
+    }
+
+    /**
+     * Staff untuk mgr.sv_entry_hd.assign_to dari mgr.sv_labour (staff_id):
+     *  - ada staff dengan category_cd = kategori ticket -> staff itu (rowID terkecil kalau lebih dari satu)
+     *  - tidak ada yang cocok -> staff pertama (rowID terkecil)
+     *  - sv_labour kosong -> null (ticket tetap tersimpan)
+     */
+    private function hdAssignTo($db, $category)
+    {
+        $category = trim((string) $category);
+        $staff = null;
+        if ($category !== '') {
+            $staff = $db->table('mgr.sv_labour')
+                ->whereRaw('LTRIM(RTRIM(category_cd)) = ?', [$category])
+                ->orderBy('rowID')
+                ->value('staff_id');
+        }
+        if ($staff === null) {
+            $staff = $db->table('mgr.sv_labour')->orderBy('rowID')->value('staff_id');
+        }
+
+        return $staff !== null ? trim((string) $staff) : null;
     }
 
     public function getHargaItem()
