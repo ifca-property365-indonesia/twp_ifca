@@ -27,6 +27,11 @@
                 <i class="nav-icon cil-tags"></i> {{ __('tenant.menu.ticket') }}
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link {{ request()->is('tenant/overtime*') ? 'active' : '' }}" href="{{ url('/tenant/overtime') }}">
+                <i class="nav-icon cil-clock"></i> {{ __('tenant.menu.overtime') }}
+            </a>
+        </li>
         @unless($isOperational)
         <li class="nav-item">
             <a class="nav-link {{ request()->is('tenant/proforma*') ? 'active' : '' }}" href="{{ url('/tenant/proforma') }}">
@@ -71,11 +76,6 @@
         <li class="nav-item">
             <a class="nav-link {{ request()->is('tenant/usersurvey*') || request()->is('tenant/online_survey*') ? 'active' : '' }}" href="{{ url('/tenant/usersurvey/index') }}">
                 <i class="nav-icon cil-task"></i> {{ __('tenant.menu.online_survey') }}
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {{ request()->is('tenant/overtime*') ? 'active' : '' }}" href="{{ url('/tenant/overtime') }}">
-                <i class="nav-icon cil-clock"></i> {{ __('tenant.menu.overtime') }}
             </a>
         </li>
         <li class="nav-item">
