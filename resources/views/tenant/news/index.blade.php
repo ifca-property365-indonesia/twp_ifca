@@ -37,7 +37,7 @@
                                     <h5 class="card-title mb-3">{{ $newsfeed->subject }}</h5>
                                     @if (!empty($newsfeed->picture))
                                         <div class="mb-3">
-                                            <img src="{{ \App\Support\NewsPicture::url($newsfeed->picture) }}" alt="" class="img-fluid rounded border">
+                                            <img src="{{ \App\Support\NewsPicture::url($newsfeed->picture) }}" alt="" class="img-fluid rounded border" onerror="{{ \App\Support\NewsPicture::onError() }}">
                                         </div>
                                     @endif
                                     @if (!empty($newsfeed->youtube_link) && $youtubeId($newsfeed->youtube_link) !== '')

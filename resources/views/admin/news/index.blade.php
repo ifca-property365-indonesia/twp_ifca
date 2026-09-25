@@ -40,6 +40,8 @@
 </div>
 
 <script type="text/javascript">
+    // gambar News yang hilang / gagal dimuat -> logo IFCA
+    var fallback = @json(\App\Support\NewsPicture::fallbackUrl());
     var tblgroupp;
     $(function() {
         tblgroupp = $('#tblgroup').DataTable({
@@ -64,9 +66,8 @@
                             ? '<a href="' + $('<div>').text(row.youtube_link).html() + '" target="_blank" rel="noopener" class="btn btn-sm btn-outline-danger"><i class="cil-media-play"></i><span>YouTube</span></a>'
                             : '-';
                     }
-                    if (!data) { return '-'; }
-                    var src = $('<div>').text(data).html();
-                    return '<a href="' + src + '" target="_blank" rel="noopener"><img src="' + src + '" alt="" class="news-thumb" onerror="this.parentNode.outerHTML=\'-\'"></a>';
+                    var src = $('<div>').text(data || fallback).html();
+                    return '<a href="' + src + '" target="_blank" rel="noopener"><img src="' + src + '" alt="" class="news-thumb" onerror="this.onerror=null;this.src=fallback;this.style.objectFit=\'contain\'"></a>';
                 }
             },
             { data:"subject",name:"subject"},

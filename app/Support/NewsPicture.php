@@ -32,7 +32,10 @@ class NewsPicture
         return self::DIR . '/' . $name;
     }
 
-    /** URL untuk <img src>; null kalau kosong */
+    /** Pengganti gambar yang tidak ada: logo IFCA. */
+    public const FALLBACK = 'images/logo/IFCA.png';
+
+    /** URL untuk <img src>; null kalau kosong, logo IFCA kalau file newspromo-nya tidak ada */
     public static function url(?string $stored): ?string
     {
         $stored = trim((string) $stored);
@@ -42,10 +45,24 @@ class NewsPicture
 
         $pos = strpos($stored, self::DIR . '/');
         if ($pos !== false) {
-            return url(self::DIR . '/' . rawurlencode(basename(rawurldecode(substr($stored, $pos)))));
+            $file = basename(rawurldecode(parse_url(substr($stored, $pos), PHP_URL_PATH) ?: substr($stored, $pos)));
+            return is_file(base_path(self::DIR . '/' . $file))
+                ? url(self::DIR . '/' . rawurlencode($file))
+                : self::fallbackUrl();
         }
 
-        // gambar dari luar (bukan folder newspromo) dibiarkan apa adanya
+        // gambar dari luar (bukan folder newspromo) dibiarkan apa adanya; <img> memakai onError()
         return preg_match('#^https?://#i', $stored) ? $stored : url($stored);
+    }
+
+    public static function fallbackUrl(): string
+    {
+        return url(self::FALLBACK);
+    }
+
+    /** Isi atribut onerror untuk <img> (tulis dengan {{ }}): gagal dimuat -> logo IFCA. */
+    public static function onError(): string
+    {
+        return "this.onerror=null;this.src=" . json_encode(self::fallbackUrl(), JSON_UNESCAPED_SLASHES);
     }
 }

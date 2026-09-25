@@ -49,7 +49,7 @@
                             <div class="carousel-item {{ $i === 0 ? 'active' : '' }}" onclick="window.location.href='{{ url('/tenant/news#news-' . $key->id) }}'">
                                 <div class="news-slide">
                                     @if (!empty($key->picture))
-                                        <img src="{{ \App\Support\NewsPicture::url($key->picture) }}" alt="">
+                                        <img src="{{ \App\Support\NewsPicture::url($key->picture) }}" alt="" onerror="{{ \App\Support\NewsPicture::onError() }}">
                                     @endif
                                     <div class="transbox">
                                         <h5>{{ $key->subject }}</h5>

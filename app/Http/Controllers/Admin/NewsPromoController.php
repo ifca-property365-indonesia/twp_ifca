@@ -15,7 +15,8 @@ class NewsPromoController extends Controller
     {
         $query = DB::connection('ifcaadm')->select("SELECT ROW_NUMBER() OVER (ORDER BY t.id) AS [row_number], t.* FROM mgr.newsfeed t");
         foreach ($query as $row) {
-            $row->picture_url = $row->attach_type === 'P' ? NewsPicture::url($row->picture) : null;
+            // gambar kosong / file tidak ada -> logo IFCA (lihat NewsPicture)
+            $row->picture_url = $row->attach_type === 'P' ? (NewsPicture::url($row->picture) ?: NewsPicture::fallbackUrl()) : null;
         }
         return DataTables::of($query)->make(true);
     }
