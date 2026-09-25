@@ -163,13 +163,15 @@
         </li>
     </ul>
 </div>
-@unless ($financialsOpen)
 <script>
-    // Dari halaman lain, judul grup Financials langsung membuka Overview. Di halaman Financials
-    // sendiri tidak dipasang: klik judul hanya membuka/menutup grup (perilaku CoreUI), tanpa reload.
-    document.getElementById('navFinancials').addEventListener('click', function (e) {
+    // Judul grup Financials selalu membuka Overview, tanpa membuka/menutup grup; grup otomatis terbuka
+    // di halaman Financials. CoreUI memasang handler toggle grup di fase capture pada .sidebar-nav,
+    // jadi klik ditangkap lebih dulu di fase capture document lalu dihentikan sebelum sampai ke CoreUI.
+    document.addEventListener('click', function (e) {
+        var link = e.target.closest('#navFinancials');
+        if (!link) { return; }
+        e.preventDefault();
         e.stopPropagation();
-        window.location.href = this.href;
-    });
+        window.location.href = link.href;
+    }, true);
 </script>
-@endunless
