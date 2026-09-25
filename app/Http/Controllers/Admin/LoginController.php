@@ -26,7 +26,7 @@ class LoginController extends Controller
     public function createSession($adminId, $email)
     {
         $dataAdmin = DB::connection('ifcaadm')
-            ->table('administrator')
+            ->table('mgr.administrator')
             ->where(array('id' => $adminId))
             ->get();
 
@@ -37,7 +37,7 @@ class LoginController extends Controller
 
         // Nama & foto untuk header (all_login), supaya view tidak perlu query lagi.
         // Diperbarui oleh Admin\AccountController::updateprofile.
-        $login = DB::connection('ifcaadm')->table('all_login')
+        $login = DB::connection('ifcaadm')->table('mgr.all_login')
             ->where('email', $email)
             ->where('tableforeign', 'administrator')
             ->first();

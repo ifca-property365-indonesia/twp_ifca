@@ -27,7 +27,7 @@ class PermitController extends BasePermitController
     /** Semua tenancy aktif, tanpa filter tenant. */
     protected function tenancies()
     {
-        return DB::table('pm_tenancy')
+        return DB::table('mgr.pm_tenancy')
             ->where('status', 'A')
             ->orderBy('tenant_no')
             ->get();
@@ -42,7 +42,7 @@ class PermitController extends BasePermitController
     /** Pemohon = admin yang sedang login. */
     protected function applicant()
     {
-        $login = DB::connection('ifcaadm')->table('all_login')
+        $login = DB::connection('ifcaadm')->table('mgr.all_login')
             ->where('email', Session::get('Tsemail'))
             ->where('tableforeign', 'administrator')
             ->first();

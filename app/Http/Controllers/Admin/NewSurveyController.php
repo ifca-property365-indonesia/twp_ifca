@@ -24,7 +24,7 @@ class NewSurveyController extends Controller
         DB::beginTransaction();
         try {
             // 1. Simpan Header Survey
-            $surveyId = DB::connection('ifcaadm')->table('surveys')->insertGetId([
+            $surveyId = DB::connection('ifcaadm')->table('mgr.surveys')->insertGetId([
                 'title' => $request->title,
                 'description' => $request->description,
                 'status' => 'draft',
@@ -35,7 +35,7 @@ class NewSurveyController extends Controller
             // 2. Looping Pertanyaan
             if ($request->has('questions')) {
                 foreach ($request->questions as $index => $q) {
-                    $questionId = DB::connection('ifcaadm')->table('survey_questions')->insertGetId([
+                    $questionId = DB::connection('ifcaadm')->table('mgr.survey_questions')->insertGetId([
                         'survey_id' => $surveyId,
                         'question_text' => $q['text'],
                         'question_type' => $q['type'], // 'multiple_choice' atau 'essay'
@@ -55,7 +55,7 @@ class NewSurveyController extends Controller
                                 'updated_at' => now(),
                             ];
                         }
-                        DB::connection('ifcaadm')->table('survey_question_options')->insert($optionsData);
+                        DB::connection('ifcaadm')->table('mgr.survey_question_options')->insert($optionsData);
                     }
                 }
             }
@@ -74,12 +74,15 @@ class NewSurveyController extends Controller
 public function getDraftTable(Request $request)
     {
         // Ambil data survey yang statusnya 'draft'
-        $query = DB::connection('ifcaadm')->table('surveys')
+        $query = DB::connection('ifcaadm')->table('mgr.surveys')
             ->select('id', 'title', 'description', 'status', 'created_at')
-            ->where('status', 'draft')
-            ->orderBy('created_at', 'desc');
+            ->where('status', 'draft');
 
+        // Urutan lewat order(): SQL Server menolak ORDER BY di subquery count milik DataTables
         return DataTables::of($query)
+            ->order(function ($query) {
+                $query->orderBy('created_at', 'desc');
+            })
             ->addIndexColumn() 
             ->addColumn('row_number', function($row) {
                 // Membuat nomor urut otomatis
@@ -93,12 +96,15 @@ public function getDraftTable(Request $request)
     public function getPublishedTable(Request $request)
     {
         // Ambil data survey yang statusnya 'published'
-        $query = DB::connection('ifcaadm')->table('surveys')
+        $query = DB::connection('ifcaadm')->table('mgr.surveys')
             ->select('id', 'title', 'publish_date', 'expired_date', 'status', 'created_at')
-            ->where('status', 'published')
-            ->orderBy('publish_date', 'desc');
+            ->where('status', 'published');
 
+        // Urutan lewat order(): SQL Server menolak ORDER BY di subquery count milik DataTables
         return DataTables::of($query)
+            ->order(function ($query) {
+                $query->orderBy('publish_date', 'desc');
+            })
             ->addIndexColumn()
             ->addColumn('row_number', function($row) {
                 static $count = 0;
@@ -113,7 +119,7 @@ public function getDraftTable(Request $request)
         try {
             // Karena di migrasi kita menggunakan onDelete('cascade'),
             // data pertanyaan (questions), opsi, dan jawaban otomatis terhapus saat header dihapus.
-            DB::connection('ifcaadm')->table('surveys')->where('id', $request->id)->delete();
+            DB::connection('ifcaadm')->table('mgr.surveys')->where('id', $request->id)->delete();
 
             return response()->json([
                 'status' => 'OK',
@@ -130,7 +136,7 @@ public function getDraftTable(Request $request)
     // 4. Menampilkan Form Set Tanggal Publish (di dalam Modal)
     public function publishForm($id)
     {
-        $survey = DB::connection('ifcaadm')->table('surveys')->where('id', $id)->first();
+        $survey = DB::connection('ifcaadm')->table('mgr.surveys')->where('id', $id)->first();
         return view('admin.survey.new.publish_form', compact('survey'));
     }
 
@@ -142,7 +148,7 @@ public function getDraftTable(Request $request)
             $publishDate = DateInput::format($request->publish_date);
             $expiredDate = DateInput::format($request->expired_date);
 
-            DB::connection('ifcaadm')->table('surveys')->where('id', $request->survey_id)->update([
+            DB::connection('ifcaadm')->table('mgr.surveys')->where('id', $request->survey_id)->update([
                 'status' => 'published',
                 'publish_date' => $publishDate,
                 'expired_date' => $expiredDate,
@@ -165,21 +171,21 @@ public function getDraftTable(Request $request)
     public function edit($id)
     {
         // Tambahkan connection('ifcaadm') di setiap pemanggilan DB
-        $survey = DB::connection('ifcaadm')->table('surveys')->where('id', $id)->first();
+        $survey = DB::connection('ifcaadm')->table('mgr.surveys')->where('id', $id)->first();
         
         // Pastikan data survey ditemukan
         if (!$survey) {
             return __('admin/survey.survey_not_found');
         }
 
-        $questions = DB::connection('ifcaadm')->table('survey_questions')
+        $questions = DB::connection('ifcaadm')->table('mgr.survey_questions')
             ->where('survey_id', $id)
             ->orderBy('order_no', 'asc')
             ->get();
 
         foreach ($questions as $q) {
             if ($q->question_type == 'multiple_choice') {
-                $q->options = DB::connection('ifcaadm')->table('survey_question_options')
+                $q->options = DB::connection('ifcaadm')->table('mgr.survey_question_options')
                     ->where('question_id', $q->id)
                     ->get();
             } else {
@@ -198,18 +204,18 @@ public function getDraftTable(Request $request)
             $surveyId = $request->survey_id;
 
             // 1. Update Header
-            DB::connection('ifcaadm')->table('surveys')->where('id', $surveyId)->update([
+            DB::connection('ifcaadm')->table('mgr.surveys')->where('id', $surveyId)->update([
                 'title' => $request->title,
                 'updated_at' => now(),
             ]);
 
             // 2. Hapus Pertanyaan & Opsi Lama (Hanya untuk Draft)
-            DB::connection('ifcaadm')->table('survey_questions')->where('survey_id', $surveyId)->delete();
+            DB::connection('ifcaadm')->table('mgr.survey_questions')->where('survey_id', $surveyId)->delete();
 
             // 3. Masukkan Pertanyaan yang Baru/Diedit
             if ($request->has('questions')) {
                 foreach ($request->questions as $index => $q) {
-                    $questionId = DB::connection('ifcaadm')->table('survey_questions')->insertGetId([
+                    $questionId = DB::connection('ifcaadm')->table('mgr.survey_questions')->insertGetId([
                         'survey_id' => $surveyId,
                         'question_text' => $q['text'],
                         'question_type' => $q['type'],
@@ -231,7 +237,7 @@ public function getDraftTable(Request $request)
                             }
                         }
                         if (count($optionsData) > 0) {
-                            DB::connection('ifcaadm')->table('survey_question_options')->insert($optionsData);
+                            DB::connection('ifcaadm')->table('mgr.survey_question_options')->insert($optionsData);
                         }
                     }
                 }
@@ -250,7 +256,7 @@ public function getDraftTable(Request $request)
     public function allResults(Request $request)
     {
         // 1. Ambil 10 Survey per halaman (Hanya yang sudah published)
-        $surveys = DB::connection('ifcaadm')->table('surveys')
+        $surveys = DB::connection('ifcaadm')->table('mgr.surveys')
             ->where('status', 'published')
             ->orderBy('publish_date', 'desc')
             ->paginate(10); // <-- Batas 10 ID per halaman
@@ -259,28 +265,28 @@ public function getDraftTable(Request $request)
         foreach ($surveys as $survey) {
             
             // Hitung total responden untuk survey ini
-            $survey->totalRespondents = DB::connection('ifcaadm')->table('survey_respondents')
+            $survey->totalRespondents = DB::connection('ifcaadm')->table('mgr.survey_respondents')
                 ->where('survey_id', $survey->id)
                 ->count();
 
             // Ambil pertanyaan
-            $survey->questions = DB::connection('ifcaadm')->table('survey_questions')
+            $survey->questions = DB::connection('ifcaadm')->table('mgr.survey_questions')
                 ->where('survey_id', $survey->id)
                 ->orderBy('order_no', 'asc')
                 ->get();
 
             foreach ($survey->questions as $q) {
                 if ($q->question_type == 'multiple_choice') {
-                    $q->options = DB::connection('ifcaadm')->table('survey_question_options')
+                    $q->options = DB::connection('ifcaadm')->table('mgr.survey_question_options')
                         ->where('question_id', $q->id)
                         ->get();
 
-                    $totalAnswers = DB::connection('ifcaadm')->table('survey_answers')
+                    $totalAnswers = DB::connection('ifcaadm')->table('mgr.survey_answers')
                         ->where('question_id', $q->id)
                         ->count();
 
                     foreach ($q->options as $opt) {
-                        $optCount = DB::connection('ifcaadm')->table('survey_answers')
+                        $optCount = DB::connection('ifcaadm')->table('mgr.survey_answers')
                             ->where('option_id', $opt->id)
                             ->count();
 
@@ -289,8 +295,8 @@ public function getDraftTable(Request $request)
                     }
                 } else {
                     // Ambil SEMUA jawaban esai agar dipagination 10 data per halaman di frontend
-                    $q->answers = DB::connection('ifcaadm')->table('survey_answers')
-                        ->join('survey_respondents', 'survey_answers.respondent_id', '=', 'survey_respondents.id')
+                    $q->answers = DB::connection('ifcaadm')->table('mgr.survey_answers')
+                        ->join('mgr.survey_respondents', 'survey_answers.respondent_id', '=', 'survey_respondents.id')
                         ->where('survey_answers.question_id', $q->id)
                         ->whereNotNull('survey_answers.essay_answer')
                         ->select('survey_answers.essay_answer', 'survey_respondents.email', 'survey_answers.created_at')
@@ -307,8 +313,8 @@ public function getDraftTable(Request $request)
     {
         try {
             // 1. UBAH KONEKSI DI SINI JIKA PERLU (Ganti 'mysql' ke 'ifcaadm' jika itu yang benar)
-            $voters = DB::connection('ifcaadm')->table('survey_answers') 
-                ->join('survey_respondents', 'survey_answers.respondent_id', '=', 'survey_respondents.id')
+            $voters = DB::connection('ifcaadm')->table('mgr.survey_answers') 
+                ->join('mgr.survey_respondents', 'survey_answers.respondent_id', '=', 'survey_respondents.id')
                 ->where('survey_answers.option_id', $request->option_id)
                 ->select('survey_respondents.email', 'survey_answers.remarks', 'survey_answers.created_at')
                 ->orderBy('survey_answers.created_at', 'desc')

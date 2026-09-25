@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
  *
  * Setiap baris = satu work order (report_no WOyymmnnnn), termasuk WO yang dibuat
  * langsung di sistem IFCA desktop. Ticket yang belum punya baris HD tidak ikut tampil.
- * Insert/update ke sv_entry_multi (MySQL & SQL Server) tetap berjalan seperti biasa;
+ * Insert/update ke sv_entry_multi (demo_twp_adm & demo_twp) tetap berjalan seperti biasa;
  * lihat TicketController::update (blok "insert ke HD").
  *
  * Kolom hasil (alias t): report_no, entity_cd, project_no, debtor_acct, reported_date,

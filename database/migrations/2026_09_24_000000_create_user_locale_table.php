@@ -13,11 +13,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (Schema::hasTable('user_locale')) {
+        if (Schema::hasTable('mgr.user_locale')) {
             return;
         }
 
-        Schema::create('user_locale', function (Blueprint $table) {
+        Schema::create('mgr.user_locale', function (Blueprint $table) {
             $table->string('email', 100)->primary();
             $table->string('locale', 5)->default('en')->comment('en | id');
             $table->dateTime('updated_at')->nullable();
@@ -26,6 +26,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('user_locale');
+        Schema::dropIfExists('mgr.user_locale');
     }
 };

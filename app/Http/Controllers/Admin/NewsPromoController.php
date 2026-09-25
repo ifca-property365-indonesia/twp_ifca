@@ -13,7 +13,7 @@ class NewsPromoController extends Controller
 {
     public function getTable()
     {
-        $query = DB::connection('ifcaadm')->select("SELECT @rownum := @rownum + 1 AS row_number, t.* FROM newsfeed t, (SELECT @rownum := 0) r");
+        $query = DB::connection('ifcaadm')->select("SELECT ROW_NUMBER() OVER (ORDER BY t.id) AS [row_number], t.* FROM mgr.newsfeed t");
         foreach ($query as $row) {
             $row->picture_url = $row->attach_type === 'P' ? NewsPicture::url($row->picture) : null;
         }
@@ -72,7 +72,7 @@ class NewsPromoController extends Controller
     {
         $where = array('id' => $id);
         $data = DB::connection('ifcaadm')
-            ->table('newsfeed')
+            ->table('mgr.newsfeed')
             ->where($where)
             ->get();
         foreach ($data as $row) {
@@ -107,7 +107,7 @@ class NewsPromoController extends Controller
             if ($id > 0) { //update
                 unset($data['date_created']);
                 DB::connection('ifcaadm')
-                    ->table('newsfeed')
+                    ->table('mgr.newsfeed')
                     ->where($criteria)
                     ->update($data);
                 
@@ -117,7 +117,7 @@ class NewsPromoController extends Controller
             } else {//create
                
                 DB::connection('ifcaadm')
-                    ->table('newsfeed')
+                    ->table('mgr.newsfeed')
                     ->insert($data);
                 
                 $msg = __('common.saved');
@@ -140,7 +140,7 @@ class NewsPromoController extends Controller
         $criteria = array('id' => $request->id);
         try { 
             DB::connection('ifcaadm')
-            ->table('newsfeed')
+            ->table('mgr.newsfeed')
             ->where($criteria)
             ->delete();
             $msg = __('common.deleted');

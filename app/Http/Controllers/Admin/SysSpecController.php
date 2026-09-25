@@ -19,7 +19,7 @@ class SysSpecController extends Controller
         $image5 = url('images/slides/pb-2.jpg');
         $image6 = url('images/slides/pb-3.png');
         
-        $dtimg = DB::connection('ifcaadm')->select("SELECT * from image_login"); 
+        $dtimg = DB::connection('ifcaadm')->select("SELECT * from mgr.image_login"); 
         if(!empty($dtimg)){
             foreach ($dtimg as $key) {
                 if($key->webname=='admin'){
@@ -144,17 +144,17 @@ class SysSpecController extends Controller
                         );
                         $where = array('seq_no' => $seq, 'webname' => $web);
                         $cek = DB::connection('ifcaadm')
-                            ->table('image_login')
+                            ->table('mgr.image_login')
                             ->where($where)
                             ->get();
                         if(count($cek)>0){
                             DB::connection('ifcaadm')
-                            ->table('image_login')
+                            ->table('mgr.image_login')
                             ->where($where)
                             ->update($dataup);
                         }else{
                             DB::connection('ifcaadm')
-                            ->table('image_login')
+                            ->table('mgr.image_login')
                             ->insert($dataup);
                         }
                         $msg = __('admin/sysspec.image_changed');
@@ -186,7 +186,7 @@ class SysSpecController extends Controller
 
     public function defaultpass(Request $request)
     {
-        $data = DB::connection('ifcaadm')->table('defaultpassword')
+        $data = DB::connection('ifcaadm')->table('mgr.defaultpassword')
             ->select('password')
             ->first();
         return view('admin.sysspec.defaultpass', compact('data'));
@@ -199,7 +199,7 @@ class SysSpecController extends Controller
             'confirm_password' => 'required|same:password',
         ]);
 
-        DB::connection('ifcaadm')->table('defaultpassword')->update([
+        DB::connection('ifcaadm')->table('mgr.defaultpassword')->update([
             'password' => $request->password,
             'audit_date' => Carbon::today()
         ]);

@@ -1070,7 +1070,7 @@ abstract class BasePermitController extends Controller
     /** Baris pm_tenancy yang dipilih di combo (value = pm_tenancy.id), hanya kalau masuk cakupan. */
     protected function tenancyInScope($id_tenancy)
     {
-        $tenancy = DB::table('pm_tenancy')->where('id', (int) $id_tenancy)->first();
+        $tenancy = DB::table('mgr.pm_tenancy')->where('id', (int) $id_tenancy)->first();
 
         if (!$tenancy) {
             return null;
@@ -1465,13 +1465,13 @@ abstract class BasePermitController extends Controller
         }
 
         // Nama pengelola gedung & project untuk kop surat.
-        $tenancy = DB::table('pm_tenancy')
+        $tenancy = DB::table('mgr.pm_tenancy')
             ->where('tenant_no', $header->debtor_acct)
             ->where('entity_cd', trim($header->entity_cd))
             ->where('project_no', trim($header->project_no))
             ->first();
 
-        $tenant = DB::table('tenant')->where('tenant_no_df', $header->debtor_acct)->first();
+        $tenant = DB::table('mgr.tenant')->where('tenant_no_df', $header->debtor_acct)->first();
 
         // Work Permit dicetak dengan format form "Surat Izin Kerja / Working Permit".
         if ($header->complain_type === 'W') {

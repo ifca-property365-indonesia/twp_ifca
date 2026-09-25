@@ -14,13 +14,13 @@ class AccountController extends Controller
 {
     public function getTable()
     {
-        $query = DB::connection('ifcaadm')->select("SELECT @rownum := @rownum + 1 AS row_number, t.* FROM all_login t, (SELECT @rownum := 0) r");
+        $query = DB::connection('ifcaadm')->select("SELECT ROW_NUMBER() OVER (ORDER BY t.id) AS [row_number], t.* FROM mgr.all_login t");
         return DataTables::of($query)->make(true);
     }
     public function getbyemail($email)
     {
         $data = DB::connection('ifcaadm')
-            ->select("SELECT * from all_login where email='$email'");
+            ->select("SELECT * from mgr.all_login where email = ?", [$email]);
         echo json_encode($data);
     }
     /**
@@ -94,7 +94,7 @@ class AccountController extends Controller
         try { 
             
                 DB::connection('ifcaadm')
-                    ->table('all_login')
+                    ->table('mgr.all_login')
                     ->where($criteria)
                     ->update($data);
 
@@ -128,7 +128,7 @@ class AccountController extends Controller
         try { 
             
                 DB::connection('ifcaadm')
-                    ->table('all_login')
+                    ->table('mgr.all_login')
                     ->where($criteria)
                     ->update($data);
                 
@@ -149,22 +149,13 @@ class AccountController extends Controller
         // dari tabel defaultpassword (menu System Spec -> Default Password)
         $password_default = DefaultPassword::get();
         $password = Password::make($password_default);
-        
-        $emailsend = $request->email;
-        $subj = "Replacement login information for ". $request->name;
-        $body ="";
-        $body.='<h3>Dear '.$request->name.', '."</h3>";
-        $body.='A request to reset the password for your account has been made at TWP.'."<br>";
-        $body.='Your new password is '.$password_default.". <br><br>";
-        $body.='TWP System,<br>';
-        $body.='Administrator';
         try { 
             $criteria = array('email' => $request->email);
             $data = array(
                 'password' => $password
             );
                 DB::connection('ifcaadm')
-                    ->table('all_login')
+                    ->table('mgr.all_login')
                     ->where($criteria)
                     ->update($data);
                 $msg = __('common.updated');

@@ -33,7 +33,7 @@ class DashController extends Controller
             'business_no'=>$business_no, 
             'tenant_no'=>$tenant_no
         );
-        $dataTenancy = DB::table('pm_tenancy')
+        $dataTenancy = DB::table('mgr.pm_tenancy')
             ->where($criteria)
             ->get();
         $list_bill = '';
@@ -169,10 +169,10 @@ if (!empty($htenants)) {
             .$data_status["status"].
             '</span></td>';
 
-        // Edit hanya untuk WO berstatus R yang berasal dari ticket TWP (id-nya di MySQL sv_entry_multi)
+        // Edit hanya untuk WO berstatus R yang berasal dari ticket TWP (id-nya di demo_twp_adm mgr.sv_entry_multi)
         $editId = null;
         if (trim((string) $tenant->status) === 'R' && $tenant->complain_no) {
-            $editId = DB::table('sv_entry_multi')
+            $editId = DB::table('mgr.sv_entry_multi')
                 ->where('entity_cd', $tenant->entity_cd)
                 ->where('project_no', $tenant->project_no)
                 ->where('complain_no', $tenant->complain_no)
@@ -196,7 +196,7 @@ if (!empty($htenants)) {
         $i = 1;
         $list_hovertime = "";
 
-        $hovertime = DB::select("SELECT * from ot_trx where " . TenantScope::sqlTenantId('id_tenant') . " AND status NOT IN ('X','Y','Z')");
+        $hovertime = DB::select("SELECT * from mgr.ot_trx where " . TenantScope::sqlTenantId('id_tenant') . " AND status NOT IN ('X','Y','Z')");
         if (!empty($hovertime)) {
             foreach ($hovertime as $overtime)
             {
@@ -223,7 +223,7 @@ if (!empty($htenants)) {
                 $i++;
             }
         }
-        $dtnews = DB::select("SELECT * FROM newsfeed WHERE start_date <= CURDATE() AND end_date >= CURDATE() ORDER BY start_date DESC LIMIT 5;");
+        $dtnews = DB::select("SELECT TOP 5 * FROM mgr.newsfeed WHERE start_date <= CAST(GETDATE() AS date) AND end_date >= CAST(GETDATE() AS date) ORDER BY start_date DESC");
         $content = array(
             'combolot' => $cbLot,
             'combometerid' => $cbMeterId,
@@ -258,7 +258,7 @@ if (!empty($htenants)) {
                 'tenant_no'   => $tenant_no
             );
 
-            $dataTenancy = DB::table('pm_tenancy')
+            $dataTenancy = DB::table('mgr.pm_tenancy')
                 ->where($criteria)
                 ->get();
             if (!empty($dataTenancy))
@@ -326,7 +326,7 @@ if (!empty($htenants)) {
             'tenant_no'   => $tenant_no
         );
 
-        $dataTenancy = DB::table('pm_tenancy')
+        $dataTenancy = DB::table('mgr.pm_tenancy')
             ->where($criteria)
             ->get();
         if (!empty($dataTenancy))
@@ -622,7 +622,7 @@ public function getEusagehis_by_lotmeter($entity="", $tenant_no="", $meterId="",
                 'business_no' => $business_no, 
                 'tenant_no' => $tenant_no
             );
-            $dtaTenancy = DB::table('pm_tenancy')->where($criteria)->get();
+            $dtaTenancy = DB::table('mgr.pm_tenancy')->where($criteria)->get();
             if(!empty($dtaTenancy))
             {
                 $entity = $dtaTenancy[0]->entity_cd;
@@ -666,14 +666,14 @@ public function getEusagehis_by_lotmeter($entity="", $tenant_no="", $meterId="",
         $id = $request->id;
         $msg = "";
 
-        $data_overtime = DB::table('ot_trx')
+        $data_overtime = DB::table('mgr.ot_trx')
             ->where('id', $id)
             ->get();
         if ($data_overtime) {
             $crit = array('id' => $id);
             $data = array('status' => 'X');
 
-            $query = DB::table('ot_trx')
+            $query = DB::table('mgr.ot_trx')
                 ->where($crit)
                 ->update($data);
             if ($query != "1") {
@@ -704,7 +704,7 @@ public function getEusagehis_by_lotmeter($entity="", $tenant_no="", $meterId="",
             'tenant_no'   => $tenant_no
         );
 
-        $dataTenancy = DB::table('pm_tenancy')
+        $dataTenancy = DB::table('mgr.pm_tenancy')
             ->where($criteria)
             ->get();
 

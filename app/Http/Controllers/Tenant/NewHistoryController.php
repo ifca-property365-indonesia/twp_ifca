@@ -37,7 +37,7 @@ class NewHistoryController extends Controller
 	            'business_no'=>$business_no,
 	            'tenant_no'=>$tenant_no
 	        );
-	        $dataTenancy = DB::table('pm_tenancy')
+	        $dataTenancy = DB::table('mgr.pm_tenancy')
 	            ->where($crit)
 	            ->get();
 

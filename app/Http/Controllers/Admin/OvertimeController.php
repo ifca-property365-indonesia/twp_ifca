@@ -35,7 +35,7 @@ class OvertimeController extends Controller
     public function table($tab)
     {
         $status = self::STATUSES[$tab] ?? 'N';
-        $rows = DB::connection('ifcaadm')->table('v_ot_tenancy')
+        $rows = DB::connection('ifcaadm')->table('mgr.v_ot_tenancy')
             ->where('status', $status)
             ->orderBy('start_overtime', 'desc')
             ->orderBy('id', 'desc')
@@ -62,7 +62,7 @@ class OvertimeController extends Controller
     private function changeStatus($id, $status, $message)
     {
         try {
-            $updated = DB::connection('ifcaadm')->table('ot_trx')
+            $updated = DB::connection('ifcaadm')->table('mgr.ot_trx')
                 ->where('id', (int) $id)
                 ->where('status', 'N')
                 ->update(['status' => $status]);
@@ -108,7 +108,7 @@ class OvertimeController extends Controller
                 return DataTables::of(collect())->make(true);
             }
 
-            $q = DB::connection('ifcaadm')->table('v_ot_tenancy')
+            $q = DB::connection('ifcaadm')->table('mgr.v_ot_tenancy')
                 ->where('entity_cd', $entity)->where('project_no', $project)
                 ->where('approved', 'N')->where('status', 'A');
             if ($request->date_start && $request->date_end) {
@@ -176,7 +176,7 @@ class OvertimeController extends Controller
                 return $this->fail(__('admin/overtime.no_debtor'));
             }
 
-            $overtimes = DB::connection('ifcaadm')->table('v_ot_tenancy')
+            $overtimes = DB::connection('ifcaadm')->table('mgr.v_ot_tenancy')
                 ->where('entity_cd', $entity)->where('project_no', $project)
                 ->where('tenant_no', $bill->bill_debtor_acct)
                 ->where('approved', 'N')->where('status', 'A')
@@ -245,7 +245,7 @@ class OvertimeController extends Controller
                 $ifca->table('mgr.ot_trxdt_zone_fji')->insert($zones);
             });
 
-            DB::connection('ifcaadm')->table('ot_trx')
+            DB::connection('ifcaadm')->table('mgr.ot_trx')
                 ->whereIn('id', $overtimes->pluck('id')->all())
                 ->update(['approved' => 'Y', 'status' => 'Z']);
         } catch (\Throwable $e) {

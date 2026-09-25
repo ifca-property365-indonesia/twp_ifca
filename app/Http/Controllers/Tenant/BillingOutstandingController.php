@@ -26,7 +26,7 @@ class BillingOutstandingController extends Controller
             'business_no'=>$business_no, 
             'tenant_no'=>$tenant_no
         );
-        $dataTenancy = DB::table('pm_tenancy')
+        $dataTenancy = DB::table('mgr.pm_tenancy')
             ->where($criteria)
             ->get();
         $list_bill = '';
@@ -108,7 +108,7 @@ class BillingOutstandingController extends Controller
         $list_hticket = "";
         $i = 1;
 
-        $htenants = DB::table('sv_entry_multi')
+        $htenants = DB::table('mgr.sv_entry_multi')
             ->whereIn('tenant_no', TenantScope::tenantNos())
             ->whereIn('id_tenant', TenantScope::tenantIds())
             ->where('status','<>','C')->get();
@@ -159,7 +159,7 @@ class BillingOutstandingController extends Controller
         $i = 1;
         $list_hovertime = "";
 
-        $hovertime = DB::select("SELECT * from ot_trx where " . TenantScope::sqlTenantId('id_tenant') . " AND status NOT IN ('X','Y','Z')");
+        $hovertime = DB::select("SELECT * from mgr.ot_trx where " . TenantScope::sqlTenantId('id_tenant') . " AND status NOT IN ('X','Y','Z')");
         if (!empty($hovertime)) {
             foreach ($hovertime as $overtime)
             {
@@ -182,7 +182,7 @@ class BillingOutstandingController extends Controller
                 $i++;
             }
         }
-        $dtnews = DB::select("SELECT * from newsfeed where active='1' and attach_type='P' and status = '1' limit 5");
+        $dtnews = DB::select("SELECT TOP 5 * from mgr.newsfeed where active='1' and attach_type='P' and status = '1'");
         $content = array(
             'combolot' => $cbLot,
             'totalOutstanding' => $totalOutstanding,
@@ -214,7 +214,7 @@ class BillingOutstandingController extends Controller
                 'tenant_no'   => $tenant_no
             );
 
-            $dataTenancy = DB::table('pm_tenancy')
+            $dataTenancy = DB::table('mgr.pm_tenancy')
                 ->where($criteria)
                 ->get();
             if (!empty($dataTenancy))
@@ -448,7 +448,7 @@ class BillingOutstandingController extends Controller
                 'business_no' => $business_no, 
                 'tenant_no' => $tenant_no
             );
-            $dtaTenancy = DB::table('pm_tenancy')->where($criteria)->get();
+            $dtaTenancy = DB::table('mgr.pm_tenancy')->where($criteria)->get();
             if(!empty($dtaTenancy))
             {
                 $entity = $dtaTenancy[0]->entity_cd;
@@ -492,14 +492,14 @@ class BillingOutstandingController extends Controller
         $id = $request->id;
         $msg = "";
 
-        $data_overtime = DB::table('ot_trx')
+        $data_overtime = DB::table('mgr.ot_trx')
             ->where('id', $id)
             ->get();
         if ($data_overtime) {
             $crit = array('id' => $id);
             $data = array('status' => 'X');
 
-            $query = DB::table('ot_trx')
+            $query = DB::table('mgr.ot_trx')
                 ->where($crit)
                 ->update($data);
             if ($query != "1") {

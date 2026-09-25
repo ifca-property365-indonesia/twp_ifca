@@ -20,7 +20,7 @@ class TicketController extends Controller
             'tenant_no'   => $tenant_no
         );
 
-        $data_tenancy = DB::table('pm_tenancy')->where($crit)->get();
+        $data_tenancy = DB::table('mgr.pm_tenancy')->where($crit)->get();
         $combo_tenant='';
         if($data_tenancy){
             $combo_tenant = $this->get_combo($buss_id, $data_tenancy[0]->id, $project_no);
@@ -66,7 +66,7 @@ class TicketController extends Controller
     public function getByID($id = '')
     {
         $where = array('id' => $id);
-        $data = DB::table('sv_entry_multi')->where($where)->get();
+        $data = DB::table('mgr.sv_entry_multi')->where($where)->get();
         echo json_encode($data);
     }
 
@@ -123,11 +123,11 @@ class TicketController extends Controller
     function get_combo($business_no = "", $selected_id = "", $project_no = "")
     {
         if (TenantScope::all()) {
-            $query = DB::table('pm_tenancy')->where('status', 'A')->orderBy('tenant_no')->get();
+            $query = DB::table('mgr.pm_tenancy')->where('status', 'A')->orderBy('tenant_no')->get();
         } else {
             $where = array('business_no'=> $business_no,
                     'project_no'=>$project_no);
-            $query = DB::table('pm_tenancy')->where($where)->get();
+            $query = DB::table('mgr.pm_tenancy')->where($where)->get();
         }
         $combo[] = '<option></option>';
         $combo[] = "\n";
@@ -193,7 +193,7 @@ class TicketController extends Controller
      */
     public function getLotNo(Request $request)
     {
-        $tenancy = DB::table('pm_tenancy')->where('id', (int) $request->id_tenancy)->first();
+        $tenancy = DB::table('mgr.pm_tenancy')->where('id', (int) $request->id_tenancy)->first();
 
         if (!$tenancy || !in_array((string) $tenancy->tenant_no, TenantScope::tenantNos(), true)) {
             return response('<option></option>');
@@ -240,7 +240,7 @@ class TicketController extends Controller
 
     public function getLotnoEdit($tenant_no, $lot_no)
     {
-        $data_tenancy = DB::table('pm_tenancy')
+        $data_tenancy = DB::table('mgr.pm_tenancy')
             ->where('id', $tenant_no)
             ->get();
 
@@ -375,7 +375,7 @@ class TicketController extends Controller
                 
             $assign_to = $dataspec[0]->descs ?? null;
 
-            $data_tenant = DB::table('pm_tenancy')->where('id', $tenant_no)->get();
+            $data_tenant = DB::table('mgr.pm_tenancy')->where('id', $tenant_no)->get();
 
             if ($data_tenant->isEmpty()) {
                 throw new \Exception(__('tenant/ticket.tenant_not_found', ['tenant' => $tenant_no]));
@@ -445,15 +445,15 @@ class TicketController extends Controller
                 'project_no'      => $project
             );
             if ($id > 0) {
-                // ===== start insert ke HD (edit tidak mengembalikan status O ke R, MySQL) =====
-                $oldStatus = DB::table('sv_entry_multi')->where($critedit)->value('status');
+                // ===== start insert ke HD (edit tidak mengembalikan status O ke R, demo_twp_adm) =====
+                $oldStatus = DB::table('mgr.sv_entry_multi')->where($critedit)->value('status');
                 if (trim((string) $oldStatus) === 'O') {
                     $data['status'] = 'O';
                 }
                 // ===== end insert ke HD =====
-                $updated = DB::table('sv_entry_multi')->where($critedit)->update($data);
+                $updated = DB::table('mgr.sv_entry_multi')->where($critedit)->update($data);
             } else {
-                $updated = DB::table('sv_entry_multi')->insert($data);
+                $updated = DB::table('mgr.sv_entry_multi')->insert($data);
             }
             
             $critedit2 = [
@@ -501,7 +501,7 @@ class TicketController extends Controller
                 // Ticket baru juga dibuat di mgr.sv_entry_hd dengan report_no WOyymmnnnn
                 // (nnnn = urutan dalam bulan berjalan, mulai 0001 setiap bulan baru).
                 // complain_no disimpan di note1 sebagai penghubung ke sv_entry_multi.
-                // Setelah berhasil, status sv_entry_multi (SQL Server & MySQL) -> O.
+                // Setelah berhasil, status sv_entry_multi (demo_twp & demo_twp_adm) -> O.
                 // Kalau gagal, ticket tetap tersimpan (status tetap R) dan error dicatat di log.
                 try {
                     $hdReportNo = DB::connection('dblive')->transaction(function () use ($entity, $project, $data_tenant, $webuser, $req_by, $description, $location, $floor, $contact_no, $lot_no, $ticket_type, $category, $typeformat2, $critedit2) {
@@ -559,9 +559,9 @@ class TicketController extends Controller
                         return $reportNo;
                     });
 
-                    // salinan ticket di MySQL (demo_twp.sv_entry_multi) ikut -> O;
+                    // salinan ticket di demo_twp_adm (mgr.sv_entry_multi) ikut -> O;
                     // dijalankan setelah transaksi SQL Server commit (koneksi berbeda)
-                    DB::table('sv_entry_multi')
+                    DB::table('mgr.sv_entry_multi')
                         ->where($critedit2)
                         ->update(['status' => 'O']);
                 } catch (\Throwable $e) {
@@ -667,32 +667,6 @@ class TicketController extends Controller
                     ->update($dataCompl2);
 
             }
-
-            // bagian send email
-            $crit_spec = array(
-                'entity_cd'=>$entity,
-                'project_no'=>$project
-            );
-
-            $dataspec = DB::connection('dblive')
-                ->table('mgr.sv_spec')
-                ->where($crit_spec)
-                ->get();
-                
-            if (!empty($dataspec)){
-                $email = 'ahmad.ariffandy@ifca.co.id';
-            } else {
-                $email = 'ahmad.ariffandy@ifca.co.id';
-            }
-            
-            $body = "";
-            $body.= '<h3>Hi Helpdesk, </h3>';
-            $body.= 'Ticket '.$number. ' has been submit in queue, please assign ticket to PIC :'."<br><br>";
-            $body.= Session::get('TCompany').' wrote : '."<br>";
-            $body.= $description.' '."<br><br>";
-            $body.='TWP System<br>';
-            
-            $subj = 'Ticket number '.$number.' opened';
 
             $callback = array(
                 "pesan" => $msg,

@@ -296,7 +296,7 @@ class DashController extends Controller
     public function getTableOT()
     {
          
-        $query = DB::connection('ifcaadm')->select("SELECT @rownum := @rownum + 1 AS row_number, a.id,b.tenant_no,a.lot_no,a.start_overtime,a.end_overtime,a.description,a.status,a.approved FROM ot_trx a join pm_tenancy b on a.id_tenancy = b.id, (SELECT @rownum := 0) r where a.status not in ('X') order by start_overtime desc");
+        $query = DB::connection('ifcaadm')->select("SELECT ROW_NUMBER() OVER (ORDER BY a.start_overtime DESC) AS [row_number], a.id,b.tenant_no,a.lot_no,a.start_overtime,a.end_overtime,a.description,a.status,a.approved FROM mgr.ot_trx a join mgr.pm_tenancy b on a.id_tenancy = b.id where a.status not in ('X') order by a.start_overtime desc");
 
         return DataTables::of($query)->make(true);
     }

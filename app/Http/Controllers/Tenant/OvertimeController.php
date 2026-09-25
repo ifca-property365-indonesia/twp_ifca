@@ -134,7 +134,7 @@ class OvertimeController extends Controller
         }
 
         // unit yang sudah punya lembur aktif (menunggu / disetujui / diposting) di jam yang bertabrakan
-        $clash = DB::table('ot_trx')
+        $clash = DB::table('mgr.ot_trx')
             ->where('id_tenancy', $tenancy->id)
             ->whereIn('lot_no', $lots)
             ->whereIn('status', ['N', 'A', 'Z'])
@@ -145,7 +145,7 @@ class OvertimeController extends Controller
             return $this->fail(__('tenant/overtime.already_exists', ['units' => implode(', ', $clash)]));
         }
 
-        $tenant = DB::table('tenant')->where('business_no', $tenancy->business_no)
+        $tenant = DB::table('mgr.tenant')->where('business_no', $tenancy->business_no)
             ->orderByRaw("CASE WHEN flag = 'F' THEN 0 ELSE 1 END")->orderBy('id')->first();
         if (!$tenant) {
             return $this->fail(__('tenant/overtime.choose_tenant'));
@@ -157,7 +157,7 @@ class OvertimeController extends Controller
         try {
             DB::transaction(function () use ($lots, $tenancy, $tenant, $startAt, $endAt, $description, $segments, $now) {
                 foreach ($lots as $lot) {
-                    $id = DB::table('ot_trx')->insertGetId([
+                    $id = DB::table('mgr.ot_trx')->insertGetId([
                         'entity_cd'      => trim($tenancy->entity_cd),
                         'project_no'     => trim($tenancy->project_no),
                         'id_tenant'      => $tenant->id,
@@ -172,7 +172,7 @@ class OvertimeController extends Controller
                         'description'    => $description,
                     ]);
                     foreach ($segments as $s) {
-                        DB::table('ot_trxdt')->insert([
+                        DB::table('mgr.ot_trxdt')->insert([
                             'id_overtime'  => $id,
                             'date_created' => $now,
                             'dt_starttime' => $s['start'],
@@ -190,7 +190,7 @@ class OvertimeController extends Controller
 
     // ------------------------------------------------------------------
 
-    /** Tenancy (MySQL pm_tenancy) yang masuk cakupan tenant ini, atau null. */
+    /** Tenancy (demo_twp_adm mgr.pm_tenancy) yang masuk cakupan tenant ini, atau null. */
     private function tenancyInScope($id)
     {
         return TenantScope::tenancies()->firstWhere('id', (int) $id);

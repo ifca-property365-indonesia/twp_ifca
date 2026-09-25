@@ -40,7 +40,7 @@ class LoginController extends Controller
         $plain = $request->password;
 
         // bcrypt (dan md5 untuk akun lama) dicek per baris, lihat App\Support\Password.
-        $datas = DB::table('all_login')
+        $datas = DB::table('mgr.all_login')
             ->where('tableforeign', 'tenant')
             ->where('idforeign', $bsn)
             ->get();
@@ -51,7 +51,7 @@ class LoginController extends Controller
             }
 
             Password::upgrade(
-                DB::table('all_login')->where('id', $login->id),
+                DB::table('mgr.all_login')->where('id', $login->id),
                 $login->password,
                 $plain
             );
@@ -72,8 +72,8 @@ class LoginController extends Controller
     {
         $kriteriaTenant = ['tenant.id' => $tenantId];
 
-        $dataTenant = DB::table('tenant')
-            ->join('pm_tenancy', function ($join) {
+        $dataTenant = DB::table('mgr.tenant')
+            ->join('mgr.pm_tenancy', function ($join) {
                 $join->on('tenant.business_no', '=', 'pm_tenancy.business_no')
                     ->on('tenant.tenant_no_df', '=', 'pm_tenancy.tenant_no');
             })
@@ -98,7 +98,7 @@ class LoginController extends Controller
 
         // Header: nama (all_login.name), contact person (tenant.contact_name = Tuname) dan foto.
         // Diperbarui oleh Tenant\AccountController::updateprofile.
-        $login = DB::table('all_login')
+        $login = DB::table('mgr.all_login')
             ->where('email', $dataTenant->email)
             ->where('tableforeign', 'tenant')
             ->first();
@@ -115,7 +115,7 @@ class LoginController extends Controller
             'idforeign' => $tenantId,
             'logintime' => date('Y-m-d H:i:s'),
             'ipaddress' => $ipA);
-        DB::table('log_login')->insert($dtL);
+        DB::table('mgr.log_login')->insert($dtL);
     }
 
     /**
@@ -125,7 +125,7 @@ class LoginController extends Controller
     public function activeTenants($email)
     {
         $crit = array('email' => $email);
-        $query = DB::table('tenant')->where($crit)->get();
+        $query = DB::table('mgr.tenant')->where($crit)->get();
         if (count($query) === 0) {
             return array();
         }
@@ -136,7 +136,7 @@ class LoginController extends Controller
         }
         $wherein = substr($wherein, 0, -1);
 
-        $sql = "SELECT * FROM pm_tenancy WHERE business_no in (" . $wherein . ") and status = 'A' and expiry_date >= now()";
+        $sql = "SELECT * FROM mgr.pm_tenancy WHERE business_no in (" . $wherein . ") and status = 'A' and expiry_date >= GETDATE()";
         $query = DB::select($sql);
 
         if (!empty($query)) {
@@ -149,7 +149,7 @@ class LoginController extends Controller
             $wherein2 = "''";
         }
 
-        $query2 = "SELECT * FROM tenant WHERE email = '$email' AND business_no IN ($wherein2)";
+        $query2 = "SELECT * FROM mgr.tenant WHERE email = '$email' AND business_no IN ($wherein2)";
         return DB::select($query2);
     }
 

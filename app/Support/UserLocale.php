@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
 /**
- * Pilihan bahasa tampilan per user, disimpan di tabel MySQL user_locale (per email login).
+ * Pilihan bahasa tampilan per user, disimpan di tabel mgr.user_locale (demo_twp_adm) (per email login).
  *
  * - User yang belum pernah memilih -> English (config app.locale), sampai dia
  *   mengganti bahasa sendiri lewat menu Language di header.
@@ -23,7 +23,7 @@ class UserLocale
     public static function forEmail($email)
     {
         try {
-            $locale = DB::table('user_locale')->where('email', self::key($email))->value('locale');
+            $locale = DB::table('mgr.user_locale')->where('email', self::key($email))->value('locale');
         } catch (\Throwable $e) {
             Log::warning('UserLocale::forEmail: ' . $e->getMessage());
             $locale = null;
@@ -48,7 +48,7 @@ class UserLocale
         }
 
         try {
-            DB::table('user_locale')->updateOrInsert(
+            DB::table('mgr.user_locale')->updateOrInsert(
                 ['email' => $email],
                 ['locale' => $locale, 'updated_at' => now()]
             );

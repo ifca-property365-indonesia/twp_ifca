@@ -128,14 +128,14 @@ class HistoryController extends Controller
 
 	        if (empty($date_start) || empty($date_end))
             {
-	            $sql = "SELECT * FROM ot_trx WHERE " . TenantScope::sqlTenantId('id_tenant') . " and year(start_overtime)*10000+month(start_overtime)*100+day(start_overtime) >= '$date_start' AND year(start_overtime)*10000+month(start_overtime)*100+day(start_overtime) <= '$date_end' AND status <> 'E' ORDER BY start_overtime DESC";
+	            $sql = "SELECT * FROM mgr.ot_trx WHERE " . TenantScope::sqlTenantId('id_tenant') . " and year(start_overtime)*10000+month(start_overtime)*100+day(start_overtime) >= '$date_start' AND year(start_overtime)*10000+month(start_overtime)*100+day(start_overtime) <= '$date_end' AND status <> 'E' ORDER BY start_overtime DESC";
 	            // 14 Sep 2021
 	        	$response = DB::connection('mysql')->select($sql);
 	            return Datatables::of($response)
 	                ->make(true);
             }
             else {
-            	$sql = "SELECT * FROM ot_trx WHERE " . TenantScope::sqlTenantId('id_tenant') . " and year(start_overtime)*10000+month(start_overtime)*100+day(start_overtime) >= '$date_start' AND year(start_overtime)*10000+month(start_overtime)*100+day(start_overtime) <= '$date_end' AND status <> 'E' ORDER BY start_overtime DESC";
+            	$sql = "SELECT * FROM mgr.ot_trx WHERE " . TenantScope::sqlTenantId('id_tenant') . " and year(start_overtime)*10000+month(start_overtime)*100+day(start_overtime) >= '$date_start' AND year(start_overtime)*10000+month(start_overtime)*100+day(start_overtime) <= '$date_end' AND status <> 'E' ORDER BY start_overtime DESC";
 	            // 14 Sep 2021
 	        	$response = DB::connection('mysql')->select($sql);
 	            return Datatables::of($response)
@@ -161,7 +161,7 @@ class HistoryController extends Controller
         $tglend = explode('/',$end);
         $end = date('Ymd',strtotime($tglend[2].'-'.$tglend[1].'-'.$tglend[0]));
 
-        $sql = "SELECT * FROM ot_trx WHERE " . TenantScope::sqlTenantId('id_tenant') . " and year(start_overtime)*10000+month(start_overtime)*100+day(start_overtime) >= '$start' AND year(start_overtime)*10000+month(start_overtime)*100+day(start_overtime) <= '$end' AND status <> 'E' ORDER BY start_overtime DESC";
+        $sql = "SELECT * FROM mgr.ot_trx WHERE " . TenantScope::sqlTenantId('id_tenant') . " and year(start_overtime)*10000+month(start_overtime)*100+day(start_overtime) >= '$start' AND year(start_overtime)*10000+month(start_overtime)*100+day(start_overtime) <= '$end' AND status <> 'E' ORDER BY start_overtime DESC";
         $query = DB::select($sql);
 
         if (count($query) > 0)
@@ -203,7 +203,7 @@ class HistoryController extends Controller
 	            'business_no'=>$business_no,
 	            'tenant_no'=>$tenant_no
 	        );
-	        $dataTenancy = DB::table('pm_tenancy')
+	        $dataTenancy = DB::table('mgr.pm_tenancy')
 	            ->where($crit)
 	            ->get();
 
@@ -278,7 +278,7 @@ class HistoryController extends Controller
             'business_no'=>$business_no,
             'tenant_no'=>$tenant_no
         );
-        $dataTenancy = DB::table('pm_tenancy')
+        $dataTenancy = DB::table('mgr.pm_tenancy')
             ->where($crit)
             ->get();
 
@@ -325,7 +325,7 @@ class HistoryController extends Controller
             'tenant_no' => $tenant_no
         );
 
-        $dataTenancy = DB::table('pm_tenancy')
+        $dataTenancy = DB::table('mgr.pm_tenancy')
             ->where($crit)
             ->get();
 

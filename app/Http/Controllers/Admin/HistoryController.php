@@ -133,15 +133,13 @@ class HistoryController extends Controller
         }else{
             $date_start=$date_start." 00:00:00";
         }
-        $where = '';
         $sql ="SELECT * FROM (
             SELECT 
-                @rownum := @rownum + 1 AS row_number,idforeign,logintime,ipaddress,name,email 
-            FROM log_login join tenant on tenant.id = log_login.idforeign
-            JOIN (SELECT @rownum := 0) r
+                ROW_NUMBER() OVER (ORDER BY log_login.id) AS [row_number],idforeign,logintime,ipaddress,name,email 
+            FROM mgr.log_login join mgr.tenant on tenant.id = log_login.idforeign
             ) sub
-        where sub.logintime between '".$date_start."' and '".$date_end."' ".$where."";
-        $query = DB::connection('ifcaadm')->select($sql);
+        where sub.logintime between ? and ?";
+        $query = DB::connection('ifcaadm')->select($sql, [$date_start, $date_end]);
         return DataTables::of($query)->make(true);
         
     }
@@ -256,9 +254,8 @@ class HistoryController extends Controller
             case 'log':
                 $sql ="SELECT * FROM (
                     SELECT
-                        @rownum := @rownum + 1 AS row_number,idforeign,logintime,ipaddress,name,email
-                    FROM log_login join tenant on tenant.id = log_login.idforeign
-                    JOIN (SELECT @rownum := 0) r
+                        ROW_NUMBER() OVER (ORDER BY log_login.id) AS [row_number],idforeign,logintime,ipaddress,name,email
+                    FROM mgr.log_login join mgr.tenant on tenant.id = log_login.idforeign
                     ) sub
                 where sub.logintime between ? and ?";
                 $dtUsers = DB::connection('ifcaadm')->select($sql, [$date_start, $date_end]);

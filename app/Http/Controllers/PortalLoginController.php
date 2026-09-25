@@ -53,7 +53,7 @@ class PortalLoginController extends Controller
 
         // ---------- Admin: cocok? ----------
         $admin = DB::connection('ifcaadm')
-            ->table('all_login')
+            ->table('mgr.all_login')
             ->where('email', $email)
             ->where('tableforeign', 'administrator')
             ->first();
@@ -63,7 +63,7 @@ class PortalLoginController extends Controller
             $adminOk = $admin;
             // akun lama (md5) yang berhasil login langsung dipindah ke bcrypt
             Password::upgrade(
-                DB::connection('ifcaadm')->table('all_login')->where('id', $admin->id),
+                DB::connection('ifcaadm')->table('mgr.all_login')->where('id', $admin->id),
                 $admin->password,
                 $plain
             );
@@ -76,7 +76,7 @@ class PortalLoginController extends Controller
         $tenants = $tenantLogin->activeTenants($email);
         if (count($tenants) > 0) {
             $ids = array_map(function ($t) { return $t->id; }, $tenants);
-            $logins = DB::table('all_login')
+            $logins = DB::table('mgr.all_login')
                 ->where('tableforeign', 'tenant')
                 ->whereIn('idforeign', $ids)
                 ->get();
@@ -88,7 +88,7 @@ class PortalLoginController extends Controller
                 }
                 $matchedIds[] = $login->idforeign;
                 Password::upgrade(
-                    DB::table('all_login')->where('id', $login->id),
+                    DB::table('mgr.all_login')->where('id', $login->id),
                     $login->password,
                     $plain
                 );
@@ -154,7 +154,7 @@ class PortalLoginController extends Controller
         }
 
         $isAdmin = DB::connection('ifcaadm')
-            ->table('all_login')
+            ->table('mgr.all_login')
             ->where('email', $email)
             ->where('tableforeign', 'administrator')
             ->exists();
@@ -174,12 +174,12 @@ class PortalLoginController extends Controller
      */
     private function inactiveMessage($email, $plain)
     {
-        $tenants = DB::table('tenant')->where('email', $email)->get(['id', 'business_no']);
+        $tenants = DB::table('mgr.tenant')->where('email', $email)->get(['id', 'business_no']);
         if ($tenants->isEmpty()) {
             return null;
         }
 
-        $passwordOk = DB::table('all_login')
+        $passwordOk = DB::table('mgr.all_login')
             ->where('tableforeign', 'tenant')
             ->whereIn('idforeign', $tenants->pluck('id'))
             ->pluck('password')
@@ -188,7 +188,7 @@ class PortalLoginController extends Controller
             return null;
         }
 
-        $lastExpiry = DB::table('pm_tenancy')
+        $lastExpiry = DB::table('mgr.pm_tenancy')
             ->whereIn('business_no', $tenants->pluck('business_no')->filter()->unique()->values())
             ->where('status', 'A')
             ->max('expiry_date');

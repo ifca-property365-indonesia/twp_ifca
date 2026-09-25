@@ -22,7 +22,7 @@ class InvoiceController extends Controller
             'tenant_no'   => $tenant_no
         ];
 
-        $dataTenancy = DB::table('pm_tenancy')
+        $dataTenancy = DB::table('mgr.pm_tenancy')
             ->where($crit)
             ->first();
 
@@ -115,7 +115,7 @@ class InvoiceController extends Controller
             'tenant_no'   => $tenant_no
         ];
 
-        $dataTenancy = DB::table('pm_tenancy')
+        $dataTenancy = DB::table('mgr.pm_tenancy')
             ->where($crit)
             ->first();
 

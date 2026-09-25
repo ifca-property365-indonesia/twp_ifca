@@ -22,10 +22,10 @@ class TenantScope
         return (bool) Session::get('Tall_tenants', false);
     }
 
-    /** Baris pm_tenancy (MySQL) yang masuk cakupan. */
+    /** Baris mgr.pm_tenancy (demo_twp_adm) yang masuk cakupan. */
     public static function tenancies()
     {
-        $q = DB::table('pm_tenancy');
+        $q = DB::table('mgr.pm_tenancy');
         if (self::all()) {
             $q->where('status', 'A');
         } else {
@@ -41,7 +41,7 @@ class TenantScope
         if (!self::all()) {
             return array((string) Session::get('tenant_df'));
         }
-        return DB::table('pm_tenancy')->where('status', 'A')->distinct()->pluck('tenant_no')->map(fn ($v) => (string) $v)->all();
+        return DB::table('mgr.pm_tenancy')->where('status', 'A')->distinct()->pluck('tenant_no')->map(fn ($v) => (string) $v)->all();
     }
 
     /** Daftar business_no yang masuk cakupan. */
@@ -50,7 +50,7 @@ class TenantScope
         if (!self::all()) {
             return array((string) Session::get('business_no'));
         }
-        return DB::table('pm_tenancy')->where('status', 'A')->distinct()->pluck('business_no')->map(fn ($v) => (string) $v)->all();
+        return DB::table('mgr.pm_tenancy')->where('status', 'A')->distinct()->pluck('business_no')->map(fn ($v) => (string) $v)->all();
     }
 
     /**
@@ -63,7 +63,7 @@ class TenantScope
         if (!self::all()) {
             return array((string) Session::get('entity_cd'));
         }
-        return DB::table('pm_tenancy')->where('status', 'A')->distinct()->pluck('entity_cd')->map(fn ($v) => (string) $v)->all();
+        return DB::table('mgr.pm_tenancy')->where('status', 'A')->distinct()->pluck('entity_cd')->map(fn ($v) => (string) $v)->all();
     }
 
     /** Daftar project_no yang masuk cakupan (lihat entityCds()). */
@@ -72,16 +72,16 @@ class TenantScope
         if (!self::all()) {
             return array((string) Session::get('project_no'));
         }
-        return DB::table('pm_tenancy')->where('status', 'A')->distinct()->pluck('project_no')->map(fn ($v) => (string) $v)->all();
+        return DB::table('mgr.pm_tenancy')->where('status', 'A')->distinct()->pluck('project_no')->map(fn ($v) => (string) $v)->all();
     }
 
-    /** Daftar tenant.id (MySQL, dipakai kolom id_tenant) yang masuk cakupan. */
+    /** Daftar tenant.id (demo_twp_adm, dipakai kolom id_tenant) yang masuk cakupan. */
     public static function tenantIds()
     {
         if (!self::all()) {
             return array((int) Session::get('Tuser_id'));
         }
-        return DB::table('tenant')->pluck('id')->map(fn ($v) => (int) $v)->all();
+        return DB::table('mgr.tenant')->pluck('id')->map(fn ($v) => (int) $v)->all();
     }
 
     /**
@@ -97,19 +97,19 @@ class TenantScope
         return $column . ' IN (' . implode(',', $quoted) . ')';
     }
 
-    /** "debtor_acct IN (...)" untuk query mentah SQL Server. */
+    /** "debtor_acct IN (...)" untuk query mentah ke demo_twp. */
     public static function sqlTenantNo($column = 'debtor_acct')
     {
         return self::sqlIn($column, self::tenantNos());
     }
 
-    /** "entity_cd IN (...)" untuk query mentah SQL Server. */
+    /** "entity_cd IN (...)" untuk query mentah ke demo_twp. */
     public static function sqlEntity($column = 'entity_cd')
     {
         return self::sqlIn($column, self::entityCds());
     }
 
-    /** "id_tenant IN (...)" untuk query mentah MySQL. */
+    /** "id_tenant IN (...)" untuk query mentah ke demo_twp_adm. */
     public static function sqlTenantId($column = 'id_tenant')
     {
         return self::sqlIn($column, array_map('strval', self::tenantIds()));

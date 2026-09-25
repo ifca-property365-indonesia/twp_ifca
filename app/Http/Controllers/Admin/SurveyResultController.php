@@ -13,7 +13,7 @@ class SurveyResultController extends Controller
 {
     public function getTable()
     {
-        $query = DB::connection('ifcaadm')->select("SELECT @rownum := @rownum + 1 AS row_number, t.* FROM v_pm_survey_publish t, (SELECT @rownum := 0) r  where t.flag_publish=1 order by publishdate desc");
+        $query = DB::connection('ifcaadm')->select("SELECT ROW_NUMBER() OVER (ORDER BY t.publishdate DESC) AS [row_number], t.* FROM mgr.v_pm_survey_publish t where t.flag_publish=1 order by publishdate desc");
         return DataTables::of($query)->make(true);
     }
     public function viewresult($publish=''){
@@ -33,23 +33,23 @@ class SurveyResultController extends Controller
                 d.date_created AS date_created,
                 (
                     SELECT COUNT(1)
-                    FROM pm_survey_respon d2
+                    FROM mgr.pm_survey_respon d2
                     WHERE d2.survey_id = b.survey_id
                     AND d2.respon = b.line_no
                 ) AS jumlah
-            FROM pm_survey_hd a
-            JOIN pm_survey_dt b ON a.id = b.survey_id
-            JOIN pm_survey_publish c ON a.publish_id = c.id
-            LEFT JOIN pm_survey_respon d 
+            FROM mgr.pm_survey_hd a
+            JOIN mgr.pm_survey_dt b ON a.id = b.survey_id
+            JOIN mgr.pm_survey_publish c ON a.publish_id = c.id
+            LEFT JOIN mgr.pm_survey_respon d 
                    ON b.survey_id = d.survey_id
                   AND d.respon = b.line_no
-            LEFT JOIN all_login e 
+            LEFT JOIN mgr.all_login e 
                    ON d.email_addr = e.email
             Where a.publish_id ='".$publish."'
             ORDER BY c.id, a.quest_no, b.line_no, d.date_created";
         $result1 = DB::connection('ifcaadm')->select($sql);
 
-        $sqlLine = "SELECT (SELECT COUNT(publish_id) FROM pm_survey_respon i WHERE i.publish_id = j.id) AS cnt FROM pm_survey_publish j where id = '".$publish."'" ;
+        $sqlLine = "SELECT (SELECT COUNT(publish_id) FROM mgr.pm_survey_respon i WHERE i.publish_id = j.id) AS cnt FROM mgr.pm_survey_publish j where id = '".$publish."'" ;
         $result3 = DB::connection('ifcaadm')->select($sqlLine);
 
         $content = array(
@@ -62,10 +62,10 @@ class SurveyResultController extends Controller
     function generatepdf(Request $request)
     {
         $publish = $request->id;
-        $sql = "SELECT * FROM v_pm_survey_result where publish_id ='".$publish."' ORDER BY publish_id ASC" ;
+        $sql = "SELECT * FROM mgr.v_pm_survey_result where publish_id ='".$publish."' ORDER BY publish_id ASC" ;
         $result1 = DB::connection('ifcaadm')->select($sql);
 
-        $sqlLine = "SELECT (SELECT COUNT(DISTINCT user_id) FROM pm_survey_respon i WHERE i.publish_id = j.id) AS cnt FROM pm_survey_publish j where id = '".$publish."'" ;
+        $sqlLine = "SELECT (SELECT COUNT(DISTINCT user_id) FROM mgr.pm_survey_respon i WHERE i.publish_id = j.id) AS cnt FROM mgr.pm_survey_publish j where id = '".$publish."'" ;
         $result3 = DB::connection('ifcaadm')->select($sqlLine);
         if(!empty($result1)){
             $content = array(

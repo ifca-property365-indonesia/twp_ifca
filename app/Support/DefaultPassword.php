@@ -16,7 +16,7 @@ class DefaultPassword
     /** Password default dalam bentuk plain text. */
     public static function get()
     {
-        $value = DB::connection('ifcaadm')->table('defaultpassword')->value('password');
+        $value = DB::connection('ifcaadm')->table('mgr.defaultpassword')->value('password');
         $value = is_string($value) ? trim($value) : '';
         return $value !== '' ? $value : self::FALLBACK;
     }

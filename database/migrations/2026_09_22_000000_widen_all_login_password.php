@@ -16,7 +16,7 @@ return new class extends Migration
     {
         foreach ($this->targets() as $connection) {
             DB::connection($connection)->statement(
-                'ALTER TABLE all_login MODIFY password VARCHAR(255) NOT NULL'
+                'ALTER TABLE mgr.all_login ALTER COLUMN password NVARCHAR(255) NOT NULL'
             );
         }
     }

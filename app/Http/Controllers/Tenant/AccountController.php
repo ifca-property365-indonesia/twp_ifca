@@ -32,10 +32,10 @@ class AccountController extends Controller
             return $this->forbidden();
         }
         // tanpa kolom password
-        $data = DB::select("SELECT id, name, email, handphone, pict, tableforeign, idforeign from all_login where email = ?", [$email]);
+        $data = DB::select("SELECT id, name, email, handphone, pict, tableforeign, idforeign from mgr.all_login where email = ?", [$email]);
         // contact_name dari tabel tenant (business yang sedang dibuka, kalau emailnya sama)
-        $tenant = DB::table('tenant')->where('email', $email)
-            ->orderByRaw('id = ? DESC', [(int) Session::get('Tuser_id')])
+        $tenant = DB::table('mgr.tenant')->where('email', $email)
+            ->orderByRaw('CASE WHEN id = ? THEN 0 ELSE 1 END', [(int) Session::get('Tuser_id')])
             ->first(['contact_name']);
         foreach ($data as $row) {
             $row->contact_name = $tenant->contact_name ?? null;
@@ -116,14 +116,14 @@ class AccountController extends Controller
         
         try { 
             
-                DB::table('all_login')
+                DB::table('mgr.all_login')
                     ->where($criteria)
                     ->update($data);
 
                 // Contact name -> tabel tenant, semua baris dengan email yang sedang login
                 $contact = trim((string) $request->contact_name);
                 if ($request->has('contact_name')) {
-                    DB::table('tenant')
+                    DB::table('mgr.tenant')
                         ->where('email', $email)
                         ->update(['contact_name' => $contact === '' ? null : $contact]);
                     Session::put('Tuname', $contact);
@@ -164,7 +164,7 @@ class AccountController extends Controller
 
         try { 
             
-                DB::table('all_login')
+                DB::table('mgr.all_login')
                     ->where($criteria)
                     ->update($data);
                 

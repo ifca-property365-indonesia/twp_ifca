@@ -10,7 +10,7 @@ class NewsController extends Controller
 {
 	public function index()
 	{
-		$datanewsfeed = DB::table('newsfeed')
+		$datanewsfeed = DB::table('mgr.newsfeed')
 			->where('status', 1)
 			->whereDate('start_date', '<=', now())
 			->whereDate('end_date', '>=', now())

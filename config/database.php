@@ -28,10 +28,13 @@ return [
     | yang sama tetapi dengan nama koneksi yang berbeda di kodenya, jadi semua
     | nama tetap didefinisikan agar controller lama tidak perlu diubah:
     |
-    |   MySQL demo_twp  (DB_*)  : 'mysql'   (default, dipakai kode tenant)
-    |                             'ifcaadm' (dipakai kode admin)
-    |   SQL Server jbc_live (DB_*2) : 'TWP'    (dipakai kode tenant)
-    |                                 'ifcapb' (dipakai kode admin)
+    |   SQL Server demo_twp_adm (DB_*)  : 'mysql'   (default, dipakai kode tenant)
+    |                                     'ifcaadm' (dipakai kode admin)
+    |   SQL Server demo_twp (DB_*2)     : 'dblive'  (dipakai kode tenant)
+    |                                     'ifcapb'  (dipakai kode admin)
+    |
+    |   Semua tabel ada di schema mgr, jadi nama tabel selalu ditulis 'mgr.<tabel>'.
+    |   Koneksi 'mysql' hanya mempertahankan nama lama; drivernya sqlsrv.
     |
     */
 
@@ -49,49 +52,39 @@ return [
             'transaction_mode' => 'DEFERRED',
         ],
 
-        // MySQL demo_twp - default (kode tenant memakai DB::table() tanpa nama koneksi)
+        // SQL Server demo_twp_adm - default (kode tenant memakai DB::table() tanpa nama koneksi).
+        // Nama 'mysql' dipertahankan (DB_CONNECTION=mysql, DB::connection('mysql')), drivernya sqlsrv.
+        // Tabel ada di schema mgr: selalu tulis 'mgr.<tabel>' (default schema user mgr = dbo).
         'mysql' => [
-            'driver' => 'mysql',
+            'driver' => 'sqlsrv',
             'url' => env('DB_URL'),
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'demo_twp'),
-            'username' => env('DB_USERNAME', 'ifcadev'),
+            'host' => env('DB_HOST', 'sql.ifca.co.id'),
+            'port' => env('DB_PORT', '1433'),
+            'database' => env('DB_DATABASE', 'demo_twp_adm'),
+            'username' => env('DB_USERNAME', 'mgr'),
             'password' => env('DB_PASSWORD', ''),
-            'unix_socket' => env('DB_SOCKET', ''),
-            'charset' => env('DB_CHARSET', 'utf8mb4'),
-            'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
+            'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
-            'strict' => true,
-            'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                (PHP_VERSION_ID >= 80500 ? Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
+            'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', true),
         ],
 
-        // MySQL demo_twp - nama koneksi yang dipakai kode admin (strict = false seperti semula)
+        // SQL Server demo_twp_adm - nama koneksi yang dipakai kode admin
         'ifcaadm' => [
-            'driver' => 'mysql',
+            'driver' => 'sqlsrv',
             'url' => env('DB_URL'),
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '3306'),
-            'database' => env('DB_DATABASE', 'demo_twp'),
-            'username' => env('DB_USERNAME', 'ifcadev'),
+            'host' => env('DB_HOST', 'sql.ifca.co.id'),
+            'port' => env('DB_PORT', '1433'),
+            'database' => env('DB_DATABASE', 'demo_twp_adm'),
+            'username' => env('DB_USERNAME', 'mgr'),
             'password' => env('DB_PASSWORD', ''),
-            'unix_socket' => env('DB_SOCKET', ''),
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
+            'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
-            'strict' => false,
-            'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                (PHP_VERSION_ID >= 80500 ? Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
+            'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', true),
         ],
 
-        // SQL Server jbc_live - nama koneksi yang dipakai kode tenant
+        // SQL Server demo_twp - nama koneksi yang dipakai kode tenant
         // ODBC Driver 18 mewajibkan sertifikat tepercaya; server memakai self-signed,
         // jadi default trust_server_certificate = true (override via DB_TRUST_SERVER_CERTIFICATE2).
         'dblive' => [
@@ -108,7 +101,7 @@ return [
             'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE2', true),
         ],
 
-        // SQL Server jbc_live - nama koneksi yang dipakai kode admin
+        // SQL Server demo_twp - nama koneksi yang dipakai kode admin
         'ifcapb' => [
             'driver' => 'sqlsrv',
             'url' => env('DATABASE_URL2'),
@@ -187,7 +180,8 @@ return [
     */
 
     'migrations' => [
-        'table' => 'migrations',
+        // tabel migrations ada di schema mgr (default schema user mgr di SQL Server adalah dbo)
+        'table' => 'mgr.migrations',
         'update_date_on_publish' => true,
     ],
 

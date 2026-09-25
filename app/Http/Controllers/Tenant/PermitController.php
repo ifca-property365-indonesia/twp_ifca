@@ -37,8 +37,8 @@ class PermitController extends BasePermitController
     /** Pemohon = kontak tenant yang sedang login. */
     protected function applicant()
     {
-        $tenant = DB::table('tenant as t')
-            ->leftJoin('all_login as al', 't.email', '=', 'al.email')
+        $tenant = DB::table('mgr.tenant as t')
+            ->leftJoin('mgr.all_login as al', 't.email', '=', 'al.email')
             ->where('al.email', Session::get('Tenemail'))
             // satu email bisa punya baris admin dan tenant di all_login; utamakan baris tenant
             ->orderByRaw("CASE WHEN al.tableforeign = 'tenant' THEN 0 ELSE 1 END")

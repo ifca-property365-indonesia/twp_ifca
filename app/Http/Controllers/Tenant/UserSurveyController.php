@@ -20,14 +20,14 @@ class UserSurveyController extends Controller
         $email = Session::get('Tenemail');
 
         // 1. Cari tahu ID Survey mana saja yang sudah pernah dijawab oleh user ini
-        $answeredSurveyIds = DB::table('survey_respondents')
+        $answeredSurveyIds = DB::table('mgr.survey_respondents')
             ->where('email', $email)
             ->whereIn('business_no', TenantScope::businessNos())
             ->pluck('survey_id') // Hanya ambil kolom survey_id
             ->toArray(); // Ubah menjadi bentuk Array, contoh: [3]
 
         // 2. Ambil survey (Published + Tanggal Berlaku + BELUM DIJAWAB)
-        $surveys = DB::table('surveys')
+        $surveys = DB::table('mgr.surveys')
             ->where('status', 'published')
             ->whereDate('publish_date', '<=', $today)
             ->whereDate('expired_date', '>=', $today)
@@ -37,14 +37,14 @@ class UserSurveyController extends Controller
 
         // 3. Ambil pertanyaan dan opsi untuk masing-masing survey
         foreach ($surveys as $survey) {
-            $survey->questions = DB::table('survey_questions')
+            $survey->questions = DB::table('mgr.survey_questions')
                 ->where('survey_id', $survey->id)
                 ->orderBy('order_no', 'asc')
                 ->get();
 
             foreach ($survey->questions as $q) {
                 if ($q->question_type == 'multiple_choice') {
-                    $q->options = DB::table('survey_question_options')
+                    $q->options = DB::table('mgr.survey_question_options')
                         ->where('question_id', $q->id)
                         ->get();
                 } else {
@@ -69,7 +69,7 @@ class UserSurveyController extends Controller
             $email = Session::get('Tenemail'); 
             
             // 1. Simpan Data Responden
-            $respondentId = DB::connection('mysql')->table('survey_respondents')->insertGetId([
+            $respondentId = DB::connection('mysql')->table('mgr.survey_respondents')->insertGetId([
                 'survey_id'   => $request->survey_id,
                 'email'       => $email, // Mengutamakan email dari session
                 'business_no' => $business_no, // <-- Menyimpan business_no dari session
@@ -86,7 +86,7 @@ class UserSurveyController extends Controller
                     $remarks = isset($request->remarks[$questionId]) ? $request->remarks[$questionId] : null;
 
                     // Ambil tipe pertanyaan dari database untuk menentukan tempat simpan jawaban
-                    $question = DB::connection('mysql')->table('survey_questions')
+                    $question = DB::connection('mysql')->table('mgr.survey_questions')
                         ->where('id', $questionId)
                         ->first();
 
@@ -116,7 +116,7 @@ class UserSurveyController extends Controller
 
             // 3. Insert Semua Jawaban (Bulk Insert)
             if (!empty($answersData)) {
-                DB::connection('mysql')->table('survey_answers')->insert($answersData);
+                DB::connection('mysql')->table('mgr.survey_answers')->insert($answersData);
             }
 
             // Validasi & Simpan permanen ke database

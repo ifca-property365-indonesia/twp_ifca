@@ -15,7 +15,7 @@ class OnlineSurveyController extends Controller
         $business_no = Session::get('business_no');
 
         // Ambil semua publish aktif
-        $dataPub = DB::table('pm_survey_publish')
+        $dataPub = DB::table('mgr.pm_survey_publish')
             ->where('publishdate', '<=', date("Y-m-d"))
             ->where('expireddate', '>=', date("Y-m-d"))
             ->where('flag_publish', 1)
@@ -25,7 +25,7 @@ class OnlineSurveyController extends Controller
         $cnR = 0;     
 
         // 🔥 Ambil semua publish_id yang SUDAH dijawab user (sekali query saja)
-        $answered = DB::table('pm_survey_respon')
+        $answered = DB::table('mgr.pm_survey_respon')
             ->whereIn('user_id', TenantScope::businessNos())
             ->pluck('publish_id')
             ->toArray();
@@ -43,7 +43,7 @@ class OnlineSurveyController extends Controller
                 // ✅ Kalau belum isi → tampilkan
                 $lsP .= '<h5 class="fw-bold text-primary border-bottom pb-2 mb-3">'.e($publish->title).'</h5>';
 
-                $dataSur = DB::table('pm_survey_hd')
+                $dataSur = DB::table('mgr.pm_survey_hd')
                     ->where('publish_id', $publish->id)
                     ->get();
 
@@ -56,7 +56,7 @@ class OnlineSurveyController extends Controller
                         $lsP .= '<div class="mb-4"><div class="form-label fs-6">'.$survey->content.'</div>';
                         $lsP .= '<input type="hidden" name="s[]" value="'.$survey->id.'">';
 
-                        $dataOpt = DB::table('pm_survey_dt')
+                        $dataOpt = DB::table('mgr.pm_survey_dt')
                             ->where('survey_id', $survey->id)
                             ->get();
 
@@ -119,7 +119,7 @@ class OnlineSurveyController extends Controller
                 'audit_date' => date('Y-m-d H:i:s')
             );
 
-            $query = DB::table('pm_survey_respon')
+            $query = DB::table('mgr.pm_survey_respon')
                 ->insert($data);
             if ($query != "OK") {
                 $msg = $query;
