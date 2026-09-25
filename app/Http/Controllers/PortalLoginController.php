@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Session;
  * dan oleh menu "pindah portal" di header (switchAdmin / switchTenant).
  *
  * Pengisian session tetap dilakukan oleh LoginController masing-masing portal
- * (createSession) supaya isinya sama persis dengan login lama.
+ * (createSession) supaya isinya sama persis dengan login lama...
  */
 class PortalLoginController extends Controller
 {
