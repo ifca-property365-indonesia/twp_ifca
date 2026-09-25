@@ -137,6 +137,9 @@ public function getDraftTable(Request $request)
     public function publishForm($id)
     {
         $survey = DB::connection('ifcaadm')->table('mgr.surveys')->where('id', $id)->first();
+        if (!$survey) {
+            abort(404, __('admin/survey.survey_not_found'));
+        }
         return view('admin.survey.new.publish_form', compact('survey'));
     }
 

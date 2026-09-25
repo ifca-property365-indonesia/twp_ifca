@@ -34,9 +34,10 @@ class SurveyPublishController extends Controller
         $table = "SELECT subject,id from mgr.pm_tmpsurvey order by subject asc";
         $proDescs = DB::connection('ifcaadm')->select($table);
         
-        $comboProject[]='';
+        // belum ada template -> dropdown kosong (dulu array dicetak: "Array to string conversion")
+        $comboProject = '<option></option>';
         if(!empty($proDescs)) {
-            $comboProject[] = '<option></option>';
+            $comboProject = ['<option></option>'];
             foreach ($proDescs as $dtProject) {
                 $comboProject[] = '<option value="'.$dtProject->id.'">'.$dtProject->subject.'</option>';
             }

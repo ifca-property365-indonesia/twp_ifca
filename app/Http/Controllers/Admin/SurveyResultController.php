@@ -17,6 +17,9 @@ class SurveyResultController extends Controller
         return DataTables::of($query)->make(true);
     }
     public function viewresult($publish=''){
+        if (!DB::connection('ifcaadm')->table('mgr.pm_survey_publish')->where('id', (int) $publish)->exists()) {
+            abort(404);
+        }
        
         $sql = "SELECT DISTINCT
                 c.id AS publish_id,
