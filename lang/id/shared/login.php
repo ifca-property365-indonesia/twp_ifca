@@ -4,7 +4,7 @@
 return [
     'page_title'        => 'Masuk',
     'log_in'            => 'Masuk',
-    'portal_name'       => 'Carstensz Tenant Portal',
+    'portal_name'       => 'IFCA Tenant Portal',
     'business_name'     => 'Nama Bisnis',
     'ph_email'          => 'Masukkan alamat email Anda',
     'ph_password'       => 'Masukkan kata sandi Anda',

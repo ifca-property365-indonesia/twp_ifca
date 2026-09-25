@@ -58,5 +58,5 @@ return [
     'pdf_heading'      => 'Ringkasan Pemakaian Listrik',
     'pdf_lwbp'         => 'Pemakaian LWBP (kwh)',
     'pdf_wbp'          => 'Pemakaian WBP (kwh)',
-    'pdf_disclaimer'   => 'Portal Web Tenant Carstensz dapat memuat informasi yang dibuat dan dikelola oleh berbagai sumber, baik internal maupun eksternal. Carstensz Building Management tidak bertanggung jawab, baik secara langsung maupun tidak langsung, atas kerusakan atau kerugian apa pun yang timbul atau diduga timbul akibat penggunaan atau ketergantungan pada konten tersebut di Portal Web Tenant Carstensz',
+    'pdf_disclaimer'   => 'Portal Web Tenant IFCA dapat memuat informasi yang dibuat dan dikelola oleh berbagai sumber, baik internal maupun eksternal. IFCA Building Management tidak bertanggung jawab, baik secara langsung maupun tidak langsung, atas kerusakan atau kerugian apa pun yang timbul atau diduga timbul akibat penggunaan atau ketergantungan pada konten tersebut di Portal Web Tenant IFCA',
 ];

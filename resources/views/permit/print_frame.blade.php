@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title }}</title>
     {{-- Ikon tab sama dengan portal TWP (layouts/app.blade.php) --}}
-    <link rel="shortcut icon" href="{{ url('images/logo/logoweb.png') }}">
+    <link rel="shortcut icon" href="{{ url('images/logo/IFCA.png') }}">
     <style>
         html, body { height: 100%; margin: 0; background: #525659; }
         iframe { display: block; width: 100%; height: 100%; border: 0; }

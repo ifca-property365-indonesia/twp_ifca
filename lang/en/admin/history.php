@@ -54,5 +54,5 @@ return [
     'pdf_no_data_row'    => 'No Data Available',
     'pdf_open'           => 'Open',
     'pdf_process'        => 'Process',
-    'pdf_disclaimer'     => 'Carstensz Tenant Web Portal may contain information that is created and managed by various sources, both internal and external. At no time shall Carstensz Building Management be responsible or liable, directly or indirectly, for any damage or loss resulting from or alleged to result from the use of or reliance on any such content in Carstensz Tenant Web Portal',
+    'pdf_disclaimer'     => 'IFCA Tenant Web Portal may contain information that is created and managed by various sources, both internal and external. At no time shall IFCA Building Management be responsible or liable, directly or indirectly, for any damage or loss resulting from or alleged to result from the use of or reliance on any such content in IFCA Tenant Web Portal',
 ];

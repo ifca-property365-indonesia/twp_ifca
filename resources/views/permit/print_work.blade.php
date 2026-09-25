@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ $header->complain_no }}</title>
-    {{-- Work Permit (W) mengikuti form kertas "SURAT IZIN KERJA / WORKING PERMIT" Carstensz. --}}
+    {{-- Work Permit (W) mengikuti form kertas "SURAT IZIN KERJA / WORKING PERMIT". --}}
     <style type="text/css">
         @page { margin: 34px 46px 30px; }
         body { font-family: "DejaVu Sans", Helvetica, Arial, sans-serif; font-size: 8.5px; color: #000; margin: 0; }
@@ -54,7 +54,7 @@
     $letterDate = ($header->date_approved ?? null) ?: $header->audit_date;
     $lt = strtotime($letterDate);
 
-    $area   = $txt($tenancy->project_desc ?? '') ?: 'Carstensz Residence & Mall';
+    $area   = $txt($tenancy->project_desc ?? '') ?: 'IFCA';
     $floor  = $txt($detail->floor ?? $header->floor);
     $unit   = $txt($detail->unit ?? $header->lot_no);
     $tower  = $txt($detail->tower ?? '');
@@ -75,7 +75,7 @@
         <td class="center" style="width: 56%; padding-top: 8px;">
             <div class="title">SURAT IZIN KERJA</div>
             <div class="subtitle">WORKING PERMIT</div>
-            <div class="docno">NO : {{ $header->complain_no }} / SIK / CEM-CARSTENSZ / {{ $roman[(int) date('n', $lt)] }} / {{ date('Y', $lt) }}</div>
+            <div class="docno">NO : {{ $header->complain_no }} / SIK / CEM-IFCA / {{ $roman[(int) date('n', $lt)] }} / {{ date('Y', $lt) }}</div>
         </td>
         <td class="center" style="width: 22%;">
             @if (is_file($logo))

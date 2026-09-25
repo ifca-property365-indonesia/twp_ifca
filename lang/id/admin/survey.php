@@ -113,5 +113,5 @@ return [
     'dt_respondents_empty'    => 'Menampilkan 0 responden',
 
     // PDF
-    'pdf_disclaimer'          => 'Carstensz Tenant Web Portal dapat memuat informasi yang dibuat dan dikelola oleh berbagai sumber, baik internal maupun eksternal. Carstensz Building Management tidak bertanggung jawab, baik secara langsung maupun tidak langsung, atas kerusakan atau kerugian apa pun yang timbul atau diduga timbul dari penggunaan atau ketergantungan pada konten tersebut di Carstensz Tenant Web Portal',
+    'pdf_disclaimer'          => 'IFCA Tenant Web Portal dapat memuat informasi yang dibuat dan dikelola oleh berbagai sumber, baik internal maupun eksternal. IFCA Building Management tidak bertanggung jawab, baik secara langsung maupun tidak langsung, atas kerusakan atau kerugian apa pun yang timbul atau diduga timbul dari penggunaan atau ketergantungan pada konten tersebut di IFCA Tenant Web Portal',
 ];

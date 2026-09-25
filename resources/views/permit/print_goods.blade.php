@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ $header->complain_no }}</title>
-    {{-- Entry (I) / Exit (O) Permit of Goods mengikuti form kertas "SURAT IZIN KELUAR / MASUK BARANG" Carstensz. --}}
+    {{-- Entry (I) / Exit (O) Permit of Goods mengikuti form kertas "SURAT IZIN KELUAR / MASUK BARANG". --}}
     <style type="text/css">
         @page { margin: 30px 46px 26px; }
         body { font-family: "DejaVu Sans", Helvetica, Arial, sans-serif; font-size: 8.5px; color: #000; margin: 0; }
@@ -83,7 +83,7 @@
         <td style="width: 20%;"></td>
         <td class="center" style="width: 60%; vertical-align: bottom; padding-top: 30px;">
             <div class="title">SURAT IZIN KELUAR / MASUK BARANG</div>
-            <div style="font-size: 9.5px; margin-top: 2px;">No : {{ $header->complain_no }} / SKMB / CEM-CARSTENSZ / {{ $roman[(int) date('n', $lt)] }} / {{ date('Y', $lt) }}</div>
+            <div style="font-size: 9.5px; margin-top: 2px;">No : {{ $header->complain_no }} / SKMB / CEM-IFCA / {{ $roman[(int) date('n', $lt)] }} / {{ date('Y', $lt) }}</div>
         </td>
         <td class="center" style="width: 20%;">
             @if (is_file($logo))

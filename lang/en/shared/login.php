@@ -4,7 +4,7 @@
 return [
     'page_title'        => 'Log in',
     'log_in'            => 'Log In',
-    'portal_name'       => 'Carstensz Tenant Portal',
+    'portal_name'       => 'IFCA Tenant Portal',
     'business_name'     => 'Business Name',
     'ph_email'          => 'Enter your email address',
     'ph_password'       => 'Enter your password',

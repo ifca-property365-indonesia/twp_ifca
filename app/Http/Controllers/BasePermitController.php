@@ -1482,7 +1482,7 @@ abstract class BasePermitController extends Controller
                 'tools'   => $permit['tools'],
                 'tenancy' => $tenancy,
                 'tenant'  => $tenant,
-                'logo'    => base_path('images/logo/carstensz-logo-print.jpg'),
+                'logo'    => base_path('images/logo/IFCA.png'),
             ])
                 ->setPaper('a4', 'portrait')
                 ->stream($header->complain_no . '.pdf');
@@ -1496,7 +1496,7 @@ abstract class BasePermitController extends Controller
             'tenancy' => $tenancy,
             'tenant'  => $tenant,
             'type'    => $header->complain_type,
-            'logo'    => base_path('images/logo/carstensz-logo-print.jpg'),
+            'logo'    => base_path('images/logo/IFCA.png'),
         ])
             ->setPaper('a4', 'portrait')
             ->stream($header->complain_no . '.pdf');

@@ -13,7 +13,7 @@
     <div class="sidebar-header border-bottom">
         <div class="sidebar-brand">
             <a href="{{ url('/admin/dash') }}" class="d-flex align-items-center gap-2 text-decoration-none text-white">
-                <img src="{{ url('/images/logo/logoweb.png') }}" alt="IFCA">
+                <img src="{{ url('/images/logo/IFCA.png') }}" alt="IFCA">
                 <span class="fw-bold">{{ __('admin.menu.brand') }}</span>
             </a>
         </div>
