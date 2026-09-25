@@ -91,6 +91,8 @@ class SurveyPublishController extends Controller
                         ->where($wheretmp)
                         ->get(); 
                     
+                    $datadtl = []; // template tanpa opsi -> tidak ada baris detail
+                    
                     foreach ($datatmpdtl as $key) {
                         $datadtl[] = array(
                             'publish_id' => $publish_id,
@@ -151,6 +153,8 @@ class SurveyPublishController extends Controller
                         ->table('mgr.pm_tmpsurvey_dtl')
                         ->where($wheretmp)
                         ->get(); 
+                            
+                        $datadtl = []; // template tanpa opsi -> tidak ada baris detail
                             
                         foreach ($datatmpdtl as $key) {
                             $datadtl[] = array(

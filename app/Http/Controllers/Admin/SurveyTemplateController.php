@@ -39,7 +39,8 @@ class SurveyTemplateController extends Controller
       
             $audit_date = date('Y-m-d H:i:s');
             $audit_user = Session::get('Tsuser_id');
-            $batasLoop = COUNT($options);
+            $batasLoop = count((array) $options);
+            $datadtl = [];
 
         $datahdr = array(
             'subject'=>$subject,

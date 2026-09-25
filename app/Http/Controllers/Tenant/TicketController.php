@@ -375,6 +375,13 @@ class TicketController extends Controller
                 
             $assign_to = $dataspec[0]->descs ?? null;
 
+            // hanya tenancy dalam cakupan tenant yang login; edit hanya ticket milik tenancy itu
+            $scopeIds = TenantScope::tenancies()->pluck('id')->map(fn ($v) => (int) $v)->all();
+            $ownerTenancy = $id > 0 ? DB::table('mgr.sv_entry_multi')->where('id', (int) $id)->value('id_tenancy') : $tenant_no;
+            if (!in_array((int) $tenant_no, $scopeIds, true) || !in_array((int) $ownerTenancy, $scopeIds, true)) {
+                throw new \Exception(__('tenant/ticket.tenant_not_found', ['tenant' => $tenant_no]));
+            }
+
             $data_tenant = DB::table('mgr.pm_tenancy')->where('id', $tenant_no)->get();
 
             if ($data_tenant->isEmpty()) {

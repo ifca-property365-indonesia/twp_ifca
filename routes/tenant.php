@@ -62,6 +62,8 @@ Route::group(['middleware' => ['tenant-auth', 'revalidate']], function () {
 	Route::post('/ticket/getLotNo', [Ticket::class, 'getLotNo']);
 	Route::get('/ticket/getLotNoEdit/{tenant_no}/{lot_no}', [Ticket::class, 'getLotnoEdit']);
 	Route::post('/ticket/savepic', [Ticket::class, 'savepic']);
+	// simpan ticket baru / edit (dulu POST /api/ticket/save tanpa login)
+	Route::post('/ticket/save', [Ticket::class, 'update']);
 	Route::get('/ticketharga/getHargaItem', [Ticket::class, 'getHargaItem']);
 	Route::get('/ticketharga/getHargaJasa', [Ticket::class, 'getHargaJasa']);
 

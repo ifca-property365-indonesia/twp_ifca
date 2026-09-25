@@ -14,13 +14,13 @@ class AccountController extends Controller
 {
     public function getTable()
     {
-        $query = DB::connection('ifcaadm')->select("SELECT ROW_NUMBER() OVER (ORDER BY t.id) AS [row_number], t.* FROM mgr.all_login t");
+        $query = DB::connection('ifcaadm')->select("SELECT ROW_NUMBER() OVER (ORDER BY t.id) AS [row_number], t.id, t.name, t.email, t.handphone, t.pict, t.tableforeign, t.idforeign FROM mgr.all_login t");
         return DataTables::of($query)->make(true);
     }
     public function getbyemail($email)
     {
         $data = DB::connection('ifcaadm')
-            ->select("SELECT * from mgr.all_login where email = ?", [$email]);
+            ->select("SELECT id, name, email, handphone, pict, tableforeign, idforeign from mgr.all_login where email = ?", [$email]);
         echo json_encode($data);
     }
     /**

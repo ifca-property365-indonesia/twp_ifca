@@ -1,8 +1,6 @@
 <?php
 
 use App\Http\Controllers\Admin\WsbangunController;
-use App\Http\Controllers\Tenant\DashController as TenantDash;
-use App\Http\Controllers\Tenant\TicketController as TenantTicket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +12,9 @@ use Illuminate\Support\Facades\Route;
 | Gabungan routes/api.php webadmin + webtenant. Tetap di /api/... (tanpa
 | prefix portal) supaya integrasi eksternal (mis. Wsbangun) tidak berubah.
 |
+| Simpan ticket (dulu /api/ticket/save) dan grafik meter (dulu /api/dash/getGraphMeterId)
+| dipindah ke routes/tenant.php: keduanya butuh login tenant (session).
+|
 */
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -23,7 +24,3 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // --- dari webadmin ---
 Route::post('/business/{method}/{value}', [WsbangunController::class, 'business']);
 Route::post('/ticket/update/{params}', [WsbangunController::class, 'update_ticket']);
-
-// --- dari webtenant ---
-Route::post('/ticket/save', [TenantTicket::class, 'update']);
-Route::post('/dash/getGraphMeterId', [TenantDash::class, 'getGraphMeterId']);

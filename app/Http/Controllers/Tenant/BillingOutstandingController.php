@@ -31,16 +31,15 @@ class BillingOutstandingController extends Controller
             ->get();
         $list_bill = '';
         $footer_bill = '';
+        $totalOutstanding = '';
         $i = 1;
         $statusPembayaran = true;
 
         if (!empty($dataTenancy)) {
             $entity = $dataTenancy[0]->entity_cd;
             $project = $dataTenancy[0]->project_no;
-            $sumBilling = array(
-                'RP'=>0,
-                'USD'=>0
-            );
+            // total per mata uang (currency_cd dari ar_ledger, mis. IDR / USD)
+            $sumBilling = array();
 
             $dataBilling = $this->get_soa_by_tenant($entity,$project,$tenant_no);
             if (!empty($dataBilling)) {
@@ -63,39 +62,21 @@ class BillingOutstandingController extends Controller
                     $list_bill .= '<td align="right">'. number_format($billing->fbal_amt,2,",",".").'</td>';
                     $list_bill .= '</tr>';
 
-                    switch ($billing->currency_cd) {
-                        case 'RP':
-                            $sumBilling['RP'] += $billing->fbal_amt;
-                            break;
-                        case 'USD':
-                            $sumBilling['USD'] += $billing->fbal_amt;
-                            break;
-                    }
+                    $currency = strtoupper(trim((string) $billing->currency_cd));
+                    $sumBilling[$currency] = ($sumBilling[$currency] ?? 0) + $billing->fbal_amt;
                     $i++;
                 }
 
-                // TAMBAHKAN DI SINI
-                $totalOutstanding = '';
-
-                if($sumBilling['RP'] != 0){
-                    $totalOutstanding .= 'RP '.number_format($sumBilling['RP'],2,",",".");
-                }
-
-                if($sumBilling['USD'] != 0){
-
-                    if($totalOutstanding != ''){
-                        $totalOutstanding .= ' | ';
+                $first = true;
+                foreach ($sumBilling as $currency => $amount) {
+                    if ($amount == 0) {
+                        continue;
                     }
-
-                    $totalOutstanding .= 'USD '.number_format($sumBilling['USD'],2,",",".");
-                }
-
-                if($sumBilling['RP']!=0) {
-                    $footer_bill .= '<tr><td colspan="6" align="center"><b>'.e(__('tenant/billing.total')).'</b></td><td><b><span>RP</span></b></td><td align="right"><b><span>'.number_format($sumBilling['RP'],2,",",".").'</span></b></td></tr>';
-                }
-
-                if($sumBilling['USD']!=0) {
-                    $footer_bill .= '<tr><td colspan="6" align="right"></td><td><b><span>USD</span></b></td><td align="right"><b><span>'.number_format($sumBilling['USD'],2,",",".").'</span></b></td></tr>';
+                    $amountText = number_format($amount, 2, ",", ".");
+                    $totalOutstanding .= ($totalOutstanding !== '' ? ' | ' : '') . e($currency) . ' ' . $amountText;
+                    $label = $first ? '<b>' . e(__('tenant/billing.total')) . '</b>' : '';
+                    $footer_bill .= '<tr><td colspan="6" align="center">' . $label . '</td><td><b><span>' . e($currency) . '</span></b></td><td align="right"><b><span>' . $amountText . '</span></b></td></tr>';
+                    $first = false;
                 }
                 $statusPembayaran = false;
             }
@@ -313,10 +294,10 @@ class BillingOutstandingController extends Controller
                 mgr.pl_project d 
                 ON a.entity_cd = d.entity_cd
                 AND a.project_no = d.project_no 
-            WHERE a.meter_type='E' AND " . TenantScope::sqlEntity('a.entity_cd') . " and " . TenantScope::sqlTenantNo('b.debtor_acct') . " AND b.lot_no='$lotno' ORDER BY a.read_date";
+            WHERE a.meter_type='E' AND " . TenantScope::sqlEntity('a.entity_cd') . " and " . TenantScope::sqlTenantNo('b.debtor_acct') . " AND b.lot_no = ? ORDER BY a.read_date";
 
         
-        $query = DB::connection('dblive')->select($sql);
+        $query = DB::connection('dblive')->select($sql, [(string) $lotno]);
         return $query;
     }
 
@@ -328,17 +309,17 @@ class BillingOutstandingController extends Controller
             $today = date('d M Y H:i:s', strtotime($date_until));
         }
 
-        $sql = "SELECT DISTINCT pp.descs AS prj_desc, ad.name, ad.address1, ad.address2, ad.address3, ad.post_cd, al.doc_no, al.due_date, al.descs AS ar_ldg_desc, al.fdoc_amt, sum(ac.trx_amt) AS alloc_amt, al.trx_mode, al.trx_type, al.entity_cd, al.project_no, al.debtor_acct, al.mcurr_cd, al.currency_cd, al.currency_rate, ars.age1, ars.age2, ars.age3, ars.age4, ars.age5, ars.age6, al.start_date, al.end_date, al.fbal_amt, al.old_ref_no, al.doc_date 
+        $sql = "SELECT DISTINCT pp.descs AS prj_desc, ad.name, ad.address1, ad.address2, ad.address3, ad.post_cd, al.doc_no, al.due_date, al.descs AS ar_ldg_desc, al.fdoc_amt, sum(ac.trx_amt) AS alloc_amt, al.trx_mode, al.trx_type, al.entity_cd, al.project_no, al.debtor_acct, ce.base_currency AS mcurr_cd, al.currency_cd, al.currency_rate, ars.age1, ars.age2, ars.age3, ars.age4, ars.age5, ars.age6, NULL AS start_date, NULL AS end_date, al.fbal_amt, al.old_doc_no AS old_ref_no, al.doc_date 
             FROM mgr.ar_ledger al
             INNER JOIN mgr.ar_debtor ad ON  al.entity_cd = ad.entity_cd AND al.project_no = ad.project_no AND al.debtor_acct = ad.debtor_acct
             INNER JOIN mgr.cf_entity ce 
-            ON  al.entity_cd = ce.entity_cd AND al.mcurr_cd = ce.base_currency
+            ON  al.entity_cd = ce.entity_cd
             INNER JOIN mgr.pl_project pp
             ON  al.project_no = pp.project_no AND al.entity_cd = pp.entity_cd
             LEFT OUTER JOIN mgr.ar_alloc ac 
-            ON  al.entity_cd = ac.entity_cd AND al.project_no = ac.project_no AND al.debtor_acct = ac.debtor_acct AND al.doc_no = ac.debit_doc AND al.doc_date = ac.debit_date AND al.trx_type = ac.debit_trx AND al.currency_cd = ac.mcurr_cd AND ac.trx_date <= getdate(), mgr.ar_spec ars
+            ON  al.entity_cd = ac.entity_cd AND al.project_no = ac.project_no AND al.debtor_acct = ac.debtor_acct AND al.doc_no = ac.debit_doc AND al.doc_date = ac.debit_date AND al.trx_type = ac.debit_trx AND al.currency_cd = ac.currency_cd AND ac.trx_date <= getdate(), mgr.ar_spec ars
             WHERE al.class='I' AND " . TenantScope::sqlTenantNo('al.debtor_acct') . " AND al.doc_date <= getdate() AND fbal_amt > 0
-            GROUP BY pp.descs, ad.name, ad.address1, ad.address2, ad.address3, ad.post_cd, al.doc_no, al.due_date, al.descs, al.fdoc_amt, al.trx_mode, al.trx_type, al.entity_cd, al.project_no, al.debtor_acct, al.mcurr_cd, al.currency_cd, al.currency_rate, ars.age1, ars.age2, ars.age3, ars.age4, ars.age5, ars.age6, al.fbal_amt, al.old_ref_no, al.start_date,  al.end_date, al.doc_date  
+            GROUP BY pp.descs, ad.name, ad.address1, ad.address2, ad.address3, ad.post_cd, al.doc_no, al.due_date, al.descs, al.fdoc_amt, al.trx_mode, al.trx_type, al.entity_cd, al.project_no, al.debtor_acct, ce.base_currency, al.currency_cd, al.currency_rate, ars.age1, ars.age2, ars.age3, ars.age4, ars.age5, ars.age6, al.fbal_amt, al.old_doc_no, al.doc_date  
             HAVING al.fdoc_amt - isnull(sum(ac.trx_amt),0) > 0";
         $query = DB::connection('dblive')->select($sql);
         return $query;

@@ -69,6 +69,7 @@ class DashController extends Controller
                 }
 
                 $totalProforma .= $currency.' '.number_format($amount,2,",",".");
+                $first = false;
             }
 
             $statusProforma = false;
@@ -108,6 +109,7 @@ class DashController extends Controller
                 }
 
                 $totalInvoice .= $currency.' '.number_format($amount,2,",",".");
+                $first = false;
             }
 
             $statusInvoice = false;
@@ -433,9 +435,9 @@ public function getEusage_by_lotno($entity="", $project="", $tenant_no="", $lotn
                 mgr.pl_project d 
                 ON a.entity_cd = d.entity_cd
                 AND a.project_no = d.project_no 
-            WHERE a.meter_type='E' AND " . TenantScope::sqlEntity('a.entity_cd') . " and " . TenantScope::sqlTenantNo('b.debtor_acct') . " AND b.lot_no='$lotno' ORDER BY a.read_date";
+            WHERE a.meter_type='E' AND " . TenantScope::sqlEntity('a.entity_cd') . " and " . TenantScope::sqlTenantNo('b.debtor_acct') . " AND b.lot_no = ? ORDER BY a.read_date";
 
-        $query = DB::connection('dblive')->select($sql);
+        $query = DB::connection('dblive')->select($sql, [(string) $lotno]);
         return $query;
     }
 
@@ -450,11 +452,13 @@ public function getEusagehis_by_lotmeter($entity="", $tenant_no="", $meterId="",
             FROM mgr.pm_meter_dtl_his a
             WHERE " . TenantScope::sqlEntity('a.entity_cd') . "
             AND " . TenantScope::sqlTenantNo('a.debtor_acct') . "
-            AND a.meter_id = '$meterId'
-            AND a.meter_cd LIKE '{$utility}%'
-            AND YEAR(a.read_date) = $year
+            AND a.meter_id = ?
+            AND a.meter_cd LIKE ?
+            AND YEAR(a.read_date) = ?
             ORDER BY a.read_date";
-        $query = DB::connection('dblive')->select($sql);
+        // nilai dari request: lewat binding; tahun kosong / bukan angka -> tahun ini
+        $year = ctype_digit((string) $year) ? (int) $year : (int) date('Y');
+        $query = DB::connection('dblive')->select($sql, [(string) $meterId, $utility . '%', $year]);
 
         return $query;
     }

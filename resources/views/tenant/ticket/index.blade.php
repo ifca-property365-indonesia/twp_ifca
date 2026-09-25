@@ -426,7 +426,7 @@
 					);
 
 					$.ajax({
-						url: "{{ url('api/ticket/save') }}",
+						url: "{{ url('tenant/ticket/save') }}",
 						type: "POST",
 						data: datafrm,
 						dataType: "json",

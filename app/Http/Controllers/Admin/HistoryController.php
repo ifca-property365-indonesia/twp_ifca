@@ -106,15 +106,13 @@ class HistoryController extends Controller
         }else{
             $date_start=$date_start." 00:00:00";
         }
-        $where = '';
-
-        if($debtor!='' || !empty($debtor))
-        {
-            $where=" AND debtor_acct='".$debtor."' ".$where;
+        $sql = "SELECT ROW_NUMBER() OVER (ORDER BY begin_date desc) AS [row_number], * from mgr.v_overtime_history where begin_date between CONVERT(DATETIME,?,110) and CONVERT(DATETIME,?,110)";
+        $bindings = [$date_start, $date_end];
+        if ($debtor !== '') {
+            $sql .= " AND debtor_acct = ?";
+            $bindings[] = $debtor;
         }
-
-        $sql ="SELECT ROW_NUMBER() OVER (ORDER BY begin_date desc) AS [row_number], * from mgr.v_overtime_history where  begin_date between CONVERT(DATETIME,'".$date_start."',110) and CONVERT(DATETIME,'".$date_end."',110)".$where ;
-        $query = DB::connection('ifcapb')->select($sql);
+        $query = DB::connection('ifcapb')->select($sql, $bindings);
         return DataTables::of($query)->make(true);
     }
     public function getTableLog(Request $request)

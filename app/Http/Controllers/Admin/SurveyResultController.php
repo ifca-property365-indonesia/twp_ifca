@@ -45,12 +45,12 @@ class SurveyResultController extends Controller
                   AND d.respon = b.line_no
             LEFT JOIN mgr.all_login e 
                    ON d.email_addr = e.email
-            Where a.publish_id ='".$publish."'
+            Where a.publish_id = ?
             ORDER BY c.id, a.quest_no, b.line_no, d.date_created";
-        $result1 = DB::connection('ifcaadm')->select($sql);
+        $result1 = DB::connection('ifcaadm')->select($sql, [$publish]);
 
-        $sqlLine = "SELECT (SELECT COUNT(publish_id) FROM mgr.pm_survey_respon i WHERE i.publish_id = j.id) AS cnt FROM mgr.pm_survey_publish j where id = '".$publish."'" ;
-        $result3 = DB::connection('ifcaadm')->select($sqlLine);
+        $sqlLine = "SELECT (SELECT COUNT(publish_id) FROM mgr.pm_survey_respon i WHERE i.publish_id = j.id) AS cnt FROM mgr.pm_survey_publish j where id = ?";
+        $result3 = DB::connection('ifcaadm')->select($sqlLine, [$publish]);
 
         $content = array(
                          'dtsurvey'=>$result1,
@@ -62,11 +62,11 @@ class SurveyResultController extends Controller
     function generatepdf(Request $request)
     {
         $publish = $request->id;
-        $sql = "SELECT * FROM mgr.v_pm_survey_result where publish_id ='".$publish."' ORDER BY publish_id ASC" ;
-        $result1 = DB::connection('ifcaadm')->select($sql);
+        $sql = "SELECT * FROM mgr.v_pm_survey_result where publish_id = ? ORDER BY publish_id ASC";
+        $result1 = DB::connection('ifcaadm')->select($sql, [$publish]);
 
-        $sqlLine = "SELECT (SELECT COUNT(DISTINCT user_id) FROM mgr.pm_survey_respon i WHERE i.publish_id = j.id) AS cnt FROM mgr.pm_survey_publish j where id = '".$publish."'" ;
-        $result3 = DB::connection('ifcaadm')->select($sqlLine);
+        $sqlLine = "SELECT (SELECT COUNT(DISTINCT user_id) FROM mgr.pm_survey_respon i WHERE i.publish_id = j.id) AS cnt FROM mgr.pm_survey_publish j where id = ?";
+        $result3 = DB::connection('ifcaadm')->select($sqlLine, [$publish]);
         if(!empty($result1)){
             $content = array(
                 'dtsurvey'=>$result1,

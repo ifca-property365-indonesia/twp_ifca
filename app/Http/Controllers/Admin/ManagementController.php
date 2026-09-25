@@ -20,17 +20,17 @@ class ManagementController extends Controller
         SELECT top 10 
             l.creditor_acct,
             c.name,
-            SUM(l.Mbal_doc) as amount
+            SUM(l.mbal_amt) as amount
         FROM mgr.ap_ledger l
         INNER JOIN mgr.ap_creditor c
             ON l.creditor_acct = c.creditor_acct
         WHERE l.entity_cd = '01'
             AND l.class_cd = 'I'
-            AND l.Mbal_doc > 0
+            AND l.mbal_amt > 0
         GROUP BY 
             l.creditor_acct, 
             c.name
-        ORDER BY SUM(l.Mbal_doc) DESC
+        ORDER BY SUM(l.mbal_amt) DESC
         ");
 
         return response()->json($data);

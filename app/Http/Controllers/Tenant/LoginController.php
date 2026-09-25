@@ -149,8 +149,8 @@ class LoginController extends Controller
             $wherein2 = "''";
         }
 
-        $query2 = "SELECT * FROM mgr.tenant WHERE email = '$email' AND business_no IN ($wherein2)";
-        return DB::select($query2);
+        $query2 = "SELECT * FROM mgr.tenant WHERE email = ? AND business_no IN ($wherein2)";
+        return DB::select($query2, [$email]);
     }
 
     function get_combo($selected_id = "", $crit = null)
