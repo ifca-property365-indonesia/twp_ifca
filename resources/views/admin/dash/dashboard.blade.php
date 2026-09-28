@@ -76,7 +76,7 @@
             <div class="row g-3 mb-3">
                 <div class="col-sm-4 col-md-3">
                     <label for="usageYear" class="form-label">{{ __('common.year') }}</label>
-                    <select id="usageYear" class="form-select">
+                    <select id="usageYear" class="form-select js-select">
                         @foreach ($usage_years as $year)
                             <option value="{{ $year }}" {{ $selected_year == $year ? 'selected' : '' }}>{{ $year }}</option>
                         @endforeach
@@ -84,7 +84,7 @@
                 </div>
                 <div class="col-sm-4 col-md-3">
                     <label for="usageMonth" class="form-label">{{ __('common.month') }}</label>
-                    <select id="usageMonth" class="form-select">
+                    <select id="usageMonth" class="form-select js-select">
                         @foreach ($usage_months as $monthNo => $monthName)
                             <option value="{{ $monthNo }}" {{ $selected_month == $monthNo ? 'selected' : '' }}>{{ $monthName }}</option>
                         @endforeach
@@ -92,7 +92,7 @@
                 </div>
                 <div class="col-sm-4 col-md-3">
                     <label for="usageCategory" class="form-label">{{ __('common.category') }}</label>
-                    <select id="usageCategory" class="form-select">
+                    <select id="usageCategory" class="form-select js-select">
                         <option value="W">{{ __('admin/dashboard.water') }}</option>
                         <option value="G">{{ __('admin/dashboard.gas') }}</option>
                         <option value="E" selected>{{ __('admin/dashboard.electric') }}</option>

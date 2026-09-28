@@ -34,7 +34,7 @@
                         </div>
                         <div class="col-sm-6 col-md-2">
                             <label class="form-label" for="account">{{ __('admin/history.log_account') }}</label>
-                            <select id="account" class="form-select">
+                            <select id="account" class="form-select js-select">
                                 <option value="">{{ __('admin/history.log_account_all') }}</option>
                                 <option value="administrator">{{ __('admin/history.log_type_admin') }}</option>
                                 <option value="tenant">{{ __('admin/history.log_type_tenant') }}</option>

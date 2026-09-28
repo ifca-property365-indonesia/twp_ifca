@@ -78,13 +78,13 @@
                             <div class="card-title-group">
                                 <h6 class="title" id="utilityTitle">{{ __('tenant/dashboard.monthly_utility_usage') }}</h6>
                                 <div class="card-tools chart-tools flex-wrap">
-                                    <select class="form-select form-select-sm" name="yearcombo" id="yearcombo" style="width: 110px;">
+                                    <select class="select2 form-control" name="yearcombo" id="yearcombo" style="width: 110px;">
                                         @for ($i = 0; $i < 5; $i++)
                                             @php $year = date('Y') - $i; @endphp
                                             <option value="{{ $year }}" {{ $i === 0 ? 'selected' : '' }}>{{ $year }}</option>
                                         @endfor
                                     </select>
-                                    <select class="form-select form-select-sm" name="utilitycombo" id="utilitycombo" style="width: 150px;">
+                                    <select class="select2 form-control" name="utilitycombo" id="utilitycombo" style="width: 150px;">
                                         <option value="">{{ __('tenant/dashboard.select_utility') }}</option>
                                         <option value="E">{{ __('tenant/dashboard.electric') }}</option>
                                         <option value="W">{{ __('tenant/dashboard.water') }}</option>
@@ -252,7 +252,8 @@
             });
         }
 
-        $('.select2').select2();
+        $('#yearcombo, #utilitycombo').select2({ minimumResultsForSearch: Infinity });
+        $('#meteridcombo').select2();
 
         function unitLabel() {
             var u = $('#utilitycombo').val();

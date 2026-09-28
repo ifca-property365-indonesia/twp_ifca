@@ -53,7 +53,7 @@
                                 <div class="mb-3">
                                     <label class="form-label" for="tenant_no">{{ __('common.tenant') }}</label>
                                     <div class="form-control-wrap">
-                                        <select id="tenant_no" name="tenant_no" class="form-select">
+                                        <select id="tenant_no" name="tenant_no" class="form-select js-select" data-search="true">
                                             <option value="">{{ __('shared/permit.all_tenants') }}</option>
                                             @foreach ($tenants as $t)
                                                 <option value="{{ $t->tenant_no }}">{{ $t->tenant_no }}{{ $t->entity_desc ? ' - ' . $t->entity_desc : '' }}</option>
@@ -67,7 +67,7 @@
                                 <div class="mb-3">
                                     <label class="form-label" for="permit_type">{{ __('shared/permit.permit_type') }}</label>
                                     <div class="form-control-wrap">
-                                        <select id="permit_type" name="permit_type" class="form-select">
+                                        <select id="permit_type" name="permit_type" class="form-select js-select">
                                             <option value="">{{ __('shared/permit.all_types') }}</option>
                                             @foreach ($types as $code => $label)
                                                 <option value="{{ $code }}">{{ $label }}</option>
@@ -80,7 +80,7 @@
                                 <div class="mb-3">
                                     <label class="form-label" for="status">{{ __('common.status') }}</label>
                                     <div class="form-control-wrap">
-                                        <select id="status" name="status" class="form-select">
+                                        <select id="status" name="status" class="form-select js-select">
                                             <option value="">{{ __('shared/permit.all_status') }}</option>
                                             @foreach ($statuses as $code => $label)
                                                 <option value="{{ $code }}">{{ $label }}</option>
@@ -436,7 +436,8 @@
     });
 
     $('#btnReset').on('click', function () {
-        $('#permit_no, #permit_type, #status, #tenant_no').val('');
+        $('#permit_no').val('');
+        $('#permit_type, #status, #tenant_no').val('').trigger('change.select2');
         $('#start_date').val('');
         if ($.fn.datepicker) {
             $('#start_date').datepicker('update', '');

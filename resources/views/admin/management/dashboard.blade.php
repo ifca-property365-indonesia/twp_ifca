@@ -34,7 +34,7 @@
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
             <span class="fw-bold">{{ __('admin/management.revenue') }}</span>
-            <select id="yearFilterRevenue" class="form-select form-select-sm" style="width: 140px;"></select>
+            <div style="width: 140px;"><select id="yearFilterRevenue" class="form-select form-select-sm js-select"></select></div>
         </div>
         <div class="card-body">
             <div id="revenueChart" style="height: 400px;"></div>
@@ -45,7 +45,7 @@
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
             <span class="fw-bold">{{ __('admin/management.expense') }}</span>
-            <select id="yearFilterExpense" class="form-select form-select-sm" style="width: 140px;"></select>
+            <div style="width: 140px;"><select id="yearFilterExpense" class="form-select form-select-sm js-select"></select></div>
         </div>
         <div class="card-body">
             <div id="expenseChart" style="height: 400px;"></div>
@@ -79,6 +79,8 @@ $(document).ready(function () {
         yearFilterRevenue.append(optionHtml);
         yearFilterExpense.append(optionHtml);
     }
+    // tampilan Select2 ikut opsi yang baru diisi
+    yearFilterRevenue.add(yearFilterExpense).trigger('change.select2');
 
     // 2. Event Listener khusus untuk Chart Revenue
     yearFilterRevenue.on('change', function() {

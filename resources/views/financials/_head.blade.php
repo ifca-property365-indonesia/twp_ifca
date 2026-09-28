@@ -48,21 +48,28 @@
     .fin-filter > i { color: var(--cui-secondary-color); }
     .fin-filter-label { font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--cui-secondary-color); white-space: nowrap; }
     .fin-filter .form-select { width: auto; border: 0; box-shadow: none; background-color: transparent; font-weight: 600; color: var(--cui-emphasis-color); padding-left: .15rem; padding-right: 1.75rem; background-position: right .4rem center; cursor: pointer; }
-    @media (max-width: 575.98px) { .fin-filter { flex: 1 1 100%; } .fin-filter .form-select { flex: 1; min-width: 0; } }
+    /* Select2 di dalam kotak filter: tanpa bingkai sendiri, lebar mengikuti teks pilihan */
+    .fin-filter .select2.select2-container { width: auto !important; }
+    .fin-filter .select2-container--bootstrap-5 .select2-selection { min-height: 0; padding: .25rem 1.75rem .25rem .15rem; border: 0; box-shadow: none; background-color: transparent; background-position: right .4rem center; font-size: .875rem; font-weight: 600; color: var(--cui-emphasis-color); cursor: pointer; }
+    .fin-filter .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered { padding: 0; color: var(--cui-emphasis-color); white-space: nowrap; }
+    @media (max-width: 575.98px) {
+        .fin-filter { flex: 1 1 100%; }
+        .fin-filter .form-select, .fin-filter .select2.select2-container { flex: 1; min-width: 0; width: 100% !important; }
+    }
 </style>
 @endpush
 
 <form method="get" action="{{ url()->current() }}" class="fin-filters mb-3" id="finFilters">
     @foreach ($filters as $name => $icon)
-        <label class="fin-filter">
+        <div class="fin-filter">
             <i class="{{ $icon }}"></i>
             <span class="fin-filter-label">{{ __('admin/financials.f_' . $name) }}</span>
-            <select name="{{ $name }}" class="form-select form-select-sm">
+            <select name="{{ $name }}" class="form-select form-select-sm js-select">
                 @foreach ($options[$name] as $key => $label)
                     <option value="{{ $key }}" @selected($filter[$name] === $key)>{{ $label }}</option>
                 @endforeach
             </select>
-        </label>
+        </div>
     @endforeach
 </form>
 
@@ -87,6 +94,11 @@
 <script>
     // Filter: ganti pilihan langsung memuat ulang halaman (filter disimpan di session)
     $('#finFilters select').on('change', function () { this.form.submit(); });
+    // klik ikon / judul kotak filter juga membuka dropdown-nya
+    $('#finFilters .fin-filter').on('click', function (e) {
+        if ($(e.target).closest('.select2-container').length) { return; }
+        $(this).find('select').select2('open');
+    });
 
     // Helper bersama halaman Financials
     window.FIN = {
