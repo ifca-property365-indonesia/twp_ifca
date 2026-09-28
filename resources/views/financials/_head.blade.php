@@ -72,9 +72,6 @@
             <h3 class="page-title">{{ $title }}</h3>
             <div class="page-desc"><p>{{ $desc }}</p></div>
         </div>
-        <div class="page-head-content">
-            <span class="badge badge-soft-warning"><i class="cil-info"></i> {{ __('admin/financials.demo_note') }}</span>
-        </div>
     </div>
 </div>
 

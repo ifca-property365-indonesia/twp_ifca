@@ -7,7 +7,6 @@ return [
     'tab_pl'         => 'Laba Rugi',
     'tab_bs'         => 'Neraca',
     'tab_cf'         => 'Arus Kas',
-    'demo_note'      => 'Data contoh (hardcode) — belum terhubung ke IFCA.',
 
     // filter di atas halaman
     'f_group'        => 'Grup',

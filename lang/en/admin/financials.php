@@ -7,7 +7,6 @@ return [
     'tab_pl'         => 'Profit & Loss',
     'tab_bs'         => 'Balance Sheet',
     'tab_cf'         => 'Cash Flow',
-    'demo_note'      => 'Sample data (hardcoded) — not yet connected to IFCA.',
 
     // filter di atas halaman
     'f_group'        => 'Group',
