@@ -55,6 +55,9 @@
     /* panel dropdown filter: turun sedikit agar tidak menempel ke bingkai kotak filter */
     .select2-container--bootstrap-5 .select2-dropdown.fin-dropdown.select2-dropdown--below { margin-top: .75rem; }
     .select2-container--bootstrap-5 .select2-dropdown.fin-dropdown.select2-dropdown--above { margin-top: -.75rem; }
+    /* Group: "Consolidated" dipisah garis dari daftar perusahaan */
+    .select2-container--bootstrap-5 .select2-dropdown.fin-dropdown-group .select2-results__options .select2-results__option:first-child { position: relative; margin-bottom: .6rem; overflow: visible; }
+    .select2-container--bootstrap-5 .select2-dropdown.fin-dropdown-group .select2-results__options .select2-results__option:first-child::after { content: ""; position: absolute; left: 0; right: 0; bottom: calc(-.3rem - 1px); border-top: 1px solid #e3e6ef; }
     @media (max-width: 575.98px) {
         .fin-filter { flex: 1 1 100%; }
         .fin-filter .form-select, .fin-filter .select2.select2-container { flex: 1; min-width: 0; width: 100% !important; }
@@ -67,7 +70,7 @@
         <div class="fin-filter">
             <i class="{{ $icon }}"></i>
             <span class="fin-filter-label">{{ __('admin/financials.f_' . $name) }}</span>
-            <select name="{{ $name }}" class="form-select form-select-sm js-select" data-dropdown-class="fin-dropdown">
+            <select name="{{ $name }}" class="form-select form-select-sm js-select" data-dropdown-class="fin-dropdown fin-dropdown-{{ $name }}">
                 @foreach ($options[$name] as $key => $label)
                     <option value="{{ $key }}" @selected($filter[$name] === $key)>{{ $label }}</option>
                 @endforeach
