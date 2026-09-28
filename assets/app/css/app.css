@@ -175,6 +175,49 @@
 .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered { line-height: 1.5; }
 .form-control-wrap .select2-container { z-index: 3; }
 .is-invalid + .select2-container--bootstrap-5 .select2-selection { border-color: var(--cui-form-invalid-border-color); }
+
+/* Panel dropdown Select2: menu melayang (jarak dari kotak, sudut bulat, bayangan),
+   hover lembut, pilihan aktif ditandai centang (bukan blok biru) */
+.select2-container--bootstrap-5.select2-container--open.select2-container--below .select2-selection,
+.select2-container--bootstrap-5.select2-container--open.select2-container--above .select2-selection {
+    border: var(--cui-border-width, 1px) solid #86b7fe;
+    border-radius: var(--cui-border-radius, .375rem);
+}
+.select2-container--bootstrap-5 .select2-dropdown,
+.select2-container--bootstrap-5 .select2-dropdown.select2-dropdown--below,
+.select2-container--bootstrap-5 .select2-dropdown.select2-dropdown--above {
+    padding: .3rem;
+    border: 1px solid #e3e6ef;
+    border-radius: .6rem;
+    box-shadow: 0 .6rem 1.6rem rgba(31, 41, 55, .14), 0 .1rem .3rem rgba(31, 41, 55, .06);
+}
+.select2-container--bootstrap-5 .select2-dropdown.select2-dropdown--below { margin-top: .4rem; }
+.select2-container--bootstrap-5 .select2-dropdown.select2-dropdown--above { margin-top: -.4rem; }
+.select2-container--bootstrap-5 .select2-dropdown .select2-search { padding: .2rem .2rem .4rem; }
+.select2-container--bootstrap-5 .select2-dropdown .select2-results__options:not(.select2-results__options--nested) { max-height: 21rem; }
+.select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option {
+    margin: 1px 0;
+    padding: .45rem 2rem .45rem .7rem;
+    border-radius: .4rem;
+    font-size: .875rem;
+    color: #1f2937;
+}
+.select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option.select2-results__option--highlighted {
+    color: #1f2937;
+    background-color: #f1f2f8;
+}
+.select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option.select2-results__option--selected,
+.select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option[aria-selected=true],
+.select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option[aria-selected=true]:not(.select2-results__option--highlighted) {
+    color: #4f5bd5;
+    font-weight: 600;
+    background-color: #eef0ff;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%234f5bd5' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m3 8.5 3.2 3L13 4.5'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right .65rem center;
+    background-size: .9rem;
+}
+.select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option.select2-results__message { color: var(--cui-secondary-color); background: none; }
 .is-invalid ~ .invalid-feedback { display: block; }
 
 /* ---------- bootstrap-datepicker (popup pilihan tanggal) ---------- */

@@ -73,7 +73,8 @@
     window.initDatepickers = initDatepickers;
 
     // Dropdown filter bergaya Select2 (sama dengan Ticket / Overtime): <select class="js-select">.
-    // Tanpa kotak cari, kecuali diberi data-search="true" (daftar panjang).
+    // Tanpa kotak cari, kecuali diberi data-search="true" (daftar panjang);
+    // data-dropdown-class="..." menambah class pada panel dropdown.
     // Opsi yang diisi lewat JS setelah halaman siap: panggil .trigger('change.select2') sesudahnya.
     function initSelects() {
         if (!$.fn.select2) {
@@ -85,7 +86,8 @@
             }
             $(this).select2({
                 minimumResultsForSearch: $(this).data('search') ? 0 : Infinity,
-                dropdownAutoWidth: true
+                dropdownAutoWidth: true,
+                dropdownCssClass: $(this).data('dropdown-class') || ''
             });
         });
     }

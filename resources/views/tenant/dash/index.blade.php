@@ -12,11 +12,15 @@
     .news-carousel .transbox p { font-size: .85rem; }
     .news-carousel .read-more { float: right; text-decoration: underline; }
     .chart-box { position: relative; height: 320px; }
-    .chart-tools .form-select, .chart-tools .select2-container { min-width: 150px; }
+    /* filter grafik: lebar tetap per dropdown (Select2 default 100%) -> sejajar, turun baris kalau sempit */
+    .chart-tools { flex-wrap: wrap; justify-content: flex-end; }
+    #yearcombo + .select2-container { width: 110px !important; }
+    #utilitycombo + .select2-container { width: 185px !important; }
+    #meteridcombo + .select2-container { width: 240px !important; }
     @media (max-width: 767.98px) {
         .news-carousel .news-slide { padding-right: 0; justify-content: center; }
         .news-carousel .transbox { width: 100%; padding: 20px; }
-        .chart-tools > * { width: 100% !important; }
+        .chart-tools > *, #yearcombo + .select2-container, #utilitycombo + .select2-container, #meteridcombo + .select2-container { width: 100% !important; }
     }
 </style>
 @endpush
@@ -77,7 +81,7 @@
                         <div class="card-body">
                             <div class="card-title-group">
                                 <h6 class="title" id="utilityTitle">{{ __('tenant/dashboard.monthly_utility_usage') }}</h6>
-                                <div class="card-tools chart-tools flex-wrap">
+                                <div class="card-tools chart-tools">
                                     <select class="select2 form-control" name="yearcombo" id="yearcombo" style="width: 110px;">
                                         @for ($i = 0; $i < 5; $i++)
                                             @php $year = date('Y') - $i; @endphp
