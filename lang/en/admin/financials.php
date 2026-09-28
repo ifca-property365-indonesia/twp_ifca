@@ -9,9 +9,38 @@ return [
     'tab_cf'         => 'Cash Flow',
     'demo_note'      => 'Sample data (hardcoded) — not yet connected to IFCA.',
 
+    // filter di atas halaman
+    'f_group'        => 'Group',
+    'f_period'       => 'Period',
+    'f_currency'     => 'Currency',
+    'f_compare'      => 'Compare',
+    'consolidated'   => 'Consolidated',
+    'groups' => [
+        'company-a' => 'Company A — Manufacturing',
+        'company-b' => 'Company B — Logistics',
+        'company-c' => 'Company C — Retail Distribution',
+        'company-d' => 'Company D — Energy Services',
+    ],
+    'period_q'         => 'Q:q :year',
+    'period_q_to_date' => 'Q:q :year (to date)',
+    'period_ytd'       => 'YTD :year (:range)',
+    'period_fy'        => 'FY :year',
+    'currencies' => [
+        'IDR' => 'Indonesian Rupiah',
+        'USD' => 'US Dollar',
+        'SGD' => 'Singapore Dollar',
+        'MYR' => 'Malaysian Ringgit',
+    ],
+    'compares' => [
+        'py'     => 'Previous Year',
+        'pp'     => 'Previous Period',
+        'budget' => 'Budget',
+    ],
+    'vs_compare'     => 'vs :compare',
+
     // overview
-    'overview_title' => 'Consolidated — Financial Performance',
-    'overview_desc'  => ':period · all figures in IDR',
+    'overview_title' => ':group — Financial Performance',
+    'overview_desc'  => ':period · all figures in :currency',
     'revenue'        => 'Revenue',
     'ebitda'         => 'EBITDA',
     'total_assets'   => 'Total Assets',
@@ -27,15 +56,15 @@ return [
     'open'           => 'Open',
 
     // profit & loss
-    'pl_title'       => 'Consolidated — Profit & Loss',
-    'period_idr'     => ':period · IDR',
+    'pl_title'       => ':group — Profit & Loss',
+    'period_cur'     => ':period · :currency',
     'monthly'        => 'Monthly',
     'yearly'         => 'Yearly',
     'gross_margin'   => 'Gross Margin',
     'ebitda_margin'  => 'EBITDA Margin',
     'net_margin'     => 'Net Margin',
     'opex_ratio'     => 'Opex Ratio',
-    'pts_vs_py'      => ':value pts vs previous year',
+    'pts_vs'         => ':value pts vs :compare',
     'pl_statement'   => 'Profit & loss statement',
     'col_line'       => 'Line item',
     'col_actual'     => 'Actual',
@@ -68,8 +97,8 @@ return [
     'previous_year'  => 'Previous year',
 
     // balance sheet
-    'bs_title'       => 'Consolidated — Balance Sheet',
-    'bs_desc_period' => 'Position as at the close of :period · IDR',
+    'bs_title'       => ':group — Balance Sheet',
+    'bs_desc_period' => 'Position as at the close of :period · :currency',
     'current_ratio'  => 'Current Ratio',
     'target'         => 'Target ≥ :value',
     'debt_equity'    => 'Debt / Equity',
@@ -105,7 +134,7 @@ return [
     'inventory'      => 'Inventory',
 
     // cash flow
-    'cf_title'       => 'Consolidated — Cash Flow',
+    'cf_title'       => ':group — Cash Flow',
     'above_threshold'=> 'Above minimum threshold',
     'below_threshold'=> 'Below minimum threshold',
     'beginning_cash' => 'Beginning Cash',

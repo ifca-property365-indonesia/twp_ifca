@@ -5,15 +5,15 @@
 @php
     $k = $bs['kpis'];
     $num = function ($v) { return number_format($v, 2, ',', '.'); };
-    $mom = function ($v) { return ($v >= 0 ? '+' : '-') . number_format(abs($v), 1) . '%'; };
+    $mom = function ($v) { return (round($v, 1) >= 0 ? '+' : '-') . number_format(abs($v), 1, ',', '.') . '%'; };
     $wcRows = array_map(fn ($r) => ['label' => F::label($r[0]), 'cash' => $r[1], 'ar' => $r[2], 'inventory' => $r[3]], $bs['working_capital_trend']);
 @endphp
 
 @section('content')
 <div class="page-body">
     @include('financials._head', [
-        'title' => __('admin/financials.bs_title'),
-        'desc'  => __('admin/financials.bs_desc_period', ['period' => $period]),
+        'title' => __('admin/financials.bs_title', ['group' => $labels['group']]),
+        'desc'  => __('admin/financials.bs_desc_period', ['period' => $period, 'currency' => $labels['currency']]),
         'tab'   => 'bs',
     ])
 
@@ -35,7 +35,7 @@
         <div class="col-sm-6 col-lg-4 col-xxl-2">
             <div class="card fin-kpi"><div class="card-body">
                 <div class="fin-label">{{ __('admin/financials.working_capital') }}</div>
-                <div class="fin-value">{{ F::idr($k['working_capital']) }}</div>
+                <div class="fin-value">{{ F::money($k['working_capital']) }}</div>
             </div></div>
         </div>
         <div class="col-sm-6 col-lg-4 col-xxl-2">
@@ -65,9 +65,9 @@
                 <h6 class="fin-card-title mb-2">{{ __('admin/financials.assets') }}</h6>
                 <ul class="list-unstyled fin-list mb-0">
                     @foreach ($bs['assets'] as [$item, $value, $change])
-                        <li><span>{{ __('admin/financials.items.' . $item) }}</span><span class="text-end text-nowrap">{{ F::idr($value) }} <small class="text-soft ms-1">{{ __('admin/financials.mom', ['value' => $mom($change)]) }}</small></span></li>
+                        <li><span>{{ __('admin/financials.items.' . $item) }}</span><span class="text-end text-nowrap">{{ F::money($value) }} <small class="text-soft ms-1">{{ __('admin/financials.mom', ['value' => $mom($change)]) }}</small></span></li>
                     @endforeach
-                    <li class="fin-total-row"><span>{{ __('admin/financials.total') }}</span><span>{{ F::idr($bs['assets_total']) }}</span></li>
+                    <li class="fin-total-row"><span>{{ __('admin/financials.total') }}</span><span>{{ F::money($bs['assets_total']) }}</span></li>
                 </ul>
             </div></div>
         </div>
@@ -76,21 +76,21 @@
                 <h6 class="fin-card-title mb-2">{{ __('admin/financials.liabilities') }}</h6>
                 <ul class="list-unstyled fin-list mb-0">
                     @foreach ($bs['liabilities'] as [$item, $value, $change])
-                        <li><span>{{ __('admin/financials.items.' . $item) }}</span><span class="text-end text-nowrap">{{ F::idr($value) }} <small class="text-soft ms-1">{{ __('admin/financials.mom', ['value' => $mom($change)]) }}</small></span></li>
+                        <li><span>{{ __('admin/financials.items.' . $item) }}</span><span class="text-end text-nowrap">{{ F::money($value) }} <small class="text-soft ms-1">{{ __('admin/financials.mom', ['value' => $mom($change)]) }}</small></span></li>
                     @endforeach
-                    <li class="fin-total-row"><span>{{ __('admin/financials.total') }}</span><span>{{ F::idr($bs['liabilities_total']) }}</span></li>
+                    <li class="fin-total-row"><span>{{ __('admin/financials.total') }}</span><span>{{ F::money($bs['liabilities_total']) }}</span></li>
                 </ul>
             </div></div>
         </div>
         <div class="col-lg-4">
             <div class="card h-100"><div class="card-body">
                 <h6 class="fin-card-title mb-2">{{ __('admin/financials.equity') }}</h6>
-                <div class="fin-value" style="font-size: 1.55rem; font-weight: 700;">{{ F::idr($bs['equity']) }}</div>
+                <div class="fin-value" style="font-size: 1.55rem; font-weight: 700;">{{ F::money($bs['equity']) }}</div>
                 <p class="fin-card-desc mt-2">{{ __('admin/financials.equity_note', ['pct' => number_format($bs['equity_pct'], 1, ',', '.') . '%']) }}</p>
                 <ul class="list-unstyled fin-list mb-0">
-                    <li><span>{{ __('admin/financials.total_assets') }}</span><span>{{ F::idr($bs['assets_total']) }}</span></li>
-                    <li><span>{{ __('admin/financials.total_liabilities') }}</span><span>{{ F::idr($bs['liabilities_total']) }}</span></li>
-                    <li class="fin-total-row"><span>{{ __('admin/financials.net_assets') }}</span><span>{{ F::idr($bs['assets_total'] - $bs['liabilities_total']) }}</span></li>
+                    <li><span>{{ __('admin/financials.total_assets') }}</span><span>{{ F::money($bs['assets_total']) }}</span></li>
+                    <li><span>{{ __('admin/financials.total_liabilities') }}</span><span>{{ F::money($bs['liabilities_total']) }}</span></li>
+                    <li class="fin-total-row"><span>{{ __('admin/financials.net_assets') }}</span><span>{{ F::money($bs['assets_total'] - $bs['liabilities_total']) }}</span></li>
                 </ul>
             </div></div>
         </div>

@@ -2,192 +2,532 @@
 
 namespace App\Support;
 
+use Illuminate\Support\Carbon;
+
 /**
- * Data contoh (hardcode) menu Admin -> Financials: Overview, Profit & Loss, Balance Sheet, Cash Flow.
- * Angka disalin dari demo FinSight (Consolidated, Agustus 2026, IDR) supaya tampilannya sama.
+ * Data contoh (hardcode) menu Financials: Overview, Profit & Loss, Balance Sheet, Cash Flow.
+ * Seri bulanan Consolidated disalin dari demo FinSight; angka per perusahaan, periode, mata uang
+ * dan pembanding dihitung dari seri itu mengikuti filter di atas halaman (group, period, currency, compare).
  * Ganti method di class ini dengan query ke IFCA kalau data aslinya sudah siap.
+ *
+ * Semua nilai disimpan dalam IDR; konversi mata uang hanya saat ditampilkan (money() / FIN.money di JS).
  */
 class FinancialsDemo
 {
-    public const PERIOD = '2026-08';
+    /** Bulan terakhir yang ada datanya. */
+    public const LATEST = '2026-08';
 
     /**
-     * Seri bulanan 24 bulan (Sep 2024 - Agu 2026), urutan kolom:
-     * revenue, budgetRevenue, priorRevenue, grossProfit, grossMargin %, ebitda, budgetEbitda,
-     * priorEbitda, netProfit, cash, operating, investing, financing, netCash.
+     * Seri bulanan Consolidated (Sep 2024 - Agu 2026), urutan kolom sesuai KEYS.
      * Sep - Des 2024 kosong (sama dengan sumber).
      */
     private const MONTHS = [
-        '2024-09' => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        '2024-10' => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        '2024-11' => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        '2024-12' => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        '2025-01' => [33804251455, 34847100000, 0, 12057854447, 35.6696, 4659970929, 5114217870, 0, 2660072803, 97266596301, 3898409887, -1517446018, -814367568, 1566596301],
-        '2025-02' => [32821046521, 34064141400, 0, 11503568673, 35.0494, 4176873352, 5000487769, 0, 2305715331, 98132251344, 3352469395, -1564465773, -922348579, 865655043],
-        '2025-03' => [37950907762, 38997405837, 0, 13324004646, 35.1085, 4725341305, 5726019733, 0, 2587186018, 99454100947, 3776294803, -1677749035, -776696165, 1321849603],
-        '2025-04' => [37512727349, 38234966289, 0, 13344820777, 35.5741, 5025151336, 5615389605, 0, 2836229743, 100624685090, 3931344894, -1811101573, -949659178, 1170584143],
-        '2025-05' => [39730469899, 40965111895, 0, 13926750925, 35.0531, 5189515298, 6017765322, 0, 2900719670, 102386819638, 4411455143, -1588784857, -1060535738, 1762134548],
-        '2025-06' => [42632779336, 42565455644, 0, 15350621755, 36.0066, 5806760539, 6254320996, 0, 3295906791, 104544045746, 5104872040, -1823059994, -1124585938, 2157226108],
-        '2025-07' => [38578169595, 38222826666, 0, 13915681424, 36.0714, 5466670302, 5617554813, 0, 3152003887, 106156592689, 4536318919, -2025023077, -898748899, 1612546943],
-        '2025-08' => [42191240618, 41430118706, 0, 14904691344, 35.3265, 5797439737, 6090349149, 0, 3304657595, 108212506084, 4714065832, -1463132588, -1195019849, 2055913395],
-        '2025-09' => [43817977083, 43074629192, 0, 15711197638, 35.8556, 6135280723, 6333574939, 0, 3518528742, 110265505353, 5192252473, -2207852054, -931401150, 2052999269],
-        '2025-10' => [44664992815, 44749506442, 0, 16165225628, 36.1922, 6210505101, 6581377855, 0, 3555037823, 112358365210, 5191140376, -2200890771, -897389748, 2092859857],
-        '2025-11' => [45383176711, 46455290456, 0, 16377115073, 36.0863, 6442064581, 6833840248, 0, 3718126326, 114387169049, 5249337459, -1990624724, -1229908896, 2028803839],
-        '2025-12' => [49022489593, 49449727317, 0, 17584234003, 35.8697, 6969984203, 7276029756, 0, 4022658258, 117272864415, 6020700945, -2071554634, -1063450945, 2885695366],
-        '2026-01' => [38703223895, 39376662707, 33804251455, 13797452249, 35.6494, 5376923039, 5795224301, 4659970929, 3081218334, 118848094363, 4333012824, -1668021414, -1089761462, 1575229948],
-        '2026-02' => [38164649933, 38501872481, 32821046521, 13644335480, 35.7512, 5266025182, 5667791036, 4176873352, 3010307786, 120428520481, 4388155334, -1896850612, -910878604, 1580426118],
-        '2026-03' => [42447760093, 44089199618, 37950907762, 15232837084, 35.8861, 5922181288, 6491793299, 4725341305, 3395642356, 122637966663, 4985357155, -1741082255, -1034828718, 2209446182],
-        '2026-04' => [41504661269, 43238363671, 37512727349, 14905115308, 35.9119, 5624056122, 6367985459, 5025151336, 3190183810, 124256492693, 4647488755, -1948707294, -1080255431, 1618526030],
-        '2026-05' => [46471044527, 46337721200, 39730469899, 16784199714, 36.1175, 6580297416, 6826022018, 5189515298, 3789015068, 126485364549, 5646145189, -2150721557, -1266551776, 2228871856],
-        '2026-06' => [46995700199, 48160362380, 42632779336, 16396117823, 34.8885, 5673957116, 7096150416, 5806760539, 3046293941, 118331185848, 5816352903, -2157770917, -1454429665, 2204152321],
-        '2026-07' => [42071068191, 43258069576, 38578169595, 14683240351, 34.9010, 5056855396, 6375292420, 5466670302, 2717904736, 120194934878, 4932700229, -1994715627, -1037585240, 1900399362],
-        '2026-08' => [45920469763, 46899944111, 42191240618, 16030140092, 34.9085, 5549303778, 6913612950, 5797439737, 2990838133, 122738191962, 5323414595, -1514493046, -1129810449, 2679111100],
+        '2024-09' => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        '2024-10' => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        '2024-11' => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        '2024-12' => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        '2025-01' => [33804251455, 34847100000, 12057854447, 4659970929, 5114217870, 2660072803, 97266596301, 3898409887, -1517446018, -814367568, 1566596301],
+        '2025-02' => [32821046521, 34064141400, 11503568673, 4176873352, 5000487769, 2305715331, 98132251344, 3352469395, -1564465773, -922348579, 865655043],
+        '2025-03' => [37950907762, 38997405837, 13324004646, 4725341305, 5726019733, 2587186018, 99454100947, 3776294803, -1677749035, -776696165, 1321849603],
+        '2025-04' => [37512727349, 38234966289, 13344820777, 5025151336, 5615389605, 2836229743, 100624685090, 3931344894, -1811101573, -949659178, 1170584143],
+        '2025-05' => [39730469899, 40965111895, 13926750925, 5189515298, 6017765322, 2900719670, 102386819638, 4411455143, -1588784857, -1060535738, 1762134548],
+        '2025-06' => [42632779336, 42565455644, 15350621755, 5806760539, 6254320996, 3295906791, 104544045746, 5104872040, -1823059994, -1124585938, 2157226108],
+        '2025-07' => [38578169595, 38222826666, 13915681424, 5466670302, 5617554813, 3152003887, 106156592689, 4536318919, -2025023077, -898748899, 1612546943],
+        '2025-08' => [42191240618, 41430118706, 14904691344, 5797439737, 6090349149, 3304657595, 108212506084, 4714065832, -1463132588, -1195019849, 2055913395],
+        '2025-09' => [43817977083, 43074629192, 15711197638, 6135280723, 6333574939, 3518528742, 110265505353, 5192252473, -2207852054, -931401150, 2052999269],
+        '2025-10' => [44664992815, 44749506442, 16165225628, 6210505101, 6581377855, 3555037823, 112358365210, 5191140376, -2200890771, -897389748, 2092859857],
+        '2025-11' => [45383176711, 46455290456, 16377115073, 6442064581, 6833840248, 3718126326, 114387169049, 5249337459, -1990624724, -1229908896, 2028803839],
+        '2025-12' => [49022489593, 49449727317, 17584234003, 6969984203, 7276029756, 4022658258, 117272864415, 6020700945, -2071554634, -1063450945, 2885695366],
+        '2026-01' => [38703223895, 39376662707, 13797452249, 5376923039, 5795224301, 3081218334, 118848094363, 4333012824, -1668021414, -1089761462, 1575229948],
+        '2026-02' => [38164649933, 38501872481, 13644335480, 5266025182, 5667791036, 3010307786, 120428520481, 4388155334, -1896850612, -910878604, 1580426118],
+        '2026-03' => [42447760093, 44089199618, 15232837084, 5922181288, 6491793299, 3395642356, 122637966663, 4985357155, -1741082255, -1034828718, 2209446182],
+        '2026-04' => [41504661269, 43238363671, 14905115308, 5624056122, 6367985459, 3190183810, 124256492693, 4647488755, -1948707294, -1080255431, 1618526030],
+        '2026-05' => [46471044527, 46337721200, 16784199714, 6580297416, 6826022018, 3789015068, 126485364549, 5646145189, -2150721557, -1266551776, 2228871856],
+        '2026-06' => [46995700199, 48160362380, 16396117823, 5673957116, 7096150416, 3046293941, 118331185848, 5816352903, -2157770917, -1454429665, 2204152321],
+        '2026-07' => [42071068191, 43258069576, 14683240351, 5056855396, 6375292420, 2717904736, 120194934878, 4932700229, -1994715627, -1037585240, 1900399362],
+        '2026-08' => [45920469763, 46899944111, 16030140092, 5549303778, 6913612950, 2990838133, 122738191962, 5323414595, -1514493046, -1129810449, 2679111100],
     ];
 
-    private const KEYS = ['revenue', 'budgetRevenue', 'priorRevenue', 'grossProfit', 'grossMargin', 'ebitda', 'budgetEbitda',
-        'priorEbitda', 'netProfit', 'cash', 'operating', 'investing', 'financing', 'netCash'];
+    private const KEYS = ['revenue', 'budgetRevenue', 'grossProfit', 'ebitda', 'budgetEbitda', 'netProfit',
+        'cash', 'operating', 'investing', 'financing', 'netCash'];
 
-    /** Seri bulanan: $months terakhir (12 = rolling 12 bulan, 24 = mode Yearly). */
-    public static function monthly(int $months = 12): array
+    /** Piutang & persediaan Consolidated (Sep 2025 - Agu 2026); bulan lain dihitung dari rasio. */
+    private const WORKING_CAPITAL = [
+        '2025-09' => [79673114760, 51333189901],
+        '2025-10' => [81143641272, 52008980860],
+        '2025-11' => [82058108508, 53076451736],
+        '2025-12' => [88935559584, 57525986025],
+        '2026-01' => [69883430400, 45582245290],
+        '2026-02' => [68938166028, 44844091541],
+        '2026-03' => [76917151872, 49581607792],
+        '2026-04' => [75098754912, 48334379477],
+        '2026-05' => [84465282852, 54018940222],
+        '2026-06' => [92146791933, 55768837377],
+        '2026-07' => [81511914102, 50090723847],
+        '2026-08' => [88794933220, 54692870088],
+    ];
+
+    /** Rasio terhadap pendapatan / HPP (dari angka Agustus 2026). */
+    private const DA_RATE = 0.0275;          // penyusutan & amortisasi / pendapatan
+    private const INTEREST_RATE = 0.00984;   // bunga / pendapatan
+    private const AR_RATE = 1.934;           // piutang / pendapatan bulanan
+    private const INVENTORY_RATE = 1.83;     // persediaan / HPP bulanan
+    private const AP_RATE = 1.4787;          // utang usaha / HPP bulanan
+
+    /** Pos neraca tetap per Agustus 2026 + perubahan per bulan (aset tetap naik 0,4%, utang jangka panjang turun 0,3%). */
+    private const FIXED_ASSETS = 496.0e9;
+    private const OTHER_ASSETS = 50.8e9;
+    private const SHORT_DEBT = 61.2e9;
+    private const LONG_DEBT = 262.2e9;
+    private const OTHER_LIABILITIES = 38.9e9;
+    private const CASH_THRESHOLD = 65.0e9;
+
+    /**
+     * Perusahaan dalam grup: [porsi pendapatan, pertumbuhan pendapatan per tahun, porsi EBITDA, porsi aset, porsi kas]
+     * per Agustus 2026. Tiap porsi dijumlah = 1, jadi Consolidated = total ke-4 perusahaan.
+     */
+    private const COMPANIES = [
+        'company-a' => [0.438, 0.06, 0.540, 0.414, 0.482],
+        'company-b' => [0.237, -0.15, 0.104, 0.295, 0.221],
+        'company-c' => [0.192, 0.03, 0.179, 0.144, 0.165],
+        'company-d' => [0.133, 0.17, 0.177, 0.147, 0.132],
+    ];
+
+    /** Mata uang tampilan: [kurs ke IDR, simbol]. */
+    private const CURRENCIES = [
+        'IDR' => [1, 'Rp'],
+        'USD' => [16250, '$'],
+        'SGD' => [12650, 'S$'],
+        'MYR' => [3650, 'RM'],
+    ];
+
+    private const COMPARES = ['py', 'pp', 'budget'];
+
+    /** Mata uang aktif untuk money() (diset oleh constructor). */
+    private static string $currency = 'IDR';
+
+    /** Filter aktif: group, period, currency, compare. */
+    public array $filter;
+
+    /** Bulan-bulan dalam periode (urut) dan bulan terakhirnya. */
+    private array $months;
+    private string $end;
+
+    public function __construct(array $filter)
+    {
+        $this->filter = self::normalize($filter);
+        $this->months = self::periods()[$this->filter['period']];
+        $this->end = end($this->months);
+        self::$currency = $this->filter['currency'];
+    }
+
+    // ------------------------------------------------------------------
+    // Filter
+    // ------------------------------------------------------------------
+
+    /** Filter default = Consolidated, bulan terakhir, IDR, vs tahun lalu. */
+    public static function normalize(array $in): array
+    {
+        $pick = fn ($value, array $allowed, $default) => in_array($value, $allowed, true) ? $value : $default;
+        return [
+            'group'    => $pick($in['group'] ?? null, array_merge(['consolidated'], array_keys(self::COMPANIES)), 'consolidated'),
+            'period'   => $pick($in['period'] ?? null, array_keys(self::periods()), self::LATEST),
+            'currency' => $pick($in['currency'] ?? null, array_keys(self::CURRENCIES), 'IDR'),
+            'compare'  => $pick($in['compare'] ?? null, self::COMPARES, 'py'),
+        ];
+    }
+
+    /** Periode yang bisa dipilih => daftar bulannya (Jan - Agu 2026, kuartal, YTD, FY 2025). */
+    public static function periods(): array
+    {
+        $range = fn ($from, $to) => array_map(fn ($m) => sprintf('%s-%02d', substr($from, 0, 4), $m), range((int) substr($from, 5), (int) substr($to, 5)));
+        $periods = [];
+        for ($m = (int) substr(self::LATEST, 5); $m >= 1; $m--) {
+            $key = substr(self::LATEST, 0, 5) . sprintf('%02d', $m);
+            $periods[$key] = [$key];
+        }
+        return $periods + [
+            '2026-q3'  => $range('2026-07', self::LATEST),
+            '2026-q2'  => $range('2026-04', '2026-06'),
+            '2026-q1'  => $range('2026-01', '2026-03'),
+            '2026-ytd' => $range('2026-01', self::LATEST),
+            '2025-fy'  => $range('2025-01', '2025-12'),
+        ];
+    }
+
+    /** Pilihan tiap dropdown filter: [kunci => label]. */
+    public static function options(): array
+    {
+        $groups = ['consolidated' => __('admin/financials.consolidated')];
+        foreach (array_keys(self::COMPANIES) as $key) {
+            $groups[$key] = __('admin/financials.groups.' . $key);
+        }
+        $periods = [];
+        foreach (array_keys(self::periods()) as $key) {
+            $periods[$key] = self::periodLabel($key);
+        }
+        $currencies = [];
+        foreach (array_keys(self::CURRENCIES) as $code) {
+            $currencies[$code] = $code . ' — ' . __('admin/financials.currencies.' . $code);
+        }
+        $compares = [];
+        foreach (self::COMPARES as $key) {
+            $compares[$key] = __('admin/financials.compares.' . $key);
+        }
+        return ['group' => $groups, 'period' => $periods, 'currency' => $currencies, 'compare' => $compares];
+    }
+
+    /** Label periode, mis. "August 2026", "Q3 2026 (to date)", "YTD 2026 (Jan–Aug)", "FY 2025". */
+    public static function periodLabel(string $key): string
+    {
+        $months = self::periods()[$key];
+        $first = Carbon::parse($months[0] . '-01')->locale(app()->getLocale());
+        $last = Carbon::parse(end($months) . '-01')->locale(app()->getLocale());
+        $year = substr($key, 0, 4);
+        return match (true) {
+            count($months) === 1        => $first->translatedFormat('F Y'),
+            str_ends_with($key, '-ytd') => __('admin/financials.period_ytd', ['year' => $year, 'range' => $first->translatedFormat('M') . '–' . $last->translatedFormat('M')]),
+            str_ends_with($key, '-fy')  => __('admin/financials.period_fy', ['year' => $year]),
+            // kuartal berjalan (belum 3 bulan) diberi keterangan "to date"
+            default => __(count($months) < 3 ? 'admin/financials.period_q_to_date' : 'admin/financials.period_q', ['q' => substr($key, -1), 'year' => $year]),
+        };
+    }
+
+    /** Teks untuk judul & keterangan halaman. */
+    public function labels(): array
+    {
+        $options = self::options();
+        return [
+            'group'    => $options['group'][$this->filter['group']],
+            'period'   => self::periodLabel($this->filter['period']),
+            'currency' => $this->filter['currency'],
+            'compare'  => mb_strtolower($options['compare'][$this->filter['compare']]),
+        ];
+    }
+
+    /** Konfigurasi mata uang untuk JS: kurs & simbol. */
+    public function currency(): array
+    {
+        [$rate, $symbol] = self::CURRENCIES[$this->filter['currency']];
+        return ['code' => $this->filter['currency'], 'rate' => $rate, 'symbol' => $symbol];
+    }
+
+    // ------------------------------------------------------------------
+    // Halaman
+    // ------------------------------------------------------------------
+
+    /** Kartu ringkasan halaman Overview; perubahan dibanding pilihan "compare". */
+    public function overview(): array
+    {
+        $cur = $this->statement($this->months);
+        $cmp = $this->compareStatement();
+        $bs = $this->position($this->end);
+        return [
+            'revenue'      => ['value' => $cur['revenue'], 'change' => self::change($cur['revenue'], $cmp['revenue'])],
+            'ebitda'       => ['value' => $cur['ebitda'], 'change' => self::change($cur['ebitda'], $cmp['ebitda']), 'margin' => self::ratio($cur['ebitda'], $cur['revenue'])],
+            'total_assets' => ['value' => $bs['assets_total'], 'equity' => $bs['equity']],
+            'closing_cash' => ['value' => $bs['cash'], 'net' => $this->sum($this->months, 'netCash')],
+        ];
+    }
+
+    /** Seri bulanan untuk grafik: $count bulan sampai akhir periode (12 = rolling 12 bulan, 24 = mode Yearly). */
+    public function monthly(int $count = 12): array
     {
         $rows = [];
-        foreach (array_slice(self::MONTHS, -$months, null, true) as $month => $values) {
-            $rows[] = ['month' => $month, 'label' => date('M y', strtotime($month . '-01'))] + array_combine(self::KEYS, $values);
+        foreach ($this->window($count) as $month) {
+            $r = $this->row($month);
+            $rows[] = [
+                'month'         => $month,
+                'label'         => self::label($month),
+                'revenue'       => $r['revenue'],
+                'budgetRevenue' => $r['budgetRevenue'],
+                'priorRevenue'  => $this->row(self::shift($month, -12))['revenue'],
+                'grossMargin'   => $r['revenue'] ? round($r['grossProfit'] / $r['revenue'] * 100, 4) : null,
+                'ebitda'        => $r['ebitda'],
+                'budgetEbitda'  => $r['budgetEbitda'],
+                'netProfit'     => $r['netProfit'],
+                'cash'          => $r['cash'],
+                'netCash'       => $r['netCash'],
+            ];
         }
         return $rows;
     }
 
-    /** Kartu ringkasan halaman Overview. */
-    public static function overview(): array
+    /** Rasio P&L (nilai %, perubahan dalam poin vs pembanding). */
+    public function plKpis(): array
     {
-        return [
-            'revenue'      => ['value' => 45920469763, 'change' => 8.8],
-            'ebitda'       => ['value' => 5549303778, 'change' => -4.3, 'margin' => 12.1],
-            'total_assets' => ['value' => 813.0e9, 'equity' => 406.5e9],
-            'closing_cash' => ['value' => 122738191962, 'net' => 2679111100],
-        ];
+        $cur = $this->statement($this->months);
+        $cmp = $this->compareStatement();
+        $kpis = [];
+        foreach (['gross_margin' => 'gross_profit', 'ebitda_margin' => 'ebitda', 'net_margin' => 'net_profit', 'opex_ratio' => 'opex'] as $key => $line) {
+            $value = self::ratio($cur[$line], $cur['revenue']);
+            $kpis[$key] = ['value' => $value, 'pts' => $cmp['revenue'] ? $value - self::ratio($cmp[$line], $cmp['revenue']) : 0];
+        }
+        return $kpis;
     }
 
-    /** Rasio P&L (nilai %, perubahan dalam poin vs tahun lalu). */
-    public static function plKpis(): array
+    /** Laporan laba rugi: [pos, aktual, budget, % vs budget, tahun lalu, % YoY, baris total?]. */
+    public function plStatement(): array
     {
-        return [
-            'gross_margin'  => ['value' => 34.9, 'pts' => -0.4],
-            'ebitda_margin' => ['value' => 12.1, 'pts' => -1.7],
-            'net_margin'    => ['value' => 6.5, 'pts' => -1.3],
-            'opex_ratio'    => ['value' => 22.8, 'pts' => 1.2],
-        ];
+        $actual = $this->statement($this->months);
+        $budget = $this->statement($this->months, true);
+        $prior = $this->statement(array_map(fn ($m) => self::shift($m, -12), $this->months));
+        $totals = ['revenue', 'gross_profit', 'ebitda', 'ebit', 'net_profit'];
+        $rows = [];
+        foreach ($actual as $line => $value) {
+            $rows[] = [$line, $value, $budget[$line], self::change($value, $budget[$line]), $prior[$line], self::change($value, $prior[$line]), in_array($line, $totals, true)];
+        }
+        return $rows;
     }
 
-    /**
-     * Laporan laba rugi Agustus 2026: [kunci, aktual, budget, % vs budget, tahun lalu, % YoY, baris total?].
-     * Persentase disalin dari sumber (dihitung dari angka yang belum dibulatkan).
-     */
-    public static function plStatement(): array
+    /** Neraca per akhir periode. */
+    public function balanceSheet(): array
     {
-        return [
-            ['revenue', 45920469763, 46899944111, -2.1, 42191240618, 8.8, true],
-            ['cogs', 29890329671, 29800000000, 0.2, 27300000000, 9.5, false],
-            ['gross_profit', 16030140092, 17100000000, -6.0, 14900000000, 7.6, true],
-            ['opex', 10500000000, 10100000000, 3.3, 9100000000, 15.1, false],
-            ['ebitda', 5549303778, 6913612950, -19.7, 5797439737, -4.3, true],
-            ['da', 1300000000, 1300000000, -1.3, 1100000000, 10.3, false],
-            ['ebit', 4300000000, 5600000000, -23.9, 4700000000, -7.9, true],
-            ['interest', 451900000, 464400000, -2.7, 415900000, 8.7, false],
-            ['tax', 843600000, 1100000000, -25.8, 932100000, -9.5, false],
-            ['net_profit', 2990838133, 4000000000, -25.8, 3300000000, -9.5, true],
-        ];
-    }
+        $bs = $this->position($this->end);
+        $prev = $this->position(self::shift($this->end, -1));
+        $mom = fn ($key) => self::change($bs[$key], $prev[$key]);
+        $currentAssets = $bs['cash'] + $bs['receivables'] + $bs['inventory'];
+        $currentLiabilities = $bs['payables'] + $bs['short_debt'];
 
-    /** Neraca per akhir Agustus 2026. */
-    public static function balanceSheet(): array
-    {
+        $trend = [];
+        foreach ($this->window(12) as $month) {
+            $p = $this->position($month);
+            $trend[] = [$month, $p['cash'], $p['receivables'], $p['inventory']];
+        }
+
         return [
             'kpis' => [
-                'current_ratio'   => ['value' => 2.53, 'target' => 1.50],
-                'debt_equity'     => ['value' => 1.00, 'covenant' => 2.00],
-                'working_capital' => 160836155769,
-                'ar_days'         => ['value' => 59, 'mom' => -0.1],
-                'ap_days'         => 45,
-                'inventory_days'  => 56,
+                'current_ratio'   => ['value' => $currentLiabilities ? $currentAssets / $currentLiabilities : 0, 'target' => 1.50],
+                'debt_equity'     => ['value' => $bs['equity'] ? $bs['liabilities_total'] / $bs['equity'] : 0, 'covenant' => 2.00],
+                'working_capital' => $currentAssets - $currentLiabilities,
+                'ar_days'         => ['value' => (int) round($bs['ar_days']), 'mom' => self::change($bs['ar_days'], $prev['ar_days'])],
+                'ap_days'         => (int) round($bs['ap_days']),
+                'inventory_days'  => (int) round($bs['inventory_days']),
             ],
-            // [kunci, nilai, % MoM]
-            'assets' => [
-                ['cash', 122738191962, 2.1],
-                ['receivables', 88794933220, 8.9],
-                ['inventory', 54692870088, 9.2],
-                ['fixed_assets', 496.0e9, 0.4],
-                ['other_assets', 50.7e9, 0.0],
-            ],
-            'assets_total' => 813.0e9,
-            'liabilities' => [
-                ['payables', 44.2e9, 9.3],
-                ['short_debt', 61.2e9, 0.0],
-                ['long_debt', 262.2e9, -0.3],
-                ['other_liabilities', 38.9e9, 0.0],
-            ],
-            'liabilities_total' => 406.5e9,
-            'equity' => 406.5e9,
-            'equity_pct' => 50.0,
-            // modal kerja 12 bulan: [label, kas, piutang, persediaan]
-            'working_capital_trend' => [
-                ['2025-09', 110265505353, 79673114760, 51333189901],
-                ['2025-10', 112358365210, 81143641272, 52008980860],
-                ['2025-11', 114387169049, 82058108508, 53076451736],
-                ['2025-12', 117272864415, 88935559584, 57525986025],
-                ['2026-01', 118848094363, 69883430400, 45582245290],
-                ['2026-02', 120428520481, 68938166028, 44844091541],
-                ['2026-03', 122637966663, 76917151872, 49581607792],
-                ['2026-04', 124256492693, 75098754912, 48334379477],
-                ['2026-05', 126485364549, 84465282852, 54018940222],
-                ['2026-06', 118331185848, 92146791933, 55768837377],
-                ['2026-07', 120194934878, 81511914102, 50090723847],
-                ['2026-08', 122738191962, 88794933220, 54692870088],
-            ],
+            // [pos, nilai, % MoM]
+            'assets' => array_map(fn ($k) => [$k, $bs[$k], $mom($k)], ['cash', 'receivables', 'inventory', 'fixed_assets', 'other_assets']),
+            'assets_total' => $bs['assets_total'],
+            'liabilities' => array_map(fn ($k) => [$k, $bs[$k], $mom($k)], ['payables', 'short_debt', 'long_debt', 'other_liabilities']),
+            'liabilities_total' => $bs['liabilities_total'],
+            'equity' => $bs['equity'],
+            'equity_pct' => self::ratio($bs['equity'], $bs['assets_total']),
+            // modal kerja 12 bulan: [bulan, kas, piutang, persediaan]
+            'working_capital_trend' => $trend,
         ];
     }
 
-    /** Arus kas Agustus 2026. */
-    public static function cashFlow(): array
+    /** Arus kas periode. */
+    public function cashFlow(): array
     {
+        $ending = $this->row($this->end)['cash'];
+        $net = $this->sum($this->months, 'netCash');
+
+        // arus masuk = kas operasi; arus keluar = kas operasi - arus kas bersih
+        $inOut = [];
+        foreach ($this->window(12) as $month) {
+            $r = $this->row($month);
+            $inOut[] = [$month, $r['operating'], $r['operating'] - $r['netCash']];
+        }
+
+        // proyeksi 4 bulan dari rata-rata arus kas bersih 6 bulan terakhir
+        $last6 = $this->window(6);
+        $step = $this->sum($last6, 'netCash') / 6;
+        $forecast = [];
+        foreach ($last6 as $month) {
+            $cash = $this->row($month)['cash'];
+            $forecast[] = [$month, $cash, $month === $this->end ? $cash : null];
+        }
+        for ($i = 1; $i <= 4; $i++) {
+            $forecast[] = [self::shift($this->end, $i), null, $ending + $step * $i];
+        }
+
         return [
-            'beginning' => 130589916232,
-            'operating' => 5323414595,
-            'investing' => -1514493046,
-            'financing' => -1129810449,
-            'net'       => 2679111100,
-            'ending'    => 122738191962,
-            'ending_mom' => 2.1,
-            'threshold' => 65.0e9,
+            'beginning'  => $ending - $net,
+            'operating'  => $this->sum($this->months, 'operating'),
+            'investing'  => $this->sum($this->months, 'investing'),
+            'financing'  => $this->sum($this->months, 'financing'),
+            'net'        => $net,
+            'ending'     => $ending,
+            'ending_mom' => self::change($ending, $this->row(self::shift($this->end, -1))['cash']),
+            'threshold'  => self::CASH_THRESHOLD * $this->shares($this->end)['cash'],
             // [bulan, inflow, outflow]
-            'inflow_outflow' => [
-                ['2025-09', 5192252473, 3139253204],
-                ['2025-10', 5191140376, 3098280519],
-                ['2025-11', 5249337459, 3220533620],
-                ['2025-12', 6020700945, 3135005579],
-                ['2026-01', 4333012824, 2757782876],
-                ['2026-02', 4388155334, 2807729216],
-                ['2026-03', 4985357155, 2775910973],
-                ['2026-04', 4647488755, 3028962725],
-                ['2026-05', 5646145189, 3417273333],
-                ['2026-06', 5816352903, 3612200582],
-                ['2026-07', 4932700229, 3032300867],
-                ['2026-08', 5323414595, 2644303495],
-            ],
-            // [bulan, kas aktual, forecast] (forecast 4 bulan dari rata-rata net cash 6 bulan)
-            'forecast' => [
-                ['2026-03', 122637966663, null],
-                ['2026-04', 124256492693, null],
-                ['2026-05', 126485364549, null],
-                ['2026-06', 118331185848, null],
-                ['2026-07', 120194934878, null],
-                ['2026-08', 122738191962, 122738191962],
-                ['2026-09', null, 124749871369],
-                ['2026-10', null, 126761550775],
-                ['2026-11', null, 128773230182],
-                ['2026-12', null, 130784909589],
-            ],
+            'inflow_outflow' => $inOut,
+            // [bulan, kas aktual, forecast]
+            'forecast' => $forecast,
         ];
+    }
+
+    // ------------------------------------------------------------------
+    // Perhitungan
+    // ------------------------------------------------------------------
+
+    /**
+     * Porsi group terpilih pada bulan tertentu. Porsi pendapatan & EBITDA bergeser mengikuti
+     * pertumbuhan tiap perusahaan (dinormalkan supaya totalnya tetap 1); porsi aset & kas tetap.
+     */
+    private function shares(string $month): array
+    {
+        $group = $this->filter['group'];
+        if (!isset(self::COMPANIES[$group])) {
+            return ['revenue' => 1, 'ebitda' => 1, 'assets' => 1, 'cash' => 1];
+        }
+        $years = self::monthsFrom(self::LATEST, $month) / 12;
+        $rev = $ebitda = [];
+        foreach (self::COMPANIES as $key => [$revShare, $growth, $ebitdaShare]) {
+            $factor = (1 + $growth) ** $years;
+            $rev[$key] = $revShare * $factor;
+            $ebitda[$key] = $ebitdaShare * $factor;
+        }
+        return [
+            'revenue' => $rev[$group] / array_sum($rev),
+            'ebitda'  => $ebitda[$group] / array_sum($ebitda),
+            'assets'  => self::COMPANIES[$group][3],
+            'cash'    => self::COMPANIES[$group][4],
+        ];
+    }
+
+    /** Satu bulan untuk group terpilih (IDR). Bulan tanpa data = 0. */
+    private function row(string $month): array
+    {
+        $raw = array_combine(self::KEYS, self::MONTHS[$month] ?? array_fill(0, count(self::KEYS), 0));
+        $s = $this->shares($month);
+        return [
+            'revenue'       => $raw['revenue'] * $s['revenue'],
+            'budgetRevenue' => $raw['budgetRevenue'] * $s['revenue'],
+            'grossProfit'   => $raw['grossProfit'] * $s['revenue'],
+            'ebitda'        => $raw['ebitda'] * $s['ebitda'],
+            'budgetEbitda'  => $raw['budgetEbitda'] * $s['ebitda'],
+            // laba bersih perusahaan dihitung ulang di statement() dari tarif pajak Consolidated
+            'netProfit'     => $raw['netProfit'] * $s['ebitda'],
+            'taxRate'       => self::taxRate($raw),
+            'cash'          => $raw['cash'] * $s['cash'],
+            'operating'     => $raw['operating'] * $s['cash'],
+            'investing'     => $raw['investing'] * $s['cash'],
+            'financing'     => $raw['financing'] * $s['cash'],
+            'netCash'       => $raw['netCash'] * $s['cash'],
+        ];
+    }
+
+    /** Tarif pajak efektif Consolidated: (laba sebelum pajak - laba bersih) / laba sebelum pajak. */
+    private static function taxRate(array $raw): float
+    {
+        $ebt = $raw['ebitda'] - $raw['revenue'] * (self::DA_RATE + self::INTEREST_RATE);
+        return $ebt > 0 ? ($ebt - $raw['netProfit']) / $ebt : 0;
+    }
+
+    /** Laba rugi untuk sekumpulan bulan (aktual atau budget). */
+    private function statement(array $months, bool $budget = false): array
+    {
+        $t = array_fill_keys(['revenue', 'cogs', 'gross_profit', 'opex', 'ebitda', 'da', 'ebit', 'interest', 'tax', 'net_profit'], 0);
+        foreach ($months as $month) {
+            $r = $this->row($month);
+            // budget: HPP & pos lain mengikuti rasio pendapatan budget / aktual
+            $scale = $budget ? ($r['revenue'] ? $r['budgetRevenue'] / $r['revenue'] : 0) : 1;
+            $revenue = $r['revenue'] * $scale;
+            $cogs = ($r['revenue'] - $r['grossProfit']) * $scale;
+            $ebitda = $budget ? $r['budgetEbitda'] : $r['ebitda'];
+            $da = $revenue * self::DA_RATE;
+            $interest = $revenue * self::INTEREST_RATE;
+            $ebt = $ebitda - $da - $interest;
+            $tax = $ebt * $r['taxRate'];
+
+            $t['revenue'] += $revenue;
+            $t['cogs'] += $cogs;
+            $t['gross_profit'] += $revenue - $cogs;
+            $t['opex'] += $revenue - $cogs - $ebitda;
+            $t['ebitda'] += $ebitda;
+            $t['da'] += $da;
+            $t['ebit'] += $ebitda - $da;
+            $t['interest'] += $interest;
+            $t['tax'] += $tax;
+            $t['net_profit'] += $ebt - $tax;
+        }
+        return $t;
+    }
+
+    /** Laba rugi pembanding: tahun lalu, periode sebelumnya (panjang sama), atau budget. */
+    private function compareStatement(): array
+    {
+        return match ($this->filter['compare']) {
+            'budget' => $this->statement($this->months, true),
+            'pp'     => $this->statement(array_map(fn ($m) => self::shift($m, -count($this->months)), $this->months)),
+            default  => $this->statement(array_map(fn ($m) => self::shift($m, -12), $this->months)),
+        };
+    }
+
+    /** Posisi neraca akhir bulan (IDR), termasuk hari piutang / utang / persediaan. */
+    private function position(string $month): array
+    {
+        $raw = array_combine(self::KEYS, self::MONTHS[$month] ?? array_fill(0, count(self::KEYS), 0));
+        $s = $this->shares($month);
+        $n = self::monthsFrom(self::LATEST, $month);
+        $cogs = $raw['revenue'] - $raw['grossProfit'];
+        [$ar, $inventory] = self::WORKING_CAPITAL[$month] ?? [$raw['revenue'] * self::AR_RATE, $cogs * self::INVENTORY_RATE];
+
+        $p = [
+            'cash'              => $raw['cash'] * $s['cash'],
+            'receivables'       => $ar * $s['revenue'],
+            'inventory'         => $inventory * $s['revenue'],
+            'fixed_assets'      => self::FIXED_ASSETS * (1 + 0.004 * $n) * $s['assets'],
+            'other_assets'      => self::OTHER_ASSETS * $s['assets'],
+            'payables'          => $cogs * self::AP_RATE * $s['revenue'],
+            'short_debt'        => self::SHORT_DEBT * $s['assets'],
+            'long_debt'         => self::LONG_DEBT * (1 - 0.003 * $n) * $s['assets'],
+            'other_liabilities' => self::OTHER_LIABILITIES * $s['assets'],
+        ];
+        $p['assets_total'] = $p['cash'] + $p['receivables'] + $p['inventory'] + $p['fixed_assets'] + $p['other_assets'];
+        $p['liabilities_total'] = $p['payables'] + $p['short_debt'] + $p['long_debt'] + $p['other_liabilities'];
+        $p['equity'] = $p['assets_total'] - $p['liabilities_total'];
+
+        // hari = saldo / nilai bulanan x 30,4
+        $monthRevenue = $raw['revenue'] * $s['revenue'];
+        $monthCogs = $cogs * $s['revenue'];
+        $p['ar_days'] = $monthRevenue ? $p['receivables'] / $monthRevenue * 30.4 : 0;
+        $p['ap_days'] = $monthCogs ? $p['payables'] / $monthCogs * 30.4 : 0;
+        $p['inventory_days'] = $monthCogs ? $p['inventory'] / $monthCogs * 30.4 : 0;
+        return $p;
+    }
+
+    /** Jumlah satu kolom untuk sekumpulan bulan. */
+    private function sum(array $months, string $key): float
+    {
+        return array_sum(array_map(fn ($m) => $this->row($m)[$key], $months));
+    }
+
+    /** $count bulan berturut-turut sampai akhir periode. */
+    private function window(int $count): array
+    {
+        return array_map(fn ($i) => self::shift($this->end, $i), range(1 - $count, 0));
+    }
+
+    // ------------------------------------------------------------------
+    // Helper
+    // ------------------------------------------------------------------
+
+    /** Geser bulan, mis. shift('2026-08', -12) -> '2025-08'. */
+    private static function shift(string $month, int $by): string
+    {
+        return Carbon::parse($month . '-01')->addMonthsNoOverflow($by)->format('Y-m');
+    }
+
+    /** Selisih bulan $month terhadap $from (negatif = sebelum). */
+    private static function monthsFrom(string $from, string $month): int
+    {
+        [$fy, $fm] = array_map('intval', explode('-', $from));
+        [$y, $m] = array_map('intval', explode('-', $month));
+        return ($y - $fy) * 12 + ($m - $fm);
+    }
+
+    /** Perubahan % terhadap pembanding; 0 kalau pembanding kosong. */
+    private static function change($value, $base): float
+    {
+        return $base ? ($value - $base) / abs($base) * 100 : 0;
+    }
+
+    /** Persentase $part terhadap $whole. */
+    private static function ratio($part, $whole): float
+    {
+        return $whole ? $part / $whole * 100 : 0;
     }
 
     /** Label bulan singkat, mis. '2026-08' -> 'Aug 26'. */
@@ -196,23 +536,29 @@ class FinancialsDemo
         return date('M y', strtotime($month . '-01'));
     }
 
-    /** Format rupiah ringkas seperti sumber: Rp 45,9 M (miliar), Rp 451,9 jt (juta). */
-    public static function idr($value): string
+    /**
+     * Nilai uang ringkas dalam mata uang aktif. IDR seperti sumber: Rp 45,9 M (miliar), Rp 451,9 jt (juta);
+     * mata uang lain: $ 2,8 M (juta), $ 341,5 K (ribu), $ 1,2 B (miliar).
+     */
+    public static function money($value): string
     {
-        $abs = abs((float) $value);
-        $sign = $value < 0 ? '-' : '';
-        if ($abs >= 1e9) {
-            return $sign . 'Rp ' . number_format($abs / 1e9, 1, ',', '.') . ' M';
+        [$rate, $symbol] = self::CURRENCIES[self::$currency];
+        $v = (float) $value / $rate;
+        $abs = abs($v);
+        $sign = $v < 0 ? '-' : '';
+        $units = self::$currency === 'IDR' ? [[1e9, 'M'], [1e6, 'jt']] : [[1e9, 'B'], [1e6, 'M'], [1e3, 'K']];
+        foreach ($units as [$size, $unit]) {
+            if ($abs >= $size) {
+                return $sign . $symbol . ' ' . number_format($abs / $size, 1, ',', '.') . ' ' . $unit;
+            }
         }
-        if ($abs >= 1e6) {
-            return $sign . 'Rp ' . number_format($abs / 1e6, 1, ',', '.') . ' jt';
-        }
-        return $sign . 'Rp ' . number_format($abs, 0, ',', '.');
+        return $sign . $symbol . ' ' . number_format($abs, 0, ',', '.');
     }
 
     /** Persen dengan tanda, mis. +8,8% / -4,3%. */
     public static function pct($value, int $decimals = 1): string
     {
+        $value = round($value, $decimals);
         return ($value > 0 ? '+' : ($value < 0 ? '-' : '')) . number_format(abs($value), $decimals, ',', '.') . '%';
     }
 }

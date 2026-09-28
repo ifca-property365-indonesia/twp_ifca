@@ -17,8 +17,8 @@
 @section('content')
 <div class="page-body">
     @include('financials._head', [
-        'title' => __('admin/financials.cf_title'),
-        'desc'  => __('admin/financials.period_idr', ['period' => $period]),
+        'title' => __('admin/financials.cf_title', ['group' => $labels['group']]),
+        'desc'  => __('admin/financials.period_cur', ['period' => $period, 'currency' => $labels['currency']]),
         'tab'   => 'cf',
     ])
 
@@ -32,19 +32,19 @@
                     <div class="col-6 col-md-4 col-xl-2">
                         <div class="fin-kpi">
                             <div class="fin-label">{{ __('admin/financials.' . $key) }}</div>
-                            <div class="fin-value" style="font-size: 1.25rem;">{{ F::idr($value) }}</div>
+                            <div class="fin-value" style="font-size: 1.25rem;">{{ F::money($value) }}</div>
                         </div>
                     </div>
                 @endforeach
                 <div class="col-12 col-md-4 col-xl-2">
                     <div class="fin-kpi">
                         <div class="fin-label">{{ __('admin/financials.ending_cash') }}</div>
-                        <div class="fin-value" style="font-size: 1.25rem;">{{ F::idr($cf['ending']) }}</div>
+                        <div class="fin-value" style="font-size: 1.25rem;">{{ F::money($cf['ending']) }}</div>
                         <div class="fin-sub"><span class="{{ $cf['ending_mom'] >= 0 ? 'fin-up' : 'fin-down' }}">{{ F::pct($cf['ending_mom']) }}</span> MoM</div>
                     </div>
                 </div>
             </div>
-            <div class="fin-card-desc mt-3">{{ __('admin/financials.min_threshold', ['value' => F::idr($cf['threshold'])]) }}</div>
+            <div class="fin-card-desc mt-3">{{ __('admin/financials.min_threshold', ['value' => F::money($cf['threshold'])]) }}</div>
         </div>
     </div>
 
@@ -105,7 +105,7 @@ $(function () {
         },
         options: FIN.options({
             interaction: { mode: 'nearest', intersect: true },
-            plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (c) { return FIN.idr(amounts[c.dataIndex]); } } } }
+            plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (c) { return FIN.money(amounts[c.dataIndex]); } } } }
         })
     });
 

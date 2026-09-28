@@ -4,13 +4,16 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Support\FinancialsDemo;
-use Illuminate\Support\Carbon;
+use Illuminate\Http\Request;
 
 /**
  * Menu Financials: Overview, Profit & Loss, Balance Sheet, Cash Flow.
  * Dipakai portal admin dan tenant (Tenant\FinancialsController) dengan view yang sama
  * (resources/views/financials); layout & URL mengikuti portal.
  * Sementara memakai data contoh (App\Support\FinancialsDemo).
+ *
+ * Filter di atas halaman (group, period, currency, compare) dikirim lewat query string
+ * dan disimpan di session, jadi tetap berlaku saat pindah tab / menu.
  */
 class FinancialsController extends Controller
 {
@@ -18,46 +21,66 @@ class FinancialsController extends Controller
     protected $layout = 'admin.template.layout2.base';
     protected $base = '/admin/financials';
 
-    public function overview()
+    public function overview(Request $request)
     {
-        return view('financials.overview', $this->common() + [
-            'kpi'    => FinancialsDemo::overview(),
-            'series' => FinancialsDemo::monthly(12),
+        $fin = $this->demo($request);
+        return view('financials.overview', $this->common($fin) + [
+            'kpi'    => $fin->overview(),
+            'series' => $fin->monthly(12),
         ]);
     }
 
-    public function profitLoss()
+    public function profitLoss(Request $request)
     {
-        return view('financials.profit_loss', $this->common() + [
-            'kpis'      => FinancialsDemo::plKpis(),
-            'statement' => FinancialsDemo::plStatement(),
-            'monthly'   => FinancialsDemo::monthly(12),
-            'yearly'    => FinancialsDemo::monthly(24),
+        $fin = $this->demo($request);
+        return view('financials.profit_loss', $this->common($fin) + [
+            'kpis'      => $fin->plKpis(),
+            'statement' => $fin->plStatement(),
+            'monthly'   => $fin->monthly(12),
+            'yearly'    => $fin->monthly(24),
         ]);
     }
 
-    public function balanceSheet()
+    public function balanceSheet(Request $request)
     {
-        return view('financials.balance_sheet', $this->common() + [
-            'bs' => FinancialsDemo::balanceSheet(),
+        $fin = $this->demo($request);
+        return view('financials.balance_sheet', $this->common($fin) + [
+            'bs' => $fin->balanceSheet(),
         ]);
     }
 
-    public function cashFlow()
+    public function cashFlow(Request $request)
     {
-        return view('financials.cash_flow', $this->common() + [
-            'cf'     => FinancialsDemo::cashFlow(),
-            'series' => FinancialsDemo::monthly(12),
+        $fin = $this->demo($request);
+        return view('financials.cash_flow', $this->common($fin) + [
+            'cf'     => $fin->cashFlow(),
+            'series' => $fin->monthly(12),
         ]);
     }
 
-    /** Layout, prefix URL, dan periode laporan untuk judul (mis. "August 2026" / "Agustus 2026"). */
-    private function common(): array
+    /** Data contoh sesuai filter: query string > filter terakhir di session > default. */
+    private function demo(Request $request): FinancialsDemo
     {
+        $filter = FinancialsDemo::normalize(array_merge(
+            (array) $request->session()->get('financials_filter', []),
+            $request->only(['group', 'period', 'currency', 'compare'])
+        ));
+        $request->session()->put('financials_filter', $filter);
+        return new FinancialsDemo($filter);
+    }
+
+    /** Layout, prefix URL, filter aktif, pilihan filter, dan teks judul/keterangan. */
+    private function common(FinancialsDemo $fin): array
+    {
+        $labels = $fin->labels();
         return [
-            'layout' => $this->layout,
-            'base'   => $this->base,
-            'period' => Carbon::parse(FinancialsDemo::PERIOD . '-01')->locale(app()->getLocale())->translatedFormat('F Y'),
+            'layout'   => $this->layout,
+            'base'     => $this->base,
+            'filter'   => $fin->filter,
+            'options'  => FinancialsDemo::options(),
+            'labels'   => $labels,
+            'period'   => $labels['period'],
+            'currency' => $fin->currency(),
         ];
     }
 }

@@ -13,8 +13,8 @@
 @section('content')
 <div class="page-body">
     @include('financials._head', [
-        'title' => __('admin/financials.overview_title'),
-        'desc'  => __('admin/financials.overview_desc', ['period' => $period]),
+        'title' => __('admin/financials.overview_title', ['group' => $labels['group']]),
+        'desc'  => __('admin/financials.overview_desc', ['period' => $period, 'currency' => $labels['currency']]),
         'tab'   => 'overview',
     ])
 
@@ -22,34 +22,35 @@
         <div class="col-sm-6 col-xl-3">
             <div class="card fin-kpi"><div class="card-body">
                 <div class="fin-label">{{ __('admin/financials.revenue') }}</div>
-                <div class="fin-value">{{ F::idr($kpi['revenue']['value']) }}</div>
+                <div class="fin-value">{{ F::money($kpi['revenue']['value']) }}</div>
                 <div class="fin-sub">
                     <span class="{{ $kpi['revenue']['change'] >= 0 ? 'fin-up' : 'fin-down' }}"><i class="{{ $kpi['revenue']['change'] >= 0 ? 'cil-arrow-top' : 'cil-arrow-bottom' }}"></i> {{ F::pct($kpi['revenue']['change']) }}</span>
+                    &nbsp;{{ __('admin/financials.vs_compare', ['compare' => $labels['compare']]) }}
                 </div>
             </div></div>
         </div>
         <div class="col-sm-6 col-xl-3">
             <div class="card fin-kpi"><div class="card-body">
                 <div class="fin-label">{{ __('admin/financials.ebitda') }}</div>
-                <div class="fin-value">{{ F::idr($kpi['ebitda']['value']) }}</div>
+                <div class="fin-value">{{ F::money($kpi['ebitda']['value']) }}</div>
                 <div class="fin-sub">
                     <span class="{{ $kpi['ebitda']['change'] >= 0 ? 'fin-up' : 'fin-down' }}"><i class="{{ $kpi['ebitda']['change'] >= 0 ? 'cil-arrow-top' : 'cil-arrow-bottom' }}"></i> {{ F::pct($kpi['ebitda']['change']) }}</span>
-                    &nbsp;{{ __('admin/financials.margin', ['value' => number_format($kpi['ebitda']['margin'], 1, ',', '.') . '%']) }}
+                    &nbsp;· {{ __('admin/financials.margin', ['value' => number_format($kpi['ebitda']['margin'], 1, ',', '.') . '%']) }}
                 </div>
             </div></div>
         </div>
         <div class="col-sm-6 col-xl-3">
             <div class="card fin-kpi"><div class="card-body">
                 <div class="fin-label">{{ __('admin/financials.total_assets') }}</div>
-                <div class="fin-value">{{ F::idr($kpi['total_assets']['value']) }}</div>
-                <div class="fin-sub">{{ __('admin/financials.equity_of', ['value' => F::idr($kpi['total_assets']['equity'])]) }}</div>
+                <div class="fin-value">{{ F::money($kpi['total_assets']['value']) }}</div>
+                <div class="fin-sub">{{ __('admin/financials.equity_of', ['value' => F::money($kpi['total_assets']['equity'])]) }}</div>
             </div></div>
         </div>
         <div class="col-sm-6 col-xl-3">
             <div class="card fin-kpi"><div class="card-body">
                 <div class="fin-label">{{ __('admin/financials.closing_cash') }}</div>
-                <div class="fin-value">{{ F::idr($kpi['closing_cash']['value']) }}</div>
-                <div class="fin-sub">{{ __('admin/financials.net_movement', ['value' => F::idr($kpi['closing_cash']['net'])]) }}</div>
+                <div class="fin-value">{{ F::money($kpi['closing_cash']['value']) }}</div>
+                <div class="fin-sub">{{ __('admin/financials.net_movement', ['value' => F::money($kpi['closing_cash']['net'])]) }}</div>
             </div></div>
         </div>
     </div>

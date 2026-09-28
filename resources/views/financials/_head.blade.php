@@ -1,7 +1,8 @@
 {{--
-    Kepala halaman Financials: judul, keterangan periode, tab 4 halaman, dan helper bersama
-    (CSS kartu + JS format rupiah / warna / default Chart.js). Dipakai ke-4 halaman.
-    Variabel: $title, $desc, $tab (overview | pl | bs | cf)
+    Kepala halaman Financials: filter (group, period, currency, compare), judul, keterangan periode,
+    tab 4 halaman, dan helper bersama (CSS kartu + JS format uang / warna / default Chart.js).
+    Dipakai ke-4 halaman. Variabel: $title, $desc, $tab (overview | pl | bs | cf);
+    dari controller: $filter, $options, $currency.
 --}}
 @php
     $tabs = [
@@ -9,6 +10,12 @@
         'pl'       => ['url' => url($base . '/profit-loss'), 'label' => __('admin/financials.tab_pl')],
         'bs'       => ['url' => url($base . '/balance-sheet'), 'label' => __('admin/financials.tab_bs')],
         'cf'       => ['url' => url($base . '/cash-flow'), 'label' => __('admin/financials.tab_cf')],
+    ];
+    $filters = [
+        'group'    => 'cil-building',
+        'period'   => 'cil-calendar',
+        'currency' => 'cil-dollar',
+        'compare'  => 'cil-swap-horizontal',
     ];
 @endphp
 
@@ -35,8 +42,29 @@
     .fin-list li:last-child { border-bottom: 0; }
     .fin-list .fin-total-row { font-weight: 700; border-top: 2px solid var(--cui-border-color); border-bottom: 0; }
     .fin-toggle .btn { min-width: 6rem; }
+    .fin-filters { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .fin-filter { display: flex; align-items: center; gap: .4rem; margin: 0; padding: .3rem .1rem .3rem .65rem; border: 1px solid var(--cui-border-color); border-radius: .5rem; background: var(--cui-body-bg); cursor: pointer; }
+    .fin-filter:focus-within { border-color: #4f5bd5; box-shadow: 0 0 0 .2rem rgba(79, 91, 213, .15); }
+    .fin-filter > i { color: var(--cui-secondary-color); }
+    .fin-filter-label { font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--cui-secondary-color); white-space: nowrap; }
+    .fin-filter .form-select { width: auto; border: 0; box-shadow: none; background-color: transparent; font-weight: 600; color: var(--cui-emphasis-color); padding-left: .15rem; padding-right: 1.75rem; background-position: right .4rem center; cursor: pointer; }
+    @media (max-width: 575.98px) { .fin-filter { flex: 1 1 100%; } .fin-filter .form-select { flex: 1; min-width: 0; } }
 </style>
 @endpush
+
+<form method="get" action="{{ url()->current() }}" class="fin-filters mb-3" id="finFilters">
+    @foreach ($filters as $name => $icon)
+        <label class="fin-filter">
+            <i class="{{ $icon }}"></i>
+            <span class="fin-filter-label">{{ __('admin/financials.f_' . $name) }}</span>
+            <select name="{{ $name }}" class="form-select form-select-sm">
+                @foreach ($options[$name] as $key => $label)
+                    <option value="{{ $key }}" @selected($filter[$name] === $key)>{{ $label }}</option>
+                @endforeach
+            </select>
+        </label>
+    @endforeach
+</form>
 
 <div class="page-head">
     <div class="page-head-row">
@@ -60,19 +88,26 @@
 
 @push('scripts')
 <script>
+    // Filter: ganti pilihan langsung memuat ulang halaman (filter disimpan di session)
+    $('#finFilters select').on('change', function () { this.form.submit(); });
+
     // Helper bersama halaman Financials
     window.FIN = {
+        currency: @json($currency),
         color: { primary: '#4f5bd5', gold: '#bda870', green: '#2e9e6a', red: '#d0473b', grey: '#9aa3b2', light: 'rgba(79, 91, 213, .12)' },
-        // Rp 45,9 M (miliar) / Rp 451,9 jt (juta), sama dengan PHP FinancialsDemo::idr()
-        idr: function (v, digits) {
+        // nilai IDR -> mata uang terpilih, sama dengan PHP FinancialsDemo::money():
+        // IDR: Rp 45,9 M (miliar) / Rp 451,9 jt (juta); lainnya: $ 2,8 M (juta) / $ 341,5 K (ribu) / $ 1,2 B (miliar)
+        money: function (v, digits) {
             if (v === null || v === undefined) { return '-'; }
-            var abs = Math.abs(v), sign = v < 0 ? '-' : '', d = digits === undefined ? 1 : digits;
-            var num = function (x) { return x.toLocaleString('id-ID', { minimumFractionDigits: d, maximumFractionDigits: d }); };
-            if (abs >= 1e9) { return sign + 'Rp ' + num(abs / 1e9) + ' M'; }
-            if (abs >= 1e6) { return sign + 'Rp ' + num(abs / 1e6) + ' jt'; }
-            return sign + 'Rp ' + abs.toLocaleString('id-ID');
+            var c = FIN.currency, x = v / c.rate, abs = Math.abs(x), sign = x < 0 ? '-' : '', d = digits === undefined ? 1 : digits;
+            var num = function (n) { return n.toLocaleString('id-ID', { minimumFractionDigits: d, maximumFractionDigits: d }); };
+            var units = c.code === 'IDR' ? [[1e9, 'M'], [1e6, 'jt']] : [[1e9, 'B'], [1e6, 'M'], [1e3, 'K']];
+            for (var i = 0; i < units.length; i++) {
+                if (abs >= units[i][0]) { return sign + c.symbol + ' ' + num(abs / units[i][0]) + ' ' + units[i][1]; }
+            }
+            return sign + c.symbol + ' ' + Math.round(abs).toLocaleString('id-ID');
         },
-        axisIdr: function (v) { return v === 0 ? 'Rp 0' : FIN.idr(v, 1); },
+        axisMoney: function (v) { return v === 0 ? FIN.currency.symbol + ' 0' : FIN.money(v, 1); },
         // opsi dasar grafik: legend bawah, tooltip rupiah, sumbu Y rupiah
         options: function (extra) {
             return $.extend(true, {
@@ -81,11 +116,11 @@
                 interaction: { mode: 'index', intersect: false },
                 plugins: {
                     legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } },
-                    tooltip: { callbacks: { label: function (c) { return c.dataset.label + ': ' + FIN.idr(c.parsed.y); } } }
+                    tooltip: { callbacks: { label: function (c) { return c.dataset.label + ': ' + FIN.money(c.parsed.y); } } }
                 },
                 scales: {
                     x: { grid: { display: false } },
-                    y: { beginAtZero: true, ticks: { callback: FIN.axisIdr, maxTicksLimit: 6 }, grid: { color: 'rgba(0, 0, 0, .05)' } }
+                    y: { beginAtZero: true, ticks: { callback: FIN.axisMoney, maxTicksLimit: 6 }, grid: { color: 'rgba(0, 0, 0, .05)' } }
                 }
             }, extra || {});
         }

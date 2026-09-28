@@ -6,8 +6,8 @@
 @section('content')
 <div class="page-body">
     @include('financials._head', [
-        'title' => __('admin/financials.pl_title'),
-        'desc'  => __('admin/financials.period_idr', ['period' => $period]),
+        'title' => __('admin/financials.pl_title', ['group' => $labels['group']]),
+        'desc'  => __('admin/financials.period_cur', ['period' => $period, 'currency' => $labels['currency']]),
         'tab'   => 'pl',
     ])
 
@@ -26,7 +26,7 @@
                 <div class="card fin-kpi"><div class="card-body">
                     <div class="fin-label">{{ __('admin/financials.' . $key) }}</div>
                     <div class="fin-value">{{ number_format($k['value'], 1, ',', '.') }}%</div>
-                    <div class="fin-sub"><span class="{{ $good ? 'fin-up' : 'fin-down' }}">{{ __('admin/financials.pts_vs_py', ['value' => ($k['pts'] > 0 ? '+' : '') . number_format($k['pts'], 1)]) }}</span></div>
+                    <div class="fin-sub"><span class="{{ $good ? 'fin-up' : 'fin-down' }}">{{ __('admin/financials.pts_vs', ['value' => (round($k['pts'], 1) > 0 ? '+' : '') . number_format($k['pts'], 1, ',', '.'), 'compare' => $labels['compare']]) }}</span></div>
                 </div></div>
             </div>
         @endforeach
@@ -54,10 +54,10 @@
                             @php $cost = in_array($line, ['cogs', 'opex', 'da', 'interest', 'tax'], true); @endphp
                             <tr class="{{ $isTotal ? 'fin-total' : '' }}">
                                 <td>{{ __('admin/financials.lines.' . $line) }}</td>
-                                <td class="text-end">{{ F::idr($actual) }}</td>
-                                <td class="text-end">{{ F::idr($budget) }}</td>
+                                <td class="text-end">{{ F::money($actual) }}</td>
+                                <td class="text-end">{{ F::money($budget) }}</td>
                                 <td class="text-end"><span class="badge {{ ($cost ? $vsBudget <= 0 : $vsBudget >= 0) ? 'badge-soft-success' : 'badge-soft-danger' }}">{{ F::pct($vsBudget) }}</span></td>
-                                <td class="text-end">{{ F::idr($prior) }}</td>
+                                <td class="text-end">{{ F::money($prior) }}</td>
                                 <td class="text-end"><span class="badge {{ ($cost ? $yoy <= 0 : $yoy >= 0) ? 'badge-soft-success' : 'badge-soft-danger' }}">{{ F::pct($yoy) }}</span></td>
                             </tr>
                         @endforeach

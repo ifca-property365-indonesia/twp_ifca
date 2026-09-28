@@ -9,9 +9,38 @@ return [
     'tab_cf'         => 'Arus Kas',
     'demo_note'      => 'Data contoh (hardcode) — belum terhubung ke IFCA.',
 
+    // filter di atas halaman
+    'f_group'        => 'Grup',
+    'f_period'       => 'Periode',
+    'f_currency'     => 'Mata uang',
+    'f_compare'      => 'Banding',
+    'consolidated'   => 'Konsolidasi',
+    'groups' => [
+        'company-a' => 'Perusahaan A — Manufaktur',
+        'company-b' => 'Perusahaan B — Logistik',
+        'company-c' => 'Perusahaan C — Distribusi Ritel',
+        'company-d' => 'Perusahaan D — Jasa Energi',
+    ],
+    'period_q'         => 'K:q :year',
+    'period_q_to_date' => 'K:q :year (berjalan)',
+    'period_ytd'       => 'YTD :year (:range)',
+    'period_fy'        => 'TA :year',
+    'currencies' => [
+        'IDR' => 'Rupiah Indonesia',
+        'USD' => 'Dolar AS',
+        'SGD' => 'Dolar Singapura',
+        'MYR' => 'Ringgit Malaysia',
+    ],
+    'compares' => [
+        'py'     => 'Tahun Lalu',
+        'pp'     => 'Periode Sebelumnya',
+        'budget' => 'Budget',
+    ],
+    'vs_compare'     => 'vs :compare',
+
     // overview
-    'overview_title' => 'Konsolidasi — Kinerja Keuangan',
-    'overview_desc'  => ':period · semua angka dalam IDR',
+    'overview_title' => ':group — Kinerja Keuangan',
+    'overview_desc'  => ':period · semua angka dalam :currency',
     'revenue'        => 'Pendapatan',
     'ebitda'         => 'EBITDA',
     'total_assets'   => 'Total Aset',
@@ -27,15 +56,15 @@ return [
     'open'           => 'Buka',
 
     // profit & loss
-    'pl_title'       => 'Konsolidasi — Laba Rugi',
-    'period_idr'     => ':period · IDR',
+    'pl_title'       => ':group — Laba Rugi',
+    'period_cur'     => ':period · :currency',
     'monthly'        => 'Bulanan',
     'yearly'         => 'Tahunan',
     'gross_margin'   => 'Margin Kotor',
     'ebitda_margin'  => 'Margin EBITDA',
     'net_margin'     => 'Margin Bersih',
     'opex_ratio'     => 'Rasio Opex',
-    'pts_vs_py'      => ':value poin vs tahun lalu',
+    'pts_vs'         => ':value poin vs :compare',
     'pl_statement'   => 'Laporan laba rugi',
     'col_line'       => 'Pos',
     'col_actual'     => 'Aktual',
@@ -68,8 +97,8 @@ return [
     'previous_year'  => 'Tahun lalu',
 
     // balance sheet
-    'bs_title'       => 'Konsolidasi — Neraca',
-    'bs_desc_period' => 'Posisi per akhir :period · IDR',
+    'bs_title'       => ':group — Neraca',
+    'bs_desc_period' => 'Posisi per akhir :period · :currency',
     'current_ratio'  => 'Current Ratio',
     'target'         => 'Target ≥ :value',
     'debt_equity'    => 'Utang / Ekuitas',
@@ -105,7 +134,7 @@ return [
     'inventory'      => 'Persediaan',
 
     // cash flow
-    'cf_title'       => 'Konsolidasi — Arus Kas',
+    'cf_title'       => ':group — Arus Kas',
     'above_threshold'=> 'Di atas batas minimum',
     'below_threshold'=> 'Di bawah batas minimum',
     'beginning_cash' => 'Kas Awal',
