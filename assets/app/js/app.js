@@ -87,7 +87,13 @@
             $(this).select2({
                 minimumResultsForSearch: $(this).data('search') ? 0 : Infinity,
                 dropdownAutoWidth: true,
-                dropdownCssClass: $(this).data('dropdown-class') || ''
+                dropdownCssClass: $(this).data('dropdown-class') || '',
+                // <option data-sub="...">: teks kecil di bawah nama pilihan
+                templateResult: function (item) {
+                    var sub = item.element && $(item.element).data('sub');
+                    if (!sub) { return item.text; }
+                    return $('<span class="select2-option-sub"></span>').append($('<span></span>').text(item.text), $('<small></small>').text(sub));
+                }
             });
         });
     }

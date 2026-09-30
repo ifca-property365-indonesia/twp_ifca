@@ -72,7 +72,7 @@
             <span class="fin-filter-label">{{ __('admin/financials.f_' . $name) }}</span>
             <select name="{{ $name }}" class="form-select form-select-sm js-select" data-dropdown-class="fin-dropdown fin-dropdown-{{ $name }}">
                 @foreach ($options[$name] as $key => $label)
-                    <option value="{{ $key }}" @selected($filter[$name] === $key)>{{ $label }}</option>
+                    <option value="{{ $key }}" @selected($filter[$name] === $key) @if ($name === 'group' && $key !== 'consolidated') data-sub="{{ __('admin/financials.businesses.' . $key) }}" @endif>{{ $label }}</option>
                 @endforeach
             </select>
         </div>

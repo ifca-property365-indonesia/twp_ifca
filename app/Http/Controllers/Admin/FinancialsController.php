@@ -25,8 +25,7 @@ class FinancialsController extends Controller
     {
         $fin = $this->demo($request);
         return view('financials.overview', $this->common($fin) + [
-            'kpi'    => $fin->overview(),
-            'series' => $fin->monthly(12),
+            'dash' => $fin->dashboard(),
         ]);
     }
 

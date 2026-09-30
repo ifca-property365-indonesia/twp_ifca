@@ -83,14 +83,55 @@ class FinancialsDemo
     private const CASH_THRESHOLD = 65.0e9;
 
     /**
-     * Perusahaan dalam grup: [porsi pendapatan, pertumbuhan pendapatan per tahun, porsi EBITDA, porsi aset, porsi kas]
-     * per Agustus 2026. Tiap porsi dijumlah = 1, jadi Consolidated = total ke-4 perusahaan.
+     * Perusahaan dalam grup: [porsi pendapatan, pertumbuhan pendapatan per tahun, porsi EBITDA, porsi aset, porsi kas,
+     * pencapaian budget pendapatan] per Agustus 2026. Tiap porsi dijumlah = 1, jadi Consolidated = total ke-4 perusahaan.
      */
     private const COMPANIES = [
-        'company-a' => [0.438, 0.06, 0.540, 0.414, 0.482],
-        'company-b' => [0.237, -0.15, 0.104, 0.295, 0.221],
-        'company-c' => [0.192, 0.03, 0.179, 0.144, 0.165],
-        'company-d' => [0.133, 0.17, 0.177, 0.147, 0.132],
+        'company-a' => [0.438, 0.06, 0.540, 0.414, 0.482, 1.082],   // Mall & Retail
+        'company-b' => [0.237, -0.15, 0.104, 0.295, 0.221, 0.826],  // Office
+        'company-c' => [0.192, 0.03, 0.179, 0.144, 0.165, 1.000],   // Apartment
+        'company-d' => [0.133, 0.17, 0.177, 0.147, 0.132, 0.968],   // Property Development
+    ];
+
+    /** KPI operasional tiap bisnis (data operasional contoh): [jenis KPI, nilai %, status]. */
+    private const OPERATING_KPIS = [
+        'company-a' => ['occupancy', 92.2, 'watch'],
+        'company-b' => ['occupancy', 87.3, 'at_risk'],
+        'company-c' => ['units_sold', 76.7, 'watch'],
+        'company-d' => ['sales_achievement', 75.0, 'watch'],
+    ];
+
+    /** Umur piutang & utang usaha (% dari saldo): current, 1-30, 31-60, >60 hari. */
+    private const AR_AGING = [41.7, 27.6, 16.3, 14.3];
+    private const AP_AGING = [55.4, 25.0, 12.8, 6.8];
+
+    /** Porsi beban (HPP + opex) per kategori; penyusutan dihitung terpisah. */
+    private const EXPENSE_MIX = [
+        'property_operating' => 34.3,
+        'personnel'          => 17.9,
+        'utilities'          => 16.6,
+        'maintenance'        => 11.3,
+        'marketing'          => 9.9,
+        'others'             => 7.1,
+    ];
+
+    /** Catatan manajemen (teks di lang admin/financials.alerts): [kunci, perusahaan, tingkat, tanggal, ada tindakan?]. */
+    private const ALERTS = [
+        ['ebitda_below_budget', 'company-b', 'critical', '2026-09-02', true],
+        ['cash_below_threshold', 'company-b', 'critical', '2026-09-02', true],
+        ['ar_up', 'company-b', 'warning', '2026-09-03', true],
+        ['marketing_over_budget', 'company-c', 'warning', '2026-09-01', true],
+        ['unsold_units', 'company-c', 'warning', '2026-08-29', false],
+    ];
+
+    /** Laporan terbaru: [kunci, tab tujuan (null = belum ada halaman), waktu update, format]. */
+    private const REPORTS = [
+        ['pl', 'profit-loss', '2026-09-26 08:15', 'Excel / PDF'],
+        ['bs', 'balance-sheet', '2026-09-26 08:15', 'Excel / PDF'],
+        ['cf', 'cash-flow', '2026-09-25 17:40', 'Excel / PDF'],
+        ['ar_aging', null, '2026-09-25 11:02', 'Excel'],
+        ['ap_aging', null, '2026-09-25 11:02', 'Excel'],
+        ['occupancy', null, '2026-09-24 09:30', 'PDF'],
     ];
 
     /** Mata uang tampilan: [kurs ke IDR, simbol]. */
@@ -215,20 +256,6 @@ class FinancialsDemo
     // ------------------------------------------------------------------
     // Halaman
     // ------------------------------------------------------------------
-
-    /** Kartu ringkasan halaman Overview; perubahan dibanding pilihan "compare". */
-    public function overview(): array
-    {
-        $cur = $this->statement($this->months);
-        $cmp = $this->compareStatement();
-        $bs = $this->position($this->end);
-        return [
-            'revenue'      => ['value' => $cur['revenue'], 'change' => self::change($cur['revenue'], $cmp['revenue'])],
-            'ebitda'       => ['value' => $cur['ebitda'], 'change' => self::change($cur['ebitda'], $cmp['ebitda']), 'margin' => self::ratio($cur['ebitda'], $cur['revenue'])],
-            'total_assets' => ['value' => $bs['assets_total'], 'equity' => $bs['equity']],
-            'closing_cash' => ['value' => $bs['cash'], 'net' => $this->sum($this->months, 'netCash')],
-        ];
-    }
 
     /** Seri bulanan untuk grafik: $count bulan sampai akhir periode (12 = rolling 12 bulan, 24 = mode Yearly). */
     public function monthly(int $count = 12): array
@@ -357,6 +384,153 @@ class FinancialsDemo
         ];
     }
 
+    /**
+     * Semua data halaman Overview (tampilan dashboard eksekutif): kartu KPI + sparkline, tren pendapatan / EBITDA,
+     * ringkasan laba rugi, catatan manajemen, ringkasan kas & neraca, umur piutang / utang, kinerja per bisnis,
+     * pendapatan per unit, beban per kategori, dan laporan terbaru.
+     */
+    public function dashboard(): array
+    {
+        $cur = $this->statement($this->months);
+        $budget = $this->statement($this->months, true);
+        $cmp = $this->compareStatement();
+        $bs = $this->position($this->end);
+        $net = $this->sum($this->months, 'netCash');
+
+        // sparkline 12 bulan per kartu
+        $spark = ['revenue' => [], 'gross_profit' => [], 'ebitda' => [], 'net_profit' => [], 'cash' => [], 'assets' => []];
+        foreach ($this->window(12) as $month) {
+            $m = $this->statement([$month]);
+            $p = $this->position($month);
+            foreach (['revenue', 'gross_profit', 'ebitda', 'net_profit'] as $k) {
+                $spark[$k][] = $m[$k];
+            }
+            $spark['cash'][] = $p['cash'];
+            $spark['assets'][] = $p['assets_total'];
+        }
+
+        $kpis = [];
+        foreach (['revenue', 'gross_profit', 'ebitda', 'net_profit'] as $k) {
+            $kpis[$k] = [
+                'value'  => $cur[$k],
+                'budget' => $budget[$k],
+                'change' => self::change($cur[$k], $cmp[$k]),
+                'margin' => $k === 'revenue' ? null : self::ratio($cur[$k], $cur['revenue']),
+                'spark'  => $spark[$k],
+            ];
+        }
+        $kpis['closing_cash'] = ['value' => $bs['cash'], 'min' => self::CASH_THRESHOLD * $this->shares($this->end)['cash'], 'spark' => $spark['cash']];
+        $kpis['total_assets'] = ['value' => $bs['assets_total'], 'equity' => $bs['equity'], 'spark' => $spark['assets']];
+
+        // per perusahaan (selalu ke-4 bisnis, dengan periode yang sama)
+        $companies = [];
+        foreach (array_keys(self::COMPANIES) as $key) {
+            $c = new self(['group' => $key] + $this->filter);
+            $cs = $c->statement($c->months);
+            $cb = $c->statement($c->months, true);
+            $cp = $c->statement(array_map(fn ($m) => self::shift($m, -12), $c->months));
+            $achievement = self::ratio($cs['revenue'], $cb['revenue']);
+            [$kpiType, $kpiValue, $kpiStatus] = self::OPERATING_KPIS[$key];
+            $companies[$key] = [
+                'revenue'    => $cs['revenue'],
+                'ebitda'     => $cs['ebitda'],
+                'margin'     => self::ratio($cs['ebitda'], $cs['revenue']),
+                'net_profit' => $cs['net_profit'],
+                'cash'       => $c->position($c->end)['cash'],
+                'budget_pct' => $achievement,
+                'yoy'        => self::change($cs['revenue'], $cp['revenue']),
+                'status'     => $achievement >= 105 ? 'on_track' : ($achievement < 90 ? 'at_risk' : 'attention'),
+                'kpi'        => ['type' => $kpiType, 'value' => $kpiValue, 'status' => $kpiStatus],
+            ];
+        }
+        $totalRevenue = array_sum(array_column($companies, 'revenue'));
+
+        // beban per kategori: HPP + opex dibagi menurut porsi, ditambah penyusutan
+        $opCost = $cur['cogs'] + $cur['opex'];
+        $mix = array_sum(self::EXPENSE_MIX);
+        $expenses = [];
+        foreach (self::EXPENSE_MIX as $k => $w) {
+            $expenses[$k] = $opCost * $w / $mix;
+        }
+        $expenses['da'] = $cur['da'];
+        $totalExpense = array_sum($expenses);
+
+        $aging = fn (float $total, array $pcts) => [
+            'total'   => $total,
+            'buckets' => array_map(fn ($p) => ['value' => $total * $p / 100, 'pct' => $p], array_combine(['current', 'd30', 'd60', 'over60'], $pcts)),
+        ];
+
+        // catatan manajemen: semua untuk Consolidated, atau milik perusahaan terpilih saja
+        $group = $this->filter['group'];
+        $alerts = array_values(array_filter(
+            array_map(fn ($a) => array_combine(['key', 'company', 'severity', 'date', 'action'], $a), self::ALERTS),
+            fn ($a) => $group === 'consolidated' || $a['company'] === $group
+        ));
+
+        return [
+            'kpis'      => $kpis,
+            'trend'     => $this->trend(),
+            'statement' => $this->plStatement(),
+            'alerts'    => $alerts,
+            'cash'      => ['in' => $cur['revenue'], 'out' => $cur['revenue'] - $net, 'net' => $net, 'closing' => $bs['cash']],
+            'bs'        => [
+                'assets'      => $bs['assets_total'],
+                'liabilities' => $bs['liabilities_total'],
+                'equity'      => $bs['equity'],
+                'de'          => $bs['equity'] ? $bs['liabilities_total'] / $bs['equity'] : 0,
+                'liab_pct'    => self::ratio($bs['liabilities_total'], $bs['assets_total']),
+                'equity_pct'  => self::ratio($bs['equity'], $bs['assets_total']),
+            ],
+            'ar'        => $aging($bs['receivables'], self::AR_AGING),
+            'ap'        => $aging($bs['payables'], self::AP_AGING),
+            'companies' => $companies,
+            'units'     => array_map(fn ($c) => ['value' => $c['revenue'], 'pct' => self::ratio($c['revenue'], $totalRevenue)], $companies),
+            'expenses'  => array_map(fn ($v) => ['value' => $v, 'pct' => self::ratio($v, $totalExpense)], $expenses),
+            'reports'   => array_map(fn ($r) => array_combine(['key', 'tab', 'updated', 'format'], $r), self::REPORTS),
+        ];
+    }
+
+    /**
+     * Grafik tren (pendapatan & EBITDA: [aktual, budget, tahun lalu]) dalam 3 tampilan:
+     * rolling 12 bulan, bulanan Jan - Des tahun periode, dan YTD kumulatif.
+     */
+    private function trend(): array
+    {
+        $point = function (string $month) {
+            $r = $this->row($month);
+            $p = $this->row(self::shift($month, -12));
+            $has = isset(self::MONTHS[$month]);
+            return [
+                'revenue' => [$has ? $r['revenue'] : null, $has ? $r['budgetRevenue'] : null, $p['revenue'] ?: null],
+                'ebitda'  => [$has ? $r['ebitda'] : null, $has ? $r['budgetEbitda'] : null, $p['ebitda'] ?: null],
+            ];
+        };
+        $series = function (array $months, bool $cumulative = false) use ($point) {
+            $out = ['labels' => array_map(fn ($m) => self::label($m), $months), 'revenue' => [[], [], []], 'ebitda' => [[], [], []]];
+            $run = ['revenue' => [0, 0, 0], 'ebitda' => [0, 0, 0]];
+            foreach ($months as $month) {
+                foreach ($point($month) as $metric => $values) {
+                    foreach ($values as $i => $v) {
+                        if ($cumulative && $v !== null) {
+                            $run[$metric][$i] += $v;
+                            $v = $run[$metric][$i];
+                        }
+                        $out[$metric][$i][] = $v;
+                    }
+                }
+            }
+            return $out;
+        };
+        $year = substr($this->end, 0, 4);
+        $month = (int) substr($this->end, 5);
+        return [
+            'rolling' => $series($this->window(12)),
+            'monthly' => $series(array_map(fn ($m) => sprintf('%s-%02d', $year, $m), range(1, 12))),
+            'ytd'     => $series(array_map(fn ($m) => sprintf('%s-%02d', $year, $m), range(1, $month)), true),
+            'year'    => $year,
+        ];
+    }
+
     // ------------------------------------------------------------------
     // Perhitungan
     // ------------------------------------------------------------------
@@ -369,18 +543,23 @@ class FinancialsDemo
     {
         $group = $this->filter['group'];
         if (!isset(self::COMPANIES[$group])) {
-            return ['revenue' => 1, 'ebitda' => 1, 'assets' => 1, 'cash' => 1];
+            return ['revenue' => 1, 'ebitda' => 1, 'budget_revenue' => 1, 'budget_ebitda' => 1, 'assets' => 1, 'cash' => 1];
         }
         $years = self::monthsFrom(self::LATEST, $month) / 12;
-        $rev = $ebitda = [];
-        foreach (self::COMPANIES as $key => [$revShare, $growth, $ebitdaShare]) {
+        $rev = $ebitda = $budRev = $budEbitda = [];
+        foreach (self::COMPANIES as $key => [$revShare, $growth, $ebitdaShare, , , $achievement]) {
             $factor = (1 + $growth) ** $years;
             $rev[$key] = $revShare * $factor;
             $ebitda[$key] = $ebitdaShare * $factor;
+            // porsi budget: perusahaan yang melampaui budget punya porsi budget lebih kecil
+            $budRev[$key] = $rev[$key] / $achievement;
+            $budEbitda[$key] = $ebitda[$key] / $achievement;
         }
         return [
             'revenue' => $rev[$group] / array_sum($rev),
             'ebitda'  => $ebitda[$group] / array_sum($ebitda),
+            'budget_revenue' => $budRev[$group] / array_sum($budRev),
+            'budget_ebitda'  => $budEbitda[$group] / array_sum($budEbitda),
             'assets'  => self::COMPANIES[$group][3],
             'cash'    => self::COMPANIES[$group][4],
         ];
@@ -393,10 +572,10 @@ class FinancialsDemo
         $s = $this->shares($month);
         return [
             'revenue'       => $raw['revenue'] * $s['revenue'],
-            'budgetRevenue' => $raw['budgetRevenue'] * $s['revenue'],
+            'budgetRevenue' => $raw['budgetRevenue'] * $s['budget_revenue'],
             'grossProfit'   => $raw['grossProfit'] * $s['revenue'],
             'ebitda'        => $raw['ebitda'] * $s['ebitda'],
-            'budgetEbitda'  => $raw['budgetEbitda'] * $s['ebitda'],
+            'budgetEbitda'  => $raw['budgetEbitda'] * $s['budget_ebitda'],
             // laba bersih perusahaan dihitung ulang di statement() dari tarif pajak Consolidated
             'netProfit'     => $raw['netProfit'] * $s['ebitda'],
             'taxRate'       => self::taxRate($raw),

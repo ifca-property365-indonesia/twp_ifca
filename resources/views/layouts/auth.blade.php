@@ -10,7 +10,7 @@
 
     <link rel="stylesheet" href="{{ url('assets/coreui/css/coreui.min.css') }}">
     <link rel="stylesheet" href="{{ url('assets/coreui/icons/css/free.min.css') }}">
-    <link rel="stylesheet" href="{{ url('assets/app/css/app.css?ver=1.0.12') }}">
+    <link rel="stylesheet" href="{{ url('assets/app/css/app.css?ver=1.0.13') }}">
     <style>
         :root { --login-bg: url("{{ asset('images/background/Background_new.jpeg') }}"); }
     </style>
