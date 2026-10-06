@@ -15,10 +15,10 @@ return [
     'f_compare'      => 'Banding',
     'consolidated'   => 'Konsolidasi',
     'groups' => [
-        'company-a' => 'PT Nusantara Retail Properties',
-        'company-b' => 'PT Prima Office Management',
-        'company-c' => 'PT Arunika Residence',
-        'company-d' => 'PT Nusantara Development',
+        'company-a' => 'PT IFCA Retail Properties',
+        'company-b' => 'PT IFCA Office Management',
+        'company-c' => 'PT IFCA Residence',
+        'company-d' => 'PT IFCA Development',
     ],
     // jenis bisnis tiap perusahaan (subjudul di dropdown Group & tabel)
     'businesses' => [
