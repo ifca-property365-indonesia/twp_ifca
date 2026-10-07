@@ -20,6 +20,9 @@ return [
 
     'default' => env('LOG_CHANNEL', 'stack'),
 
+    // Folder log per tanggal (storage/logs/{Y-m-d}) yang lebih tua dari ini dihapus otomatis; 0 = simpan semua
+    'controller_keep_days' => (int) env('LOG_KEEP_DAYS', 30),
+
     /*
     |--------------------------------------------------------------------------
     | Deprecations Log Channel
@@ -54,8 +57,17 @@ return [
 
         'stack' => [
             'driver' => 'stack',
-            'channels' => explode(',', (string) env('LOG_STACK', 'single')),
+            // 'controller' selalu ikut: log & error juga masuk ke file controller yang sedang berjalan
+            'channels' => array_values(array_unique(array_merge(explode(',', (string) env('LOG_STACK', 'single')), ['controller']))),
             'ignore_exceptions' => false,
+        ],
+
+        // Log per controller per tanggal: storage/logs/{Y-m-d}/{admin|tenant|shared}/{Controller}.log
+        // (App\Support\ControllerLog, App\Logging\ControllerLogHandler, middleware LogActivity)
+        'controller' => [
+            'driver' => 'monolog',
+            'handler' => App\Logging\ControllerLogHandler::class,
+            'level' => env('LOG_LEVEL', 'debug'),
         ],
 
         'single' => [

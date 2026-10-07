@@ -20,6 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Bahasa pilihan user (session / cookie 'locale') untuk semua halaman web.
         $middleware->appendToGroup('web', \App\Http\Middleware\SetLocale::class);
+
+        // Log setiap request ke storage/logs/{tanggal}/{admin|tenant|shared}/{Controller}.log
+        $middleware->appendToGroup('web', \App\Http\Middleware\LogActivity::class);
+        $middleware->appendToGroup('api', \App\Http\Middleware\LogActivity::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
     })->create();
