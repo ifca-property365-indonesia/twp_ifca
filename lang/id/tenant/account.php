@@ -15,6 +15,7 @@ return [
     'handphone'              => 'Nomor Ponsel',
     'phone_format'           => 'Format: 6221995500 | 021995500',
     'new_password'           => 'Kata Sandi Baru',
+    'password_change_disabled' => 'Ganti kata sandi dari profil sementara dinonaktifkan.',
     'confirm_password'       => 'Konfirmasi Kata Sandi',
     'password_mismatch'      => 'Kata sandi tidak cocok',
     'only_image'             => 'Hanya file JPG, PNG, atau GIF yang diperbolehkan.',

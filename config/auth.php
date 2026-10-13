@@ -114,4 +114,11 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    | Ganti password dari View Profile (admin & tenant). Sementara dinonaktifkan:
+    | isian password baru dikunci dan /account/changepass ditolak. Aktifkan: PROFILE_PASSWORD_CHANGE=true
+    */
+
+    'profile_password_change' => (bool) env('PROFILE_PASSWORD_CHANGE', false),
+
 ];

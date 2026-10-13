@@ -171,6 +171,10 @@ class AccountController extends Controller
     }
     public function changepass(Request $request)
     {
+        // ganti password dari View Profile sementara dinonaktifkan (config auth.profile_password_change)
+        if (!config('auth.profile_password_change')) {
+            return response()->json(['status' => 'Failed', 'pesan' => __('tenant/account.password_change_disabled')], 403);
+        }
         $email = $this->sessionEmail();
         if ($email === '') {
             return $this->forbidden();

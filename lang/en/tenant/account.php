@@ -15,6 +15,7 @@ return [
     'handphone'              => 'Handphone',
     'phone_format'           => 'Format: 6221995500 | 021995500',
     'new_password'           => 'New Password',
+    'password_change_disabled' => 'Changing the password from the profile is temporarily disabled.',
     'confirm_password'       => 'Confirm Password',
     'password_mismatch'      => 'Password does not match',
     'only_image'             => 'Only JPG, PNG or GIF files are allowed.',

@@ -85,19 +85,24 @@
             </div>
 
             <div class="tab-pane" id="tabPassword" role="tabpanel">
+                {{-- ganti password sementara dinonaktifkan: config auth.profile_password_change (PROFILE_PASSWORD_CHANGE) --}}
+                @php $canChangePass = config('auth.profile_password_change'); @endphp
+                @unless ($canChangePass)
+                    <div class="alert alert-warning py-2 small"><i class="cil-lock-locked"></i> {{ __('tenant/account.password_change_disabled') }}</div>
+                @endunless
                 <form id="frmchangepass" method="post" action="" novalidate>
                     @csrf
                     <div class="mb-3">
                         <label for="password1" class="form-label">{{ __('tenant/account.new_password') }} <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control" id="password1" name="password1" required autocomplete="new-password">
+                        <input type="password" class="form-control" id="password1" name="password1" required autocomplete="new-password" @disabled(!$canChangePass)>
                     </div>
                     <div class="mb-3">
                         <label for="password2" class="form-label">{{ __('tenant/account.confirm_password') }} <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control" id="password2" name="password2" required autocomplete="new-password">
+                        <input type="password" class="form-control" id="password2" name="password2" required autocomplete="new-password" @disabled(!$canChangePass)>
                     </div>
                     <div class="d-flex justify-content-end gap-2 pt-2 border-top">
                         <button type="button" class="btn btn-secondary" data-coreui-dismiss="modal">{{ __('common.back') }}</button>
-                        <button type="button" id="btnSavepass" class="btn btn-primary"><i class="cil-lock-locked"></i><span>{{ __('common.change') }}</span></button>
+                        <button type="button" id="btnSavepass" class="btn btn-primary" @disabled(!$canChangePass)><i class="cil-lock-locked"></i><span>{{ __('common.change') }}</span></button>
                     </div>
                 </form>
             </div>
@@ -304,7 +309,7 @@
     }
 
     $('#btnSavepass').on('click', function () {
-        if (!$('#frmchangepass').valid()) { return; }
+        if ($(this).prop('disabled') || !$('#frmchangepass').valid()) { return; }
 
         var dataform = $('#frmchangepass').serializeArray();
         dataform.push({ name: 'email', value: $('#email').val() }, { name: 'password', value: $('#password2').val() });
