@@ -232,7 +232,6 @@ return [
             'ap_aging'  => 'Laporan Umur Utang',
             'occupancy' => 'Laporan Okupansi & Sewa',
         ],
-        'footnote'        => 'Angka keuangan dihitung dari buku besar contoh. Data okupansi, unit, umur piutang/utang dan proyek adalah input operasional contoh dan akan diganti dengan data impor.',
         'severity' => ['critical' => 'Kritis', 'warning' => 'Peringatan'],
         'alerts' => [
             'ebitda_below_budget' => [

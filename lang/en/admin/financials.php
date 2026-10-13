@@ -232,7 +232,6 @@ return [
             'ap_aging'  => 'Aging AP Report',
             'occupancy' => 'Occupancy & Leasing Report',
         ],
-        'footnote'        => 'Financial figures are calculated from the demo ledger. Occupancy, units, aging and project data are demo operational inputs and will be replaced by imported data.',
         'severity' => ['critical' => 'Critical', 'warning' => 'Warning'],
         'alerts' => [
             'ebitda_below_budget' => [
