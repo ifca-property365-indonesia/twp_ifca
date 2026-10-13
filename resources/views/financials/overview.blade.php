@@ -440,8 +440,6 @@
             </div></div>
         </div>
     </div>
-
-    <p class="fin-card-desc text-center mb-0">{{ __('admin/financials.dash.footnote') }}</p>
 </div>
 @endsection
 
