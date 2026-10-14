@@ -43,6 +43,7 @@
     .fin-list .fin-total-row { font-weight: 700; border-top: 2px solid var(--cui-border-color); border-bottom: 0; }
     .fin-toggle .btn { min-width: 6rem; }
     .fin-filters { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .fin-fx { margin-top: -.5rem; font-size: .75rem; color: var(--cui-secondary-color); }
     .fin-filter { display: flex; align-items: center; gap: .4rem; margin: 0; padding: .3rem .1rem .3rem .65rem; border: 1px solid var(--cui-border-color); border-radius: .5rem; background: var(--cui-body-bg); cursor: pointer; }
     .fin-filter:focus-within { border-color: #4f5bd5; box-shadow: 0 0 0 .2rem rgba(79, 91, 213, .15); }
     .fin-filter > i { color: var(--cui-secondary-color); }
@@ -78,6 +79,18 @@
         </div>
     @endforeach
 </form>
+{{-- keterangan kurs (Frankfurter API, base IDR; lihat FinancialsDemo::fxRates). Sementara disembunyikan;
+     tampilkan lagi dengan FRANKFURTER_SHOW_RATE=true (config services.frankfurter.show_rate) --}}
+@if ($currency['code'] !== 'IDR' && config('services.frankfurter.show_rate'))
+    @php $fxRate = 'Rp ' . number_format($currency['rate'], 2, ',', '.'); @endphp
+    <div class="fin-fx mb-3"><i class="cil-swap-horizontal"></i>
+        @if ($currency['source'] === 'frankfurter')
+            {{ __('admin/financials.fx_rate', ['code' => $currency['code'], 'rate' => $fxRate, 'date' => $currency['date'] ? \Illuminate\Support\Carbon::parse($currency['date'])->locale(app()->getLocale())->translatedFormat('d M Y') : '-']) }}
+        @else
+            <span class="text-warning-emphasis">{{ __('admin/financials.fx_fallback', ['code' => $currency['code'], 'rate' => $fxRate]) }}</span>
+        @endif
+    </div>
+@endif
 
 <div class="page-head">
     <div class="page-head-row">

@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    // Kurs mata uang menu Financials (App\Support\FinancialsDemo::fxRates), base IDR
+    'frankfurter' => [
+        'url'           => env('FRANKFURTER_URL', 'https://api.frankfurter.dev/v1'),
+        'timeout'       => (int) env('FRANKFURTER_TIMEOUT', 5),
+        'cache_minutes' => (int) env('FRANKFURTER_CACHE_MINUTES', 360),
+        // tampilkan keterangan "1 USD = Rp ... · Frankfurter API" di bawah filter (sementara disembunyikan)
+        'show_rate'     => (bool) env('FRANKFURTER_SHOW_RATE', false),
+    ],
+
 ];

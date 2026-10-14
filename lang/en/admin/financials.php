@@ -43,6 +43,8 @@ return [
         'budget' => 'Budget',
     ],
     'vs_compare'     => 'vs :compare',
+    'fx_rate'        => '1 :code = :rate · Frankfurter API rate, :date',
+    'fx_fallback'    => '1 :code = :rate · fixed rate (Frankfurter API unavailable)',
 
     // overview
     'overview_title' => ':group — Financial Performance',
@@ -160,7 +162,6 @@ return [
     'forecast_desc'  => 'Indicative 4-month projection based on the trailing 6-month average net cash flow',
     'actual_cash'    => 'Actual cash',
     'forecast'       => 'Forecast',
-    'forecast_note'  => 'Placeholder model — replace with the treasury forecast once the rolling forecast workbook is connected.',
     // overview (tampilan dashboard eksekutif)
     'dash' => [
         'all_businesses'  => 'All Businesses',

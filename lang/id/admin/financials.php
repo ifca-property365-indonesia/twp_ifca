@@ -43,6 +43,8 @@ return [
         'budget' => 'Budget',
     ],
     'vs_compare'     => 'vs :compare',
+    'fx_rate'        => '1 :code = :rate · kurs Frankfurter API, :date',
+    'fx_fallback'    => '1 :code = :rate · kurs tetap (Frankfurter API tidak tersedia)',
 
     // overview
     'overview_title' => ':group — Kinerja Keuangan',
@@ -160,7 +162,6 @@ return [
     'forecast_desc'  => 'Proyeksi indikatif 4 bulan dari rata-rata arus kas bersih 6 bulan terakhir',
     'actual_cash'    => 'Kas aktual',
     'forecast'       => 'Proyeksi',
-    'forecast_note'  => 'Model sementara — ganti dengan proyeksi treasury setelah workbook rolling forecast terhubung.',
     // overview (tampilan dashboard eksekutif)
     'dash' => [
         'all_businesses'  => 'Semua Bisnis',

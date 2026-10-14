@@ -3,6 +3,10 @@
 namespace App\Support;
 
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 /**
  * Data contoh (hardcode) menu Financials: Overview, Profit & Loss, Balance Sheet, Cash Flow.
@@ -134,13 +138,19 @@ class FinancialsDemo
         ['occupancy', null, '2026-09-24 09:30', 'PDF'],
     ];
 
-    /** Mata uang tampilan: [kurs ke IDR, simbol]. */
+    /**
+     * Mata uang tampilan: [kurs cadangan ke IDR, simbol]. Kurs yang dipakai diambil dari Frankfurter API
+     * (base IDR, lihat fxRates()); kurs cadangan hanya dipakai kalau API tidak bisa diakses.
+     */
     private const CURRENCIES = [
         'IDR' => [1, 'Rp'],
         'USD' => [16250, '$'],
         'SGD' => [12650, 'S$'],
         'MYR' => [3650, 'RM'],
     ];
+
+    /** Kurs aktif (IDR per 1 unit mata uang) untuk proses ini, dari fxRates(). */
+    private static ?array $fx = null;
 
     private const COMPARES = ['py', 'pp', 'budget'];
 
@@ -249,8 +259,81 @@ class FinancialsDemo
     /** Konfigurasi mata uang untuk JS: kurs & simbol. */
     public function currency(): array
     {
-        [$rate, $symbol] = self::CURRENCIES[$this->filter['currency']];
-        return ['code' => $this->filter['currency'], 'rate' => $rate, 'symbol' => $symbol];
+        $code = $this->filter['currency'];
+        // IDR tidak perlu kurs (API tidak dipanggil)
+        $fx = $code === 'IDR' ? ['date' => null, 'source' => null] : self::fxRates();
+        return [
+            'code'   => $code,
+            'rate'   => self::rate($code),
+            'symbol' => self::CURRENCIES[$code][1],
+            'date'   => $fx['date'],
+            'source' => $fx['source'],
+        ];
+    }
+
+    /**
+     * Kurs dari Frankfurter API dengan base IDR: ['rates' => [kode => IDR per 1 unit], 'date' => tanggal kurs,
+     * 'source' => 'frankfurter' | 'fallback']. Disimpan di cache file (config services.frankfurter.cache_minutes);
+     * kalau API gagal dipakai kurs cadangan CURRENCIES dan dicoba lagi 10 menit kemudian.
+     */
+    public static function fxRates(): array
+    {
+        if (self::$fx !== null) {
+            return self::$fx;
+        }
+        $codes = array_values(array_diff(array_keys(self::CURRENCIES), ['IDR']));
+        $cache = Cache::store('file');
+        $key = 'financials.fx.IDR.' . implode('-', $codes);
+
+        $fx = $cache->get($key);
+        if (!is_array($fx)) {
+            $fx = self::fetchRates($codes);
+            $minutes = $fx['source'] === 'frankfurter' ? (int) config('services.frankfurter.cache_minutes', 360) : 10;
+            $cache->put($key, $fx, now()->addMinutes(max(1, $minutes)));
+        }
+        return self::$fx = $fx;
+    }
+
+    /**
+     * Ambil kurs terbaru: GET {url}/latest?base=IDR&symbols=...&amount=1000000.
+     * amount 1.000.000 supaya angka kurs cukup presisi (base IDR tanpa amount dibulatkan ke ±2 digit).
+     */
+    private static function fetchRates(array $codes): array
+    {
+        $fallback = ['rates' => array_map(fn ($c) => $c[0], self::CURRENCIES), 'date' => null, 'source' => 'fallback'];
+        $amount = 1000000;
+        try {
+            $response = Http::timeout((int) config('services.frankfurter.timeout', 5))
+                ->acceptJson()
+                ->get(rtrim((string) config('services.frankfurter.url'), '/') . '/latest', [
+                    'base'    => 'IDR',
+                    'symbols' => implode(',', $codes),
+                    'amount'  => $amount,
+                ]);
+            $data = $response->json();
+            if (!$response->successful() || !is_array($data['rates'] ?? null)) {
+                throw new \RuntimeException('HTTP ' . $response->status() . ' ' . mb_substr($response->body(), 0, 200));
+            }
+            $rates = ['IDR' => 1];
+            foreach ($codes as $code) {
+                $perAmount = (float) ($data['rates'][$code] ?? 0);
+                // 1.000.000 IDR = $perAmount unit  ->  1 unit = 1.000.000 / $perAmount IDR
+                $rates[$code] = $perAmount > 0 ? $amount / $perAmount : self::CURRENCIES[$code][0];
+            }
+            return ['rates' => $rates, 'date' => $data['date'] ?? null, 'source' => 'frankfurter'];
+        } catch (Throwable $e) {
+            Log::warning('Frankfurter API gagal, pakai kurs cadangan: ' . $e->getMessage());
+            return $fallback;
+        }
+    }
+
+    /** IDR per 1 unit mata uang (kurs aktif). */
+    private static function rate(string $code): float
+    {
+        if ($code === 'IDR') {
+            return 1.0;
+        }
+        return (float) (self::fxRates()['rates'][$code] ?? self::CURRENCIES[$code][0]);
     }
 
     // ------------------------------------------------------------------
@@ -422,9 +505,10 @@ class FinancialsDemo
         $kpis['closing_cash'] = ['value' => $bs['cash'], 'min' => self::CASH_THRESHOLD * $this->shares($this->end)['cash'], 'spark' => $spark['cash']];
         $kpis['total_assets'] = ['value' => $bs['assets_total'], 'equity' => $bs['equity'], 'spark' => $spark['assets']];
 
-        // per perusahaan (selalu ke-4 bisnis, dengan periode yang sama)
+        // per perusahaan (periode sama): Consolidated = ke-4 bisnis, selain itu hanya perusahaan terpilih
         $companies = [];
-        foreach (array_keys(self::COMPANIES) as $key) {
+        $keys = isset(self::COMPANIES[$this->filter['group']]) ? [$this->filter['group']] : array_keys(self::COMPANIES);
+        foreach ($keys as $key) {
             $c = new self(['group' => $key] + $this->filter);
             $cs = $c->statement($c->months);
             $cb = $c->statement($c->months, true);
@@ -721,8 +805,8 @@ class FinancialsDemo
      */
     public static function money($value): string
     {
-        [$rate, $symbol] = self::CURRENCIES[self::$currency];
-        $v = (float) $value / $rate;
+        $symbol = self::CURRENCIES[self::$currency][1];
+        $v = (float) $value / self::rate(self::$currency);
         $abs = abs($v);
         $sign = $v < 0 ? '-' : '';
         $units = self::$currency === 'IDR' ? [[1e9, 'M'], [1e6, 'jt']] : [[1e9, 'B'], [1e6, 'M'], [1e3, 'K']];

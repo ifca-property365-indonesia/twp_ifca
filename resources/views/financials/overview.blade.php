@@ -82,7 +82,6 @@
     .fin-reports li { display: flex; justify-content: space-between; align-items: center; gap: .5rem; padding: .55rem 0; border-bottom: 1px solid var(--cui-border-color-translucent); font-size: .82rem; }
     .fin-reports li:last-child { border-bottom: 0; }
     .fin-reports small { color: var(--cui-secondary-color); font-size: .72rem; }
-    .fin-selected-row td { background: #f6f7ff; }
     @media (max-width: 575.98px) { .fin-donut-wrap { flex-direction: column; align-items: stretch; } .fin-donut { margin: 0 auto; } }
 </style>
 @endpush
@@ -325,7 +324,7 @@
                     </thead>
                     <tbody>
                         @foreach ($dash['companies'] as $key => $c)
-                            <tr class="{{ $filter['group'] === $key ? 'fin-selected-row' : '' }}">
+                            <tr>
                                 <td>
                                     <div class="fw-semibold">{{ __('admin/financials.businesses.' . $key) }}</div>
                                     <small class="text-soft">{{ __('admin/financials.groups.' . $key) }}</small>
@@ -405,7 +404,7 @@
                         </thead>
                         <tbody>
                             @foreach ($dash['companies'] as $key => $c)
-                                <tr class="fin-company-row {{ $filter['group'] === $key ? 'fin-selected-row' : '' }}" data-href="{{ url($base . '/profit-loss') }}?group={{ $key }}">
+                                <tr class="fin-company-row" data-href="{{ url($base . '/profit-loss') }}?group={{ $key }}">
                                     <td class="fw-semibold">{{ __('admin/financials.groups.' . $key) }}</td>
                                     <td class="text-end text-nowrap">{{ F::money($c['revenue']) }}</td>
                                     <td class="text-end text-nowrap">{{ F::money($c['ebitda']) }} <small class="text-soft">({{ $num1($c['margin']) }}%)</small></td>
