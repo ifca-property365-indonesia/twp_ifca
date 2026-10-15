@@ -45,12 +45,15 @@
             </a>
         </li>
         @endunless
-        {{-- Financials (tenant): satu menu tanpa submenu; Profit & Loss / Balance Sheet / Cash Flow lewat tab di halaman --}}
+        {{-- Financials (tenant): satu menu tanpa submenu; Profit & Loss / Balance Sheet / Cash Flow lewat tab di halaman.
+             Sementara disembunyikan: config financials.tenant_enabled (FINANCIALS_TENANT=true untuk menampilkan) --}}
+        @if (config('financials.tenant_enabled'))
         <li class="nav-item">
             <a class="nav-link {{ $financialsOpen ? 'active' : '' }}" href="{{ url('/tenant/financials') }}">
                 <i class="nav-icon cil-chart-line"></i> {{ __('admin/financials.menu') }}
             </a>
         </li>
+        @endif
         <li class="nav-group {{ $historyOpen ? 'show' : '' }}">
             <a class="nav-link nav-group-toggle" href="#">
                 <i class="nav-icon cil-history"></i> {{ __('tenant.menu.history') }}

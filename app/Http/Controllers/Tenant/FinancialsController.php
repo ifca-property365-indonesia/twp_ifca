@@ -12,4 +12,11 @@ class FinancialsController extends BaseFinancialsController
 {
     protected $layout = 'tenant.template.base';
     protected $base = '/tenant/financials';
+
+    /** Sementara disembunyikan di portal tenant (config financials.tenant_enabled / FINANCIALS_TENANT). */
+    public function callAction($method, $parameters)
+    {
+        abort_unless(config('financials.tenant_enabled'), 404);
+        return parent::callAction($method, $parameters);
+    }
 }
