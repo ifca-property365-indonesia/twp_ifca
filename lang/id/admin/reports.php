@@ -4,11 +4,11 @@
 return [
     'menu'            => 'Laporan & Dokumen',
     'title'           => 'Laporan & dokumen',
-    'desc'            => 'Pustaka laporan keuangan untuk cakupan perusahaan terpilih',
+    'desc'            => 'Pustaka laporan keuangan untuk semua perusahaan grup',
     'upload'          => 'Upload laporan',
     'library'         => 'Pustaka',
     'count'           => ':count laporan',
-    'search'          => 'Cari laporan, file, pengunggah...',
+    'search'          => 'Cari laporan, perusahaan, file, pengunggah...',
     'empty'           => 'Belum ada laporan. Klik "Upload laporan" untuk menambahkan.',
     'no_match'        => 'Tidak ada laporan yang cocok dengan pencarian.',
     'meta'            => ':group · diunggah :date oleh :user',

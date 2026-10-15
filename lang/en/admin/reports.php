@@ -4,11 +4,11 @@
 return [
     'menu'            => 'Reports & Documents',
     'title'           => 'Reports & documents',
-    'desc'            => 'Financial reporting library for the selected company scope',
+    'desc'            => 'Financial reporting library for all group companies',
     'upload'          => 'Upload report',
     'library'         => 'Library',
     'count'           => ':count report|:count reports',
-    'search'          => 'Search reports, files, uploaders...',
+    'search'          => 'Search reports, companies, files, uploaders...',
     'empty'           => 'No reports yet. Click "Upload report" to add the first one.',
     'no_match'        => 'No reports match your search.',
     'meta'            => ':group · uploaded :date by :user',

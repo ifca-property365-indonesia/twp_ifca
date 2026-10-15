@@ -41,10 +41,16 @@ class ReportDocuments
         return DB::connection('ifcaadm');
     }
 
-    /** Pilihan group: sama dengan filter Financials (Consolidated + perusahaan). */
+    /** Pilihan group untuk filter library: sama dengan filter Financials (Consolidated = semua + perusahaan). */
     public static function groups(): array
     {
         return FinancialsDemo::options()['group'];
+    }
+
+    /** Pilihan group saat upload: hanya perusahaan (Consolidated hanya untuk melihat semua report). */
+    public static function uploadGroups(): array
+    {
+        return array_diff_key(self::groups(), ['consolidated' => true]);
     }
 
     /**

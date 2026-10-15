@@ -93,13 +93,6 @@
                     <div class="small text-soft" id="rptCount">{{ trans_choice('admin/reports.count', $reports->count(), ['count' => $reports->count()]) }}</div>
                 </div>
                 <div class="d-flex flex-wrap gap-2 align-items-center">
-                    <div style="min-width: 240px;">
-                        <select id="rptGroupFilter" class="form-select js-select" aria-label="{{ __('admin/reports.group') }}">
-                            @foreach ($groups as $key => $label)
-                                <option value="{{ $key }}" @selected($group === $key) @if ($key !== 'consolidated') data-sub="{{ __('admin/financials.businesses.' . $key) }}" @endif>{{ $label }}</option>
-                            @endforeach
-                        </select>
-                    </div>
                     <div class="rpt-search">
                         <i class="cil-magnifying-glass"></i>
                         <input type="search" class="form-control" id="rptSearch" placeholder="{{ __('admin/reports.search') }}">
@@ -110,7 +103,8 @@
 
         <div id="rptList">
             @forelse ($reports as $r)
-                @php $searchText = mb_strtolower($r->name . ' ' . ($groups[$r->group_cd] ?? $r->group_cd) . ' ' . $r->uploaded_by . ' ' . $r->files->pluck('file_name')->implode(' ')); @endphp
+                {{-- teks yang dicari: nama report, perusahaan & jenis bisnisnya, pengunggah, nama file --}}
+                @php $searchText = mb_strtolower($r->name . ' ' . ($groups[$r->group_cd] ?? $r->group_cd) . ' ' . ($r->group_cd !== 'consolidated' ? __('admin/financials.businesses.' . $r->group_cd) : '') . ' ' . $r->uploaded_by . ' ' . $r->files->pluck('file_name')->implode(' ')); @endphp
                 <div class="rpt-item" data-search="{{ $searchText }}">
                     <div>
                         <span class="rpt-title">{{ $r->name }}</span><span class="rpt-ver">v{{ $r->current_version }}</span>
@@ -163,9 +157,10 @@
                 <div class="row g-3">
                     <div class="col-md-5">
                         <label class="form-label" for="rptGroup">{{ __('admin/reports.group') }} <span class="text-danger">*</span></label>
+                        {{-- tanpa Consolidated: report di-upload ke satu perusahaan --}}
                         <select id="rptGroup" name="group" class="form-select js-select">
-                            @foreach ($groups as $key => $label)
-                                <option value="{{ $key }}" @selected($group === $key) @if ($key !== 'consolidated') data-sub="{{ __('admin/financials.businesses.' . $key) }}" @endif>{{ $label }}</option>
+                            @foreach ($uploadGroups as $key => $label)
+                                <option value="{{ $key }}" data-sub="{{ __('admin/financials.businesses.' . $key) }}">{{ $label }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -260,8 +255,7 @@ $(function () {
             .always(function () { $btn.prop('disabled', false); });
     }
 
-    // filter group & pencarian
-    $('#rptGroupFilter').on('change', function () { window.location.href = BASE + '?group=' + encodeURIComponent(this.value); });
+    // pencarian (semua report selalu tampil; disaring di browser)
     $('#rptSearch').on('input', function () {
         var q = this.value.trim().toLowerCase(), shown = 0;
         $('#rptList .rpt-item[data-search]').each(function () {
@@ -275,7 +269,7 @@ $(function () {
     // ---------- upload report baru ----------
     $('#btnUploadReport').on('click', function () {
         $('#rptUploadForm')[0].reset();
-        $('#rptGroup').val($('#rptGroupFilter').val()).trigger('change.select2');
+        $('#rptGroup').val($('#rptGroup option:first').val()).trigger('change.select2');
         $('#rptUploadPick').empty(); $('#rptUploadTotal').text('');
         modal('rptUploadModal').show();
     });
