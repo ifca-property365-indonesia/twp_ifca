@@ -1,0 +1,70 @@
+<?php
+
+// Menu admin Reports & Documents (App\Http\Controllers\Admin\ReportController).
+return [
+    'menu'            => 'Reports & Documents',
+    'title'           => 'Reports & documents',
+    'desc'            => 'Financial reporting library for the selected company scope',
+    'upload'          => 'Upload report',
+    'library'         => 'Library',
+    'count'           => ':count report|:count reports',
+    'search'          => 'Search reports, files, uploaders...',
+    'empty'           => 'No reports yet. Click "Upload report" to add the first one.',
+    'no_match'        => 'No reports match your search.',
+    'meta'            => ':group · uploaded :date by :user',
+    'view'            => 'View',
+    'download'        => 'Download',
+    'new_version'     => 'New version',
+    'delete'          => 'Delete',
+    'delete_title'    => 'Delete report?',
+    'delete_confirm'  => '":name" and all its versions (v1–v:version) with every file will be permanently deleted. This cannot be undone.',
+    'deleted'         => 'Report ":name" deleted.',
+    'err_delete'      => 'Delete failed: :message',
+    'files_count'     => ':count file|:count files',
+
+    // dialog upload
+    'group'           => 'Group',
+    'name'            => 'Report name',
+    'name_ph'         => 'e.g. August 2026 Management Report',
+    'documents'       => 'Documents',
+    'files_hint'      => 'Select several files at once. :ext · max :size per file, :files files and :total per upload.',
+    'selected'        => 'Selected files',
+    'total'           => 'Total :size',
+    'save'            => 'Upload',
+
+    // dialog versi baru
+    'version_title'   => 'New version — :name',
+    'version_hint'    => 'Files with the same name as the current version (v:version) replace it; other current files are carried over automatically.',
+    'current_files'   => 'Current version (v:version)',
+    'will_replace'    => 'Replace',
+    'will_add'        => 'New',
+    'will_keep'       => 'Carried over',
+    'next_version'    => 'Will become v:version with :count files',
+
+    // dialog riwayat
+    'history_title'   => 'Version history — :name',
+    'version_label'   => 'Version :version',
+    'latest'          => 'Latest',
+    'uploaded_by'     => 'Uploaded :date by :user',
+    'from_version'    => 'from v:version',
+    'open'            => 'Open',
+    'download_zip'    => 'Download all (.zip)',
+
+    // pesan
+    'saved'           => 'Report ":name" uploaded as v1 (:count files).',
+    'version_saved'   => 'Saved as v:version: :replaced replaced, :added new, :kept carried over.',
+    'not_found'       => 'Report not found.',
+    'err_group'       => 'Choose a group.',
+    'err_name'        => 'Report name is required.',
+    'err_name_long'   => 'Report name is too long (max :max characters).',
+    'err_name_exists' => 'A report with this name already exists in this group. Use "New version" on that report instead.',
+    'err_no_files'    => 'Choose at least one file.',
+    'err_type'        => ':file: file type not allowed (:ext).',
+    'err_size'        => ':file: larger than :size.',
+    'err_duplicate'   => ':file: selected more than once.',
+    'err_upload'      => ':file: upload failed (:message).',
+    'err_store'       => ':file: could not be saved.',
+    'err_save'        => 'Upload failed: :message',
+    'err_too_many'    => 'Too many files: max :max per upload.',
+    'err_too_big'     => 'Total size :size exceeds the upload limit :max.',
+];

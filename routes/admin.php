@@ -27,6 +27,7 @@ use App\Http\Controllers\Admin\NewSurveyController as NewSurvey;
 use App\Http\Controllers\Admin\OvertimeController as Overtime;
 use App\Http\Controllers\Admin\FloorLayoutController as FloorLayout;
 use App\Http\Controllers\Admin\FinancialsController as Financials;
+use App\Http\Controllers\Admin\ReportController as Reports;
 use Illuminate\Support\Facades\Route;
 
 // /admin -> dashboard kalau sudah login, kalau belum ke halaman login "/"
@@ -54,6 +55,15 @@ Route::group(['middleware' => ['admin-auth', 'revalidate']], function () {
     Route::get('/financials/profit-loss', [Financials::class, 'profitLoss']);
     Route::get('/financials/balance-sheet', [Financials::class, 'balanceSheet']);
     Route::get('/financials/cash-flow', [Financials::class, 'cashFlow']);
+
+    // ReportController (Reports & Documents: upload report per group dengan versi)
+    Route::get('/reports', [Reports::class, 'index']);
+    Route::post('/reports', [Reports::class, 'store']);
+    Route::post('/reports/{id}/version', [Reports::class, 'version'])->whereNumber('id');
+    Route::get('/reports/{id}/history', [Reports::class, 'history'])->whereNumber('id');
+    Route::post('/reports/{id}/delete', [Reports::class, 'destroy'])->whereNumber('id');
+    Route::get('/reports/{id}/download', [Reports::class, 'download'])->whereNumber('id');
+    Route::get('/reports/file/{fileId}', [Reports::class, 'file'])->whereNumber('fileId');
 
     // AccountController
     Route::view('/account/profile', 'admin.account.profile');

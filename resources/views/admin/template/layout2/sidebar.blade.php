@@ -95,6 +95,13 @@
             </ul>
         </li>
 
+        {{-- Reports & Documents: upload report per group dengan versi (Admin\ReportController) --}}
+        <li class="nav-item">
+            <a class="nav-link {{ request()->is('admin/reports*') ? 'active' : '' }}" href="{{ url('/admin/reports') }}">
+                <i class="nav-icon cil-folder-open"></i> {{ __('admin/reports.menu') }}
+            </a>
+        </li>
+
         <li class="nav-item">
             <a class="nav-link {{ request()->is('admin/permit*') ? 'active' : '' }}" href="{{ url('/admin/permit/index') }}">
                 <i class="nav-icon cil-clipboard"></i> {{ __('admin.menu.letter_permit') }}

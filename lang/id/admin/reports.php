@@ -1,0 +1,70 @@
+<?php
+
+// Menu admin Reports & Documents (App\Http\Controllers\Admin\ReportController).
+return [
+    'menu'            => 'Laporan & Dokumen',
+    'title'           => 'Laporan & dokumen',
+    'desc'            => 'Pustaka laporan keuangan untuk cakupan perusahaan terpilih',
+    'upload'          => 'Upload laporan',
+    'library'         => 'Pustaka',
+    'count'           => ':count laporan',
+    'search'          => 'Cari laporan, file, pengunggah...',
+    'empty'           => 'Belum ada laporan. Klik "Upload laporan" untuk menambahkan.',
+    'no_match'        => 'Tidak ada laporan yang cocok dengan pencarian.',
+    'meta'            => ':group · diunggah :date oleh :user',
+    'view'            => 'Lihat',
+    'download'        => 'Unduh',
+    'new_version'     => 'Versi baru',
+    'delete'          => 'Hapus',
+    'delete_title'    => 'Hapus laporan?',
+    'delete_confirm'  => '":name" beserta semua versinya (v1–v:version) dan seluruh file-nya akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.',
+    'deleted'         => 'Laporan ":name" dihapus.',
+    'err_delete'      => 'Hapus gagal: :message',
+    'files_count'     => ':count file',
+
+    // dialog upload
+    'group'           => 'Grup',
+    'name'            => 'Nama laporan',
+    'name_ph'         => 'mis. Laporan Manajemen Agustus 2026',
+    'documents'       => 'Dokumen',
+    'files_hint'      => 'Pilih beberapa file sekaligus. :ext · maks :size per file, :files file dan :total per upload.',
+    'selected'        => 'File terpilih',
+    'total'           => 'Total :size',
+    'save'            => 'Upload',
+
+    // dialog versi baru
+    'version_title'   => 'Versi baru — :name',
+    'version_hint'    => 'File dengan nama sama seperti versi saat ini (v:version) akan menggantikannya; file lain di versi saat ini otomatis dibawa.',
+    'current_files'   => 'Versi saat ini (v:version)',
+    'will_replace'    => 'Ganti',
+    'will_add'        => 'Baru',
+    'will_keep'       => 'Dibawa',
+    'next_version'    => 'Akan menjadi v:version dengan :count file',
+
+    // dialog riwayat
+    'history_title'   => 'Riwayat versi — :name',
+    'version_label'   => 'Versi :version',
+    'latest'          => 'Terbaru',
+    'uploaded_by'     => 'Diunggah :date oleh :user',
+    'from_version'    => 'dari v:version',
+    'open'            => 'Buka',
+    'download_zip'    => 'Unduh semua (.zip)',
+
+    // pesan
+    'saved'           => 'Laporan ":name" diunggah sebagai v1 (:count file).',
+    'version_saved'   => 'Disimpan sebagai v:version: :replaced diganti, :added baru, :kept dibawa.',
+    'not_found'       => 'Laporan tidak ditemukan.',
+    'err_group'       => 'Pilih grup.',
+    'err_name'        => 'Nama laporan wajib diisi.',
+    'err_name_long'   => 'Nama laporan terlalu panjang (maks :max karakter).',
+    'err_name_exists' => 'Laporan dengan nama ini sudah ada di grup ini. Gunakan "Versi baru" pada laporan tersebut.',
+    'err_no_files'    => 'Pilih minimal satu file.',
+    'err_type'        => ':file: tipe file tidak diizinkan (:ext).',
+    'err_size'        => ':file: lebih besar dari :size.',
+    'err_duplicate'   => ':file: dipilih lebih dari sekali.',
+    'err_upload'      => ':file: upload gagal (:message).',
+    'err_store'       => ':file: tidak bisa disimpan.',
+    'err_save'        => 'Upload gagal: :message',
+    'err_too_many'    => 'Terlalu banyak file: maks :max per upload.',
+    'err_too_big'     => 'Total ukuran :size melebihi batas upload :max.',
+];
