@@ -75,7 +75,6 @@
                 <h6 class="fin-card-title">{{ __('admin/financials.cash_forecast') }}</h6>
                 <div class="fin-card-desc mb-3">{{ __('admin/financials.forecast_desc') }}</div>
                 <div class="fin-chart"><canvas id="chartForecast"></canvas></div>
-                <div class="fin-card-desc mt-2"><i class="cil-info"></i> {{ __('admin/financials.forecast_note') }}</div>
             </div></div>
         </div>
     </div>
