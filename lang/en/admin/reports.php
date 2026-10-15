@@ -34,11 +34,7 @@ return [
 
     // dialog versi baru
     'version_title'   => 'New version — :name',
-    'version_hint'    => 'Files with the same name as the current version (v:version) replace it; other current files are carried over automatically.',
-    'current_files'   => 'Current version (v:version)',
-    'will_replace'    => 'Replace',
-    'will_add'        => 'New',
-    'will_keep'       => 'Carried over',
+    'version_hint'    => 'Version v:next will contain only the files you upload now. Earlier versions (up to v:version) stay available in the history (View).',
     'next_version'    => 'Will become v:version with :count files',
 
     // dialog riwayat
@@ -51,8 +47,8 @@ return [
     'download_zip'    => 'Download all (.zip)',
 
     // pesan
-    'saved'           => 'Report ":name" uploaded as v1 (:count files).',
-    'version_saved'   => 'Saved as v:version: :replaced replaced, :added new, :kept carried over.',
+    'saved'           => 'Report ":name" uploaded as v1 (:count file).|Report ":name" uploaded as v1 (:count files).',
+    'version_saved'   => 'Saved as v:version (:count file). Earlier versions remain in the history.|Saved as v:version (:count files). Earlier versions remain in the history.',
     'not_found'       => 'Report not found.',
     'err_group'       => 'Choose a group.',
     'err_name'        => 'Report name is required.',

@@ -13,9 +13,9 @@ use Throwable;
 /**
  * Menu admin Reports & Documents: report per group (Consolidated / PT IFCA ...), tiap upload = versi baru.
  *
- * Versi baru = file versi sebelumnya + file yang di-upload; file dengan nama sama (tidak membedakan
- * huruf besar/kecil) diganti oleh file baru, file lain dibawa ke versi baru tanpa disalin ulang.
- *   V1: a, b, c, d, e   -> upload a, b, c, d (nama sama)  -> V2: a', b', c', d' + e (dari V1)
+ * Versi baru hanya berisi file yang di-upload saat itu; file versi lama tidak dibawa, tetap tersimpan
+ * dan bisa dibuka lewat riwayat versi.
+ *   V1: a, b, c, d, e   -> upload a, b, c, d  -> V2: a, b, c, d   (V1 tetap utuh di riwayat)
  *
  * Tabel: mgr.report_doc, mgr.report_doc_version, mgr.report_doc_file (koneksi ifcaadm).
  * File : disk 'local' (storage/app/private) -> reports/{id}/v{versi}/{nama file}
@@ -175,11 +175,11 @@ class ReportDocuments
     }
 
     /**
-     * Versi baru: file versi terakhir + file baru (nama sama = diganti). Kembali: nomor versi baru
-     * dan ringkasan [replaced, added, kept] (nama file).
+     * Versi baru: hanya berisi file yang di-upload sekarang (versi lama tidak dibawa, tetap ada di riwayat).
+     * Kembali: nomor versi baru.
      * @param UploadedFile[] $files
      */
-    public static function newVersion(int $id, array $files): array
+    public static function newVersion(int $id, array $files): int
     {
         $user = self::user();
         $saved = [];
@@ -189,46 +189,17 @@ class ReportDocuments
                 if (!$report) {
                     throw new RuntimeException(__('admin/reports.not_found'));
                 }
-                $previous = self::db()->table('mgr.report_doc_version')
-                    ->where('report_id', $id)->where('version', $report->current_version)->first();
-                $previousFiles = $previous
-                    ? self::db()->table('mgr.report_doc_file')->where('version_id', $previous->id)->get()->keyBy(fn ($f) => mb_strtolower($f->file_name))
-                    : collect();
-
                 $version = (int) $report->current_version + 1;
                 $versionId = self::addVersion($id, $version, $user);
-
-                $summary = ['replaced' => [], 'added' => [], 'kept' => []];
-                $uploaded = [];
                 foreach ($files as $file) {
-                    $row = self::storeFile($file, $id, $version, $versionId);
-                    $saved[] = $row;
-                    $key = mb_strtolower($row['file_name']);
-                    $uploaded[$key] = true;
-                    $summary[$previousFiles->has($key) ? 'replaced' : 'added'][] = $row['file_name'];
+                    $saved[] = self::storeFile($file, $id, $version, $versionId);
                 }
-                // file versi sebelumnya yang tidak diganti: dibawa (path & versi asal tetap)
-                foreach ($previousFiles as $key => $f) {
-                    if (isset($uploaded[$key])) {
-                        continue;
-                    }
-                    self::db()->table('mgr.report_doc_file')->insert([
-                        'version_id'   => $versionId,
-                        'file_name'    => $f->file_name,
-                        'stored_path'  => $f->stored_path,
-                        'size'         => $f->size,
-                        'mime'         => $f->mime,
-                        'from_version' => $f->from_version,
-                    ]);
-                    $summary['kept'][] = $f->file_name;
-                }
-
                 self::db()->table('mgr.report_doc')->where('id', $id)->update([
                     'current_version' => $version,
                     'updated_by'      => $user['name'],
                     'updated_at'      => now(),
                 ]);
-                return ['version' => $version, 'summary' => $summary];
+                return $version;
             });
         } catch (Throwable $e) {
             self::cleanup($saved);

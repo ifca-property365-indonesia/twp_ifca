@@ -26,9 +26,6 @@
         };
     };
     $L = [
-        'replace'  => __('admin/reports.will_replace'),
-        'add'      => __('admin/reports.will_add'),
-        'keep'     => __('admin/reports.will_keep'),
         'next'     => __('admin/reports.next_version', ['version' => '__V__', 'count' => '__C__']),
         'total'    => __('admin/reports.total', ['size' => '__S__']),
         'tooMany'  => __('admin/reports.err_too_many', ['max' => $maxFiles]),
@@ -64,7 +61,7 @@
     .rpt-pick li { display: flex; justify-content: space-between; align-items: center; gap: .5rem; padding: .3rem .5rem; border-bottom: 1px solid var(--cui-border-color-translucent); font-size: .8rem; }
     .rpt-pick li:last-child { border-bottom: 0; }
     .rpt-tag { font-size: .68rem; font-weight: 600; padding: .05rem .4rem; border-radius: .3rem; white-space: nowrap; }
-    .rpt-tag.replace { background: #fff5e0; color: #9a6a00; } .rpt-tag.add { background: #e3f8ee; color: #1b7f4a; } .rpt-tag.keep { background: #eceef2; color: #4b5563; }
+    .rpt-tag.keep { background: #eceef2; color: #4b5563; }
     .rpt-summary { font-size: .8rem; font-weight: 600; color: var(--cui-emphasis-color); }
     .rpt-hist-ver { border: 1px solid var(--cui-border-color-translucent); border-radius: .5rem; padding: .75rem .9rem; margin-bottom: .75rem; }
     .rpt-hist-ver.latest { border-color: #c7cbe8; background: #fbfbff; }
@@ -127,8 +124,7 @@
                         <button type="button" class="btn btn-sm btn-outline-secondary btn-rpt-history" data-id="{{ $r->id }}"><i class="cil-history"></i> {{ __('admin/reports.view') }}</button>
                         <a class="btn btn-sm btn-outline-secondary" href="{{ url('admin/reports/' . $r->id . '/download') }}"><i class="cil-cloud-download"></i> {{ __('admin/reports.download') }}</a>
                         <button type="button" class="btn btn-sm btn-link text-decoration-none btn-rpt-version"
-                                data-id="{{ $r->id }}" data-name="{{ $r->name }}" data-version="{{ $r->current_version }}"
-                                data-files='@json($r->files->map(fn ($f) => ['name' => $f->file_name, 'size' => RD::size($f->size)])->values())'>
+                                data-id="{{ $r->id }}" data-name="{{ $r->name }}" data-version="{{ $r->current_version }}">
                             <i class="cil-cloud-upload"></i> {{ __('admin/reports.new_version') }}
                         </button>
                         <button type="button" class="btn btn-sm btn-link text-danger text-decoration-none ms-auto btn-rpt-delete"
@@ -223,7 +219,7 @@ $(function () {
     var L = @json($L);
     var MAX_FILES = {{ $maxFiles }}, MAX_POST = {{ $maxPost }};
     var BASE = @json(url('admin/reports'));
-    var VERSION_HINT = @json(__('admin/reports.version_hint', ['version' => '__V__']));
+    var VERSION_HINT = @json(__('admin/reports.version_hint', ['version' => '__V__', 'next' => '__N__']));
     var VERSION_TITLE = @json(__('admin/reports.version_title', ['name' => '__N__']));
     var modal = function (id) { return coreui.Modal.getOrCreateInstance(document.getElementById(id)); };
 
@@ -296,30 +292,19 @@ $(function () {
     var current = null;
     $(document).on('click', '.btn-rpt-version', function () {
         var $b = $(this);
-        current = { id: $b.data('id'), version: parseInt($b.data('version'), 10), files: $b.data('files') || [] };
+        current = { id: $b.data('id'), version: parseInt($b.data('version'), 10) };
         $('#rptVersionTitle').text(VERSION_TITLE.replace('__N__', $b.data('name')));
-        $('#rptVersionHint').text(VERSION_HINT.replace('__V__', current.version));
+        $('#rptVersionHint').text(VERSION_HINT.replace('__V__', current.version).replace('__N__', current.version + 1));
         $('#rptVersionForm')[0].reset();
         renderVersionPreview([]);
         modal('rptVersionModal').show();
     });
-    // pratinjau: file baru (ganti / baru) + file versi sekarang yang dibawa
+    // pratinjau: versi baru hanya berisi file yang dipilih sekarang
     function renderVersionPreview(files) {
-        var picked = {}, rows = [];
-        files.forEach(function (f) { picked[f.name.toLowerCase()] = true; });
-        var existing = {};
-        current.files.forEach(function (f) { existing[f.name.toLowerCase()] = true; });
-        files.forEach(function (f) {
-            var kind = existing[f.name.toLowerCase()] ? 'replace' : 'add';
-            rows.push('<li><span class="text-break">' + esc(f.name) + '</span><span class="d-flex gap-2 align-items-center"><span class="text-soft text-nowrap">' + size(f.size) + '</span><span class="rpt-tag ' + kind + '">' + L[kind] + '</span></span></li>');
-        });
-        current.files.forEach(function (f) {
-            if (!picked[f.name.toLowerCase()]) {
-                rows.push('<li><span class="text-break text-soft">' + esc(f.name) + '</span><span class="d-flex gap-2 align-items-center"><span class="text-soft text-nowrap">' + esc(f.size) + '</span><span class="rpt-tag keep">' + L.keep + '</span></span></li>');
-            }
-        });
-        $('#rptVersionPick').html(rows.join(''));
-        $('#rptVersionNext').text(files.length ? L.next.replace('__V__', current.version + 1).replace('__C__', rows.length) : '');
+        $('#rptVersionPick').html(files.map(function (f) {
+            return '<li><span class="text-break">' + esc(f.name) + '</span><span class="text-soft text-nowrap">' + size(f.size) + '</span></li>';
+        }).join(''));
+        $('#rptVersionNext').text(files.length ? L.next.replace('__V__', current.version + 1).replace('__C__', files.length) : '');
     }
     $('#rptVersionFiles').on('change', function () { renderVersionPreview(filesOf(this)); });
     $('#rptVersionForm').on('submit', function (e) {

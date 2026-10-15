@@ -34,11 +34,7 @@ return [
 
     // dialog versi baru
     'version_title'   => 'Versi baru — :name',
-    'version_hint'    => 'File dengan nama sama seperti versi saat ini (v:version) akan menggantikannya; file lain di versi saat ini otomatis dibawa.',
-    'current_files'   => 'Versi saat ini (v:version)',
-    'will_replace'    => 'Ganti',
-    'will_add'        => 'Baru',
-    'will_keep'       => 'Dibawa',
+    'version_hint'    => 'Versi v:next hanya berisi file yang Anda upload sekarang. Versi sebelumnya (sampai v:version) tetap tersedia di riwayat (Lihat).',
     'next_version'    => 'Akan menjadi v:version dengan :count file',
 
     // dialog riwayat
@@ -52,7 +48,7 @@ return [
 
     // pesan
     'saved'           => 'Laporan ":name" diunggah sebagai v1 (:count file).',
-    'version_saved'   => 'Disimpan sebagai v:version: :replaced diganti, :added baru, :kept dibawa.',
+    'version_saved'   => 'Disimpan sebagai v:version (:count file). Versi sebelumnya tetap ada di riwayat.',
     'not_found'       => 'Laporan tidak ditemukan.',
     'err_group'       => 'Pilih grup.',
     'err_name'        => 'Nama laporan wajib diisi.',

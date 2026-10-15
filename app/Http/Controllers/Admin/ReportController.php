@@ -63,10 +63,10 @@ class ReportController extends Controller
             report($e);
             return response()->json(['status' => 'Failed', 'pesan' => __('admin/reports.err_save', ['message' => $e->getMessage()])], 500);
         }
-        return response()->json(['status' => 'OK', 'pesan' => __('admin/reports.saved', ['name' => $name, 'count' => count($files)])]);
+        return response()->json(['status' => 'OK', 'pesan' => trans_choice('admin/reports.saved', count($files), ['name' => $name, 'count' => count($files)])]);
     }
 
-    /** Versi baru: files[] (nama sama dengan versi sebelumnya = diganti, sisanya dibawa). */
+    /** Versi baru: files[] saja (versi lama tidak dibawa, tetap ada di riwayat). */
     public function version(Request $request, int $id)
     {
         if (!ReportDocuments::find($id)) {
@@ -79,21 +79,14 @@ class ReportController extends Controller
         }
 
         try {
-            $result = ReportDocuments::newVersion($id, $files);
+            $version = ReportDocuments::newVersion($id, $files);
         } catch (Throwable $e) {
             report($e);
             return response()->json(['status' => 'Failed', 'pesan' => __('admin/reports.err_save', ['message' => $e->getMessage()])], 500);
         }
-        $s = $result['summary'];
         return response()->json([
-            'status'  => 'OK',
-            'pesan'   => __('admin/reports.version_saved', [
-                'version'  => $result['version'],
-                'replaced' => count($s['replaced']),
-                'added'    => count($s['added']),
-                'kept'     => count($s['kept']),
-            ]),
-            'summary' => $s,
+            'status' => 'OK',
+            'pesan'  => trans_choice('admin/reports.version_saved', count($files), ['version' => $version, 'count' => count($files)]),
         ]);
     }
 
