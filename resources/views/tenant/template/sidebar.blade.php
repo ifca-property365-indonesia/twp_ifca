@@ -45,28 +45,11 @@
             </a>
         </li>
         @endunless
-        {{-- Financials: klik judul = Overview; submenu = tab lain (sama dengan admin) --}}
-        <li class="nav-group {{ $financialsOpen ? 'show' : '' }}">
-            <a class="nav-link nav-group-toggle {{ rtrim(request()->path(), '/') === 'tenant/financials' ? 'active' : '' }}" id="navFinancials" href="{{ url('/tenant/financials') }}">
+        {{-- Financials (tenant): satu menu tanpa submenu; Profit & Loss / Balance Sheet / Cash Flow lewat tab di halaman --}}
+        <li class="nav-item">
+            <a class="nav-link {{ $financialsOpen ? 'active' : '' }}" href="{{ url('/tenant/financials') }}">
                 <i class="nav-icon cil-chart-line"></i> {{ __('admin/financials.menu') }}
             </a>
-            <ul class="nav-group-items compact">
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->is('tenant/financials/profit-loss*') ? 'active' : '' }}" href="{{ url('/tenant/financials/profit-loss') }}">
-                        <span class="nav-icon"><span class="nav-icon-bullet"></span></span> {{ __('admin/financials.tab_pl') }}
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->is('tenant/financials/balance-sheet*') ? 'active' : '' }}" href="{{ url('/tenant/financials/balance-sheet') }}">
-                        <span class="nav-icon"><span class="nav-icon-bullet"></span></span> {{ __('admin/financials.tab_bs') }}
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->is('tenant/financials/cash-flow*') ? 'active' : '' }}" href="{{ url('/tenant/financials/cash-flow') }}">
-                        <span class="nav-icon"><span class="nav-icon-bullet"></span></span> {{ __('admin/financials.tab_cf') }}
-                    </a>
-                </li>
-            </ul>
         </li>
         <li class="nav-group {{ $historyOpen ? 'show' : '' }}">
             <a class="nav-link nav-group-toggle" href="#">
@@ -109,15 +92,3 @@
         </li>
     </ul>
 </div>
-<script>
-    // Judul grup Financials selalu membuka Overview, tanpa membuka/menutup grup; grup otomatis terbuka
-    // di halaman Financials. CoreUI memasang handler toggle grup di fase capture pada .sidebar-nav,
-    // jadi klik ditangkap lebih dulu di fase capture document lalu dihentikan sebelum sampai ke CoreUI.
-    document.addEventListener('click', function (e) {
-        var link = e.target.closest('#navFinancials');
-        if (!link) { return; }
-        e.preventDefault();
-        e.stopPropagation();
-        window.location.href = link.href;
-    }, true);
-</script>
