@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="shortcut icon" href="{{ url('/images/logo/IFCA.png') }}">
+    @include('partials.app_icons')
     <title>@yield('title', __('shared/login.page_title')) - {{ __('shared/login.portal_name') }}</title>
 
     <link rel="stylesheet" href="{{ url('assets/coreui/css/coreui.min.css') }}">
