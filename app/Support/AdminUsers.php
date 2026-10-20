@@ -133,6 +133,23 @@ class AdminUsers
             ->count();
     }
 
+    /**
+     * Password admin yang sedang login cocok? Dicari lewat email login (Tsemail), bukan id grup,
+     * karena satu grup administrator bisa berisi beberapa user.
+     */
+    public static function currentPasswordMatches(string $plain): bool
+    {
+        $email = LoginEmail::normalize(Session::get('Tsemail'));
+        if ($email === '' || $plain === '') {
+            return false;
+        }
+        $stored = self::db()->table('mgr.all_login')
+            ->where('tableforeign', 'administrator')
+            ->whereRaw('LOWER(email) = ?', [$email])
+            ->value('password');
+        return $stored !== null && Password::check($plain, $stored);
+    }
+
     /** Satu user administrator (all_login, tableforeign administrator). */
     public static function find(int $id): ?object
     {

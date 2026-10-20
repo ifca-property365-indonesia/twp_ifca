@@ -182,6 +182,11 @@
                     <input type="email" class="form-control" id="usrEmailNew" name="email" maxlength="100" autocomplete="off">
                     <div class="form-note">{{ __('admin/users.email_new_note') }}</div>
                 </div>
+                <div class="mb-3">
+                    <label class="form-label" for="usrEmailPassword">{{ __('admin/users.admin_password') }} <span class="text-danger">*</span></label>
+                    <input type="password" class="form-control" id="usrEmailPassword" name="current_password" autocomplete="current-password">
+                    <div class="form-note">{{ __('admin/users.admin_password_note', ['email' => (string) Session::get('Tsemail')]) }}</div>
+                </div>
                 <div class="form-check d-none" id="usrEmailTenantsWrap">
                     <input class="form-check-input" type="checkbox" id="usrEmailTenants" name="with_tenants" value="1">
                     <label class="form-check-label" for="usrEmailTenants" id="usrEmailTenantsLabel"></label>

@@ -36,7 +36,8 @@ class AdminUserController extends Controller
 
     /**
      * Ganti email user administrator (termasuk email sendiri): email, with_tenants (1 = akun tenant
-     * dengan email yang sama ikut diubah). Validasi sama dengan View Profile (App\Support\LoginEmail).
+     * dengan email yang sama ikut diubah), current_password (password admin yang sedang login, wajib).
+     * Validasi email sama dengan View Profile (App\Support\LoginEmail).
      */
     public function email(Request $request, int $id)
     {
@@ -51,6 +52,14 @@ class AdminUserController extends Controller
         $error = LoginEmail::validate($user->email, $new);
         if ($error !== null) {
             return response()->json(['status' => 'Failed', 'pesan' => $error], 422);
+        }
+        // konfirmasi password admin yang sedang login
+        $password = (string) $request->input('current_password');
+        if (trim($password) === '') {
+            return response()->json(['status' => 'Failed', 'pesan' => __('admin/users.err_admin_password_required')], 422);
+        }
+        if (!AdminUsers::currentPasswordMatches($password)) {
+            return response()->json(['status' => 'Failed', 'pesan' => __('admin/users.err_admin_password_wrong')], 422);
         }
 
         try {

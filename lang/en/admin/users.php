@@ -70,5 +70,9 @@ return [
     'email_same'        => 'The new email is the same as the current email.',
     'email_changed'     => 'Email of ":name" changed from :old to :new.',
     'not_found'         => 'User not found.',
+    'admin_password'    => 'Your password',
+    'admin_password_note' => 'Confirm with the password of the admin who is logged in (:email).',
+    'err_admin_password_required' => 'Enter your password to confirm.',
+    'err_admin_password_wrong' => 'Your password is incorrect.',
     'err_save'          => 'Save failed: :message',
 ];
