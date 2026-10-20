@@ -92,7 +92,8 @@ class AccountController extends Controller
     public function updateprofile(Request $request)
     {
         $name       = $request->name;
-        $telp       = $request->handphone;
+        // No. HP opsional: kosong disimpan NULL
+        $telp       = trim((string) $request->handphone) !== '' ? trim((string) $request->handphone) : null;
         $images      = $request->labelimage;
         $email      = $this->sessionEmail();
         if ($email === '') {

@@ -73,7 +73,8 @@ class AccountController extends Controller
     public function updateprofile(Request $request)
     {
         $name       = $request->name;
-        $telp       = $request->handphone;
+        // No. HP opsional: kosong disimpan NULL
+        $telp       = trim((string) $request->handphone) !== '' ? trim((string) $request->handphone) : null;
         $images      = $request->labelimage;
         // akun yang diubah = akun yang sedang login (field email di form = email baru)
         $email      = (string) Session::get('Tsemail');
