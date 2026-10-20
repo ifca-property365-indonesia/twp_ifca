@@ -12,13 +12,10 @@
                 onclick="coreui.Sidebar.getInstance(document.querySelector('#sidebar')).toggle()">
             <i class="cil-menu"></i>
         </button>
-        <div class="header-app-info ms-2 ms-lg-0">
-            <span class="sub-text">{{ __('admin.header.sub_title') }}</span>
-            <span class="lead-text">{{ __('admin.header.title') }}</span>
-        </div>
+        {{-- judul portal (Web Admin / Tenant Web Portal) tidak ditampilkan; tempatnya untuk filter halaman --}}
         {{-- alat tambahan dari halaman, mis. filter Financials (@push('header-tools')) --}}
         @if (trim($__env->yieldPushContent('header-tools')) !== '')
-            <div class="header-tools">@stack('header-tools')</div>
+            <div class="header-tools ms-2">@stack('header-tools')</div>
         @endif
         <ul class="header-nav ms-auto">
             <li class="nav-item dropdown">

@@ -99,10 +99,10 @@
 /* ---------- filter berbentuk kotak berikon (Financials, Reports & Documents): partials/header_filters ---------- */
 .fin-filters { display: flex; flex-wrap: wrap; gap: .5rem; }
 /* .fin-filters-header: di header; .fin-filters-page: di atas judul halaman (layar lebih sempit).
-   Financials (4 filter) pindah ke header >= 1700px; dengan .fin-filters-lg (mis. Reports, 1 filter) >= 992px */
+   Financials (4 filter) pindah ke header >= 1650px; dengan .fin-filters-lg (mis. Reports, 1 filter) >= 992px */
 .fin-filters-header { display: none; }
 .header-tools { display: flex; align-items: center; min-width: 0; margin-left: 1.5rem; }
-@media (min-width: 1700px) {
+@media (min-width: 1650px) {
     .fin-filters-header { display: flex; flex-wrap: nowrap; }
     .fin-filters-page { display: none; }
 }
