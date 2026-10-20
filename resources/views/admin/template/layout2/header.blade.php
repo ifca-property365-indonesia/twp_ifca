@@ -8,7 +8,7 @@
 @endphp
 <header class="header header-sticky p-0 mb-0">
     <div class="container-fluid border-bottom px-3 px-lg-4">
-        <button class="header-toggler" type="button" aria-label="Toggle navigation"
+        <button class="header-toggler d-lg-none" type="button" aria-label="Toggle navigation"
                 onclick="coreui.Sidebar.getInstance(document.querySelector('#sidebar')).toggle()">
             <i class="cil-menu"></i>
         </button>
