@@ -13,6 +13,7 @@
 */
 
 use App\Http\Controllers\Admin\AccountController as Account;
+use App\Http\Controllers\Admin\AdminUserController as AdminUsers;
 use App\Http\Controllers\Admin\DashController as Dash;
 use App\Http\Controllers\Admin\HistoryController as History;
 use App\Http\Controllers\Admin\LoginController as Login;
@@ -74,6 +75,10 @@ Route::group(['middleware' => ['admin-auth', 'revalidate']], function () {
     Route::view('/account/reset', 'admin.account.index');
     Route::post('/account/data/', [Account::class, 'getTable']);
     Route::post('/account/resetpass', [Account::class, 'resetpass']);
+
+    // AdminUserController (Admin Users: tambah user administrator + grup baru)
+    Route::get('/users', [AdminUsers::class, 'index']);
+    Route::post('/users', [AdminUsers::class, 'store']);
 
     // SysSpecController
     Route::get('/systemspec', [SysSpec::class, 'index']);

@@ -73,7 +73,7 @@
                         <input type="email" class="form-control" id="email" name="email" maxlength="100" autocomplete="email" readonly>
                     </div>
                     <div class="mb-3">
-                        <label for="handphone" class="form-label">{{ __('tenant/account.handphone') }} <span class="text-danger">*</span></label>
+                        <label for="handphone" class="form-label">{{ __('tenant/account.handphone') }}</label>
                         <input type="text" class="form-control" id="handphone" name="handphone">
                         <div class="form-note">{{ __('tenant/account.phone_format') }}</div>
                     </div>
@@ -126,7 +126,7 @@
     }, @json(__('tenant/account.password_mismatch')));
 
     $('#frmEditor').validate($.extend({}, validateOpts, {
-        rules: { name: { required: true }, email: { required: true, email: true }, handphone: { required: true } }
+        rules: { name: { required: true }, email: { required: true, email: true } }
     }));
 
     $('#frmchangepass').validate($.extend({}, validateOpts, {

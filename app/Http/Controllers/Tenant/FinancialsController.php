@@ -17,6 +17,6 @@ class FinancialsController extends BaseFinancialsController
     public function callAction($method, $parameters)
     {
         abort_unless(config('financials.tenant_enabled'), 404);
-        return parent::callAction($method, $parameters);
+        return $this->{$method}(...array_values($parameters));
     }
 }
