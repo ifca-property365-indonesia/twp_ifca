@@ -1,7 +1,9 @@
 {{--
-    Filter Financials (group, period, currency, compare). Dipakai financials._head dua kali:
-    di header (layar lebar, .fin-filters-header) dan di atas judul halaman (layar lebih sempit, .fin-filters-page).
-    Variabel: $filters (nama => ikon), $options, $filter, $class (kelas tambahan form)
+    Filter kotak berikon (GET, ganti pilihan = muat ulang halaman; gaya & perilaku di app.css / app.js).
+    Dipakai dua kali per halaman: di header (stack header-tools, .fin-filters-header) dan di atas judul
+    halaman untuk layar lebih sempit (.fin-filters-page). Financials: group/period/currency/compare;
+    Reports & Documents: group saja (+ .fin-filters-lg agar di header mulai 992px).
+    Variabel: $filters (nama => ikon), $options (nama => [kunci => label]), $filter (nama => terpilih), $class
 --}}
 <form method="get" action="{{ url()->current() }}" class="fin-filters {{ $class ?? '' }}">
     @foreach ($filters as $name => $icon)

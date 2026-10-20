@@ -42,42 +42,15 @@
     .fin-list li:last-child { border-bottom: 0; }
     .fin-list .fin-total-row { font-weight: 700; border-top: 2px solid var(--cui-border-color); border-bottom: 0; }
     .fin-toggle .btn { min-width: 6rem; }
-    .fin-filters { display: flex; flex-wrap: wrap; gap: .5rem; }
-    /* layar lebar (>= 1700px, muat satu baris dengan judul & user): filter di header; lebih sempit: di atas judul halaman */
-    .fin-filters-header { display: none; }
-    .header-tools { display: flex; align-items: center; min-width: 0; margin-left: 1.5rem; }
-    @media (min-width: 1700px) {
-        .fin-filters-header { display: flex; flex-wrap: nowrap; }
-        .fin-filters-page { display: none; }
-    }
     .fin-fx { margin-top: -.5rem; font-size: .75rem; color: var(--cui-secondary-color); }
-    .fin-filter { display: flex; align-items: center; gap: .4rem; margin: 0; padding: .3rem .1rem .3rem .65rem; border: 1px solid var(--cui-border-color); border-radius: .5rem; background: var(--cui-body-bg); cursor: pointer; }
-    .fin-filter:focus-within { border-color: #4f5bd5; box-shadow: 0 0 0 .2rem rgba(79, 91, 213, .15); }
-    .fin-filter > i { color: var(--cui-secondary-color); }
-    .fin-filter-label { font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--cui-secondary-color); white-space: nowrap; }
-    .fin-filter .form-select { width: auto; border: 0; box-shadow: none; background-color: transparent; font-weight: 600; color: var(--cui-emphasis-color); padding-left: .15rem; padding-right: 1.75rem; background-position: right .4rem center; cursor: pointer; }
-    /* Select2 di dalam kotak filter: tanpa bingkai sendiri, lebar mengikuti teks pilihan */
-    .fin-filter .select2.select2-container { width: auto !important; }
-    .fin-filter .select2.select2-container--bootstrap-5 .select2-selection.select2-selection--single { min-height: 0; padding: .25rem 1.75rem .25rem .15rem; border: 0; box-shadow: none; background-color: transparent; background-position: right .4rem center; font-size: .875rem; font-weight: 600; color: var(--cui-emphasis-color); cursor: pointer; }
-    .fin-filter .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered { padding: 0; color: var(--cui-emphasis-color); white-space: nowrap; }
-    /* panel dropdown filter: turun sedikit agar tidak menempel ke bingkai kotak filter */
-    .select2-container--bootstrap-5 .select2-dropdown.fin-dropdown.select2-dropdown--below { margin-top: .75rem; }
-    .select2-container--bootstrap-5 .select2-dropdown.fin-dropdown.select2-dropdown--above { margin-top: -.75rem; }
-    /* Group: "Consolidated" dipisah garis dari daftar perusahaan */
-    .select2-container--bootstrap-5 .select2-dropdown.fin-dropdown-group .select2-results__options .select2-results__option:first-child { position: relative; margin-bottom: .6rem; overflow: visible; }
-    .select2-container--bootstrap-5 .select2-dropdown.fin-dropdown-group .select2-results__options .select2-results__option:first-child::after { content: ""; position: absolute; left: 0; right: 0; bottom: calc(-.3rem - 1px); border-top: 1px solid #e3e6ef; }
-    @media (max-width: 575.98px) {
-        .fin-filter { flex: 1 1 100%; }
-        .fin-filter .form-select, .fin-filter .select2.select2-container { flex: 1; min-width: 0; width: 100% !important; }
-    }
 </style>
 @endpush
 
 {{-- filter: di header pada layar lebar (stack header-tools), di sini pada layar lebih sempit --}}
 @push('header-tools')
-    @include('financials._filters', ['class' => 'fin-filters-header'])
+    @include('partials.header_filters', ['class' => 'fin-filters-header'])
 @endpush
-@include('financials._filters', ['class' => 'fin-filters-page mb-3'])
+@include('partials.header_filters', ['class' => 'fin-filters-page mb-3'])
 {{-- keterangan kurs (Frankfurter API, base IDR; lihat FinancialsDemo::fxRates). Sementara disembunyikan;
      tampilkan lagi dengan FRANKFURTER_SHOW_RATE=true (config services.frankfurter.show_rate) --}}
 @if ($currency['code'] !== 'IDR' && config('services.frankfurter.show_rate'))
@@ -110,14 +83,6 @@
 
 @push('scripts')
 <script>
-    // Filter: ganti pilihan langsung memuat ulang halaman (filter disimpan di session)
-    $('.fin-filters select').on('change', function () { this.form.submit(); });
-    // klik ikon / judul kotak filter juga membuka dropdown-nya
-    $('.fin-filters .fin-filter').on('click', function (e) {
-        if ($(e.target).closest('.select2-container').length) { return; }
-        $(this).find('select').select2('open');
-    });
-
     // Helper bersama halaman Financials
     window.FIN = {
         currency: @json($currency),

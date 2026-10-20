@@ -88,6 +88,48 @@
 .header-app-info .lead-text { display: block; font-size: 1rem; font-weight: 700; color: var(--cui-emphasis-color); }
 .header-logo { height: 36px; }
 
+/* Tinggi header semua halaman (header atas & logo sidebar sejajar); cukup lega untuk filter di header */
+:root { --twp-header-height: 4rem; }
+.header > .container-fluid { min-height: var(--twp-header-height); }
+/* sidebar admin: area logo setinggi header (sidebar tenant memakai logo besar, tingginya bebas) */
+.sidebar-header:not(:has(.sidebar-brand-tenant)) { height: calc(var(--twp-header-height) + 1px); padding-block: 0; }  /* +1px = garis bawah header */
+.sidebar-header:not(:has(.sidebar-brand-tenant)) .sidebar-brand { padding-block: 0; }
+.sidebar-header:not(:has(.sidebar-brand-tenant)) .sidebar-brand img { max-height: 40px; }
+
+/* ---------- filter berbentuk kotak berikon (Financials, Reports & Documents): partials/header_filters ---------- */
+.fin-filters { display: flex; flex-wrap: wrap; gap: .5rem; }
+/* .fin-filters-header: di header; .fin-filters-page: di atas judul halaman (layar lebih sempit).
+   Financials (4 filter) pindah ke header >= 1700px; dengan .fin-filters-lg (mis. Reports, 1 filter) >= 992px */
+.fin-filters-header { display: none; }
+.header-tools { display: flex; align-items: center; min-width: 0; margin-left: 1.5rem; }
+@media (min-width: 1700px) {
+    .fin-filters-header { display: flex; flex-wrap: nowrap; }
+    .fin-filters-page { display: none; }
+}
+@media (min-width: 992px) {
+    .fin-filters-header.fin-filters-lg { display: flex; flex-wrap: nowrap; }
+    .fin-filters-page.fin-filters-lg { display: none; }
+}
+.fin-filter { display: flex; align-items: center; gap: .4rem; margin: 0; padding: .3rem .1rem .3rem .65rem; border: 1px solid var(--cui-border-color); border-radius: .5rem; background: var(--cui-body-bg); cursor: pointer; }
+.fin-filter:focus-within { border-color: #4f5bd5; box-shadow: 0 0 0 .2rem rgba(79, 91, 213, .15); }
+.fin-filter > i { color: var(--cui-secondary-color); }
+.fin-filter-label { font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--cui-secondary-color); white-space: nowrap; }
+.fin-filter .form-select { width: auto; border: 0; box-shadow: none; background-color: transparent; font-weight: 600; color: var(--cui-emphasis-color); padding-left: .15rem; padding-right: 1.75rem; background-position: right .4rem center; cursor: pointer; }
+/* Select2 di dalam kotak filter: tanpa bingkai sendiri, lebar mengikuti teks pilihan */
+.fin-filter .select2.select2-container { width: auto !important; }
+.fin-filter .select2.select2-container--bootstrap-5 .select2-selection.select2-selection--single { min-height: 0; padding: .25rem 1.75rem .25rem .15rem; border: 0; box-shadow: none; background-color: transparent; background-position: right .4rem center; font-size: .875rem; font-weight: 600; color: var(--cui-emphasis-color); cursor: pointer; }
+.fin-filter .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered { padding: 0; color: var(--cui-emphasis-color); white-space: nowrap; }
+/* panel dropdown filter: turun sedikit agar tidak menempel ke bingkai kotak filter */
+.select2-container--bootstrap-5 .select2-dropdown.fin-dropdown.select2-dropdown--below { margin-top: .75rem; }
+.select2-container--bootstrap-5 .select2-dropdown.fin-dropdown.select2-dropdown--above { margin-top: -.75rem; }
+/* Group: "Consolidated" dipisah garis dari daftar perusahaan */
+.select2-container--bootstrap-5 .select2-dropdown.fin-dropdown-group .select2-results__options .select2-results__option:first-child { position: relative; margin-bottom: .6rem; overflow: visible; }
+.select2-container--bootstrap-5 .select2-dropdown.fin-dropdown-group .select2-results__options .select2-results__option:first-child::after { content: ""; position: absolute; left: 0; right: 0; bottom: calc(-.3rem - 1px); border-top: 1px solid #e3e6ef; }
+@media (max-width: 575.98px) {
+    .fin-filter { flex: 1 1 100%; }
+    .fin-filter .form-select, .fin-filter .select2.select2-container { flex: 1; min-width: 0; width: 100% !important; }
+}
+
 .user-avatar {
     width: 36px;
     height: 36px;
