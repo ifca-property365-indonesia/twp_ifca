@@ -11,6 +11,12 @@
                 <img src="{{ url('/images/logo/IFCA.png') }}" alt="IFCA">
             </a>
         </div>
+        {{-- desktop: kecilkan / lebarkan sidebar (mode ikon), diingat per browser (app.js) --}}
+        <button class="sidebar-collapse d-none d-lg-inline-flex" type="button" aria-expanded="true"
+                aria-label="{{ __('common.sidebar_collapse') }}" title="{{ __('common.sidebar_collapse') }}"
+                data-label-collapse="{{ __('common.sidebar_collapse') }}" data-label-expand="{{ __('common.sidebar_expand') }}">
+            <i class="cil-chevron-left"></i>
+        </button>
         <button class="btn-close d-lg-none" type="button" data-coreui-theme="dark" aria-label="Close"
                 onclick="coreui.Sidebar.getInstance(document.querySelector('#sidebar')).toggle()"></button>
     </div>
@@ -95,3 +101,15 @@
         </li>
     </ul>
 </div>
+<script>
+    // sidebar sempit tersimpan (app.js): pasang sebelum halaman tampil supaya tidak berkedip
+    try {
+        if (window.innerWidth >= 992 && localStorage.getItem('twp.sidebarNarrow') === '1') {
+            // tanpa animasi saat memuat halaman (animasi hanya saat tombol panah diklik)
+            document.getElementById('sidebar').classList.add('sidebar-narrow', 'sidebar-no-anim');
+            window.addEventListener('load', function () {
+                setTimeout(function () { document.getElementById('sidebar').classList.remove('sidebar-no-anim'); }, 50);
+            });
+        }
+    } catch (e) {}
+</script>

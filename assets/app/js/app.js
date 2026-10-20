@@ -99,8 +99,39 @@
     }
     window.initSelects = initSelects;
 
+    // Sidebar desktop: tombol panah (.sidebar-collapse) mengecilkan sidebar jadi kolom ikon (.sidebar-narrow)
+    // dan melebarkannya lagi. Pilihan disimpan per browser (localStorage), dipasang ulang oleh skrip kecil
+    // di sidebar sebelum halaman tampil. Di layar < 992px sidebar memakai tombol menu di header seperti biasa.
+    var NARROW_KEY = 'twp.sidebarNarrow';
+    function syncSidebarButton() {
+        var el = document.getElementById('sidebar');
+        var btn = el && el.querySelector('.sidebar-collapse');
+        if (!btn) { return; }
+        var narrow = el.classList.contains('sidebar-narrow');
+        var label = narrow ? btn.getAttribute('data-label-expand') : btn.getAttribute('data-label-collapse');
+        btn.setAttribute('aria-expanded', String(!narrow));
+        btn.setAttribute('aria-label', label);
+        btn.setAttribute('title', label);
+    }
+
     $(function () {
         initSelects();
+
+        syncSidebarButton();
+        $(document).on('click', '.sidebar-collapse', function () {
+            var el = document.getElementById('sidebar');
+            var narrow = el.classList.toggle('sidebar-narrow');
+            try { localStorage.setItem(NARROW_KEY, narrow ? '1' : '0'); } catch (e) {}
+            syncSidebarButton();
+        });
+        // layar mengecil ke ukuran tablet/HP: sidebar kembali normal (tombol menu di header)
+        $(window).on('resize', function () {
+            var el = document.getElementById('sidebar');
+            if (el && window.innerWidth < 992 && el.classList.contains('sidebar-narrow')) {
+                el.classList.remove('sidebar-narrow');
+                syncSidebarButton();
+            }
+        });
 
         // Filter kotak berikon (partials/header_filters): ganti pilihan = muat ulang halaman,
         // klik ikon / judul kotak juga membuka dropdown-nya

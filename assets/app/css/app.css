@@ -81,6 +81,20 @@
 .sidebar-nav .nav-link { font-size: .875rem; }
 .sidebar-nav .nav-icon { font-size: 1.1rem; }
 
+/* Tombol panah kecilkan / lebarkan sidebar (desktop). Mode sempit (.sidebar-narrow): hanya ikon menu */
+.sidebar-header { align-items: center; }
+.sidebar-collapse { flex: none; align-items: center; justify-content: center; width: 2rem; height: 2rem; margin-left: auto; padding: 0; border: 0; border-radius: .45rem; background: transparent; color: rgba(255, 255, 255, .6); }
+.sidebar-collapse:hover, .sidebar-collapse:focus-visible { background: rgba(255, 255, 255, .1); color: #fff; }
+.sidebar-collapse i { font-size: 1rem; transition: transform .2s; }
+.sidebar-narrow .sidebar-collapse i { transform: rotate(180deg); }
+.sidebar-narrow .sidebar-brand { display: none; }
+.sidebar-narrow .sidebar-header { justify-content: center; padding-inline: 0; }
+.sidebar-narrow .sidebar-collapse { margin-left: 0; }
+.sidebar-no-anim, .sidebar-no-anim ~ *, .sidebar-no-anim * { transition: none !important; }
+@media (max-width: 991.98px) {
+    .sidebar.sidebar-narrow { --cui-sidebar-width: 16rem; }
+}
+
 /* ---------- header ---------- */
 .header { --cui-header-bg: #fff; }
 .header-app-info { line-height: 1.15; }
@@ -99,10 +113,10 @@
 /* ---------- filter berbentuk kotak berikon (Financials, Reports & Documents): partials/header_filters ---------- */
 .fin-filters { display: flex; flex-wrap: wrap; gap: .5rem; }
 /* .fin-filters-header: di header; .fin-filters-page: di atas judul halaman (layar lebih sempit).
-   Financials (4 filter) pindah ke header >= 1700px; dengan .fin-filters-lg (mis. Reports, 1 filter) >= 992px */
+   Financials (4 filter) pindah ke header >= 1650px; dengan .fin-filters-lg (mis. Reports, 1 filter) >= 992px */
 .fin-filters-header { display: none; }
 .header-tools { display: flex; align-items: center; min-width: 0; margin-left: 1.5rem; }
-@media (min-width: 1700px) {
+@media (min-width: 1650px) {
     .fin-filters-header { display: flex; flex-wrap: nowrap; }
     .fin-filters-page { display: none; }
 }

@@ -8,6 +8,8 @@ return [
     'submit'        => 'Kirim',
     'cancel'        => 'Batal',
     'close'         => 'Tutup',
+    'sidebar_collapse' => 'Kecilkan menu',
+    'sidebar_expand' => 'Lebarkan menu',
     'search'        => 'Cari',
     'filter'        => 'Filter',
     'reset'         => 'Reset',

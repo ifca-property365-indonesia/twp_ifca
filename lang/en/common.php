@@ -8,6 +8,8 @@ return [
     'submit'        => 'Submit',
     'cancel'        => 'Cancel',
     'close'         => 'Close',
+    'sidebar_collapse' => 'Collapse menu',
+    'sidebar_expand' => 'Expand menu',
     'search'        => 'Search',
     'filter'        => 'Filter',
     'reset'         => 'Reset',
