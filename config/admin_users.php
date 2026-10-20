@@ -6,9 +6,9 @@ return [
     'manager_admincall' => env('ADMIN_USERS_MANAGER', 'admin'),
 
     // Menu yang boleh dibuka per grup admin (admincall => bagian URL setelah /admin/).
-    // Grup yang tidak terdaftar = semua menu. Contoh: executive_management hanya Financials.
+    // Grup yang tidak terdaftar = semua menu. executive_management: Financials & Reports & Documents.
     'restricted_menus' => [
-        'executive_management' => ['financials'],
+        'executive_management' => ['financials', 'reports'],
     ],
 
     // Selalu boleh untuk grup terbatas: profil sendiri (View Profile) di header.
