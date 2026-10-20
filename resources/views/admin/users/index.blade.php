@@ -49,6 +49,7 @@
                             <th>{{ __('admin/users.col_email') }}</th>
                             <th>{{ __('admin/users.col_phone') }}</th>
                             <th>{{ __('admin/users.col_group') }}</th>
+                            <th class="text-end">{{ __('common.action') }}</th>
                         </tr>
                     </thead>
                     <tbody id="usrRows">
@@ -59,11 +60,18 @@
                                 <td>{{ $u->email }}</td>
                                 <td>{{ $u->handphone ?: '-' }}</td>
                                 <td><span class="badge badge-soft-primary">{{ $u->group_name ?? '#' . $u->idforeign }}</span></td>
+                                <td class="text-end">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-usr-email"
+                                            data-id="{{ $u->id }}" data-name="{{ $u->name }}" data-email="{{ $u->email }}"
+                                            data-tenants="{{ $u->tenant_accounts }}" data-self="{{ strtolower($u->email) === strtolower((string) Session::get('Tsemail')) ? 1 : 0 }}">
+                                        <i class="cil-pencil"></i> {{ __('admin/users.edit_email') }}
+                                    </button>
+                                </td>
                             </tr>
                         @empty
-                            <tr><td colspan="5" class="text-center text-soft py-4">{{ __('admin/users.empty') }}</td></tr>
+                            <tr><td colspan="6" class="text-center text-soft py-4">{{ __('admin/users.empty') }}</td></tr>
                         @endforelse
-                        <tr class="d-none" id="usrNoMatch"><td colspan="5" class="text-center text-soft py-4">{{ __('admin/users.no_match') }}</td></tr>
+                        <tr class="d-none" id="usrNoMatch"><td colspan="6" class="text-center text-soft py-4">{{ __('admin/users.no_match') }}</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -154,6 +162,38 @@
         </form>
     </div>
 </div>
+
+{{-- Edit email user administrator --}}
+<div class="modal fade" tabindex="-1" id="usrEmailModal">
+    <div class="modal-dialog">
+        <form class="modal-content" id="usrEmailForm" novalidate autocomplete="off">
+            <div class="modal-header">
+                <h5 class="modal-title" id="usrEmailTitle"></h5>
+                <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="{{ __('common.close') }}"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info py-2 small d-none" id="usrEmailSelf"><i class="cil-info"></i> {{ __('admin/users.email_self_note') }}</div>
+                <div class="mb-3">
+                    <label class="form-label">{{ __('admin/users.email_current') }}</label>
+                    <input type="text" class="form-control" id="usrEmailOld" readonly>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="usrEmailNew">{{ __('admin/users.email_new') }} <span class="text-danger">*</span></label>
+                    <input type="email" class="form-control" id="usrEmailNew" name="email" maxlength="100" autocomplete="off">
+                    <div class="form-note">{{ __('admin/users.email_new_note') }}</div>
+                </div>
+                <div class="form-check d-none" id="usrEmailTenantsWrap">
+                    <input class="form-check-input" type="checkbox" id="usrEmailTenants" name="with_tenants" value="1">
+                    <label class="form-check-label" for="usrEmailTenants" id="usrEmailTenantsLabel"></label>
+                </div>
+            </div>
+            <div class="modal-footer bg-body-tertiary">
+                <button type="button" class="btn btn-secondary" data-coreui-dismiss="modal">{{ __('common.back') }}</button>
+                <button type="submit" class="btn btn-primary" id="usrEmailSave"><i class="cil-save"></i><span>{{ __('admin/users.save') }}</span></button>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -191,6 +231,37 @@ $(function () {
         e.preventDefault();
         var $btn = $('#usrSave').prop('disabled', true);
         $.ajax({ url: URL_STORE, type: 'POST', data: $(this).serialize(), dataType: 'json' })
+            .done(function (res) {
+                Swal.fire({ title: L.info, text: res.pesan, icon: 'success' }).then(function () { window.location.reload(); });
+            })
+            .fail(function (xhr) {
+                var msg = (xhr.responseJSON && xhr.responseJSON.pesan) || (xhr.status + ' ' + xhr.statusText);
+                Swal.fire({ title: L.error, html: esc(msg).replace(/\n/g, '<br>'), icon: 'error' });
+            })
+            .always(function () { $btn.prop('disabled', false); });
+    });
+
+    // ---------- edit email ----------
+    var EMAIL_TITLE = @json(__('admin/users.edit_email_title', ['name' => '__N__']));
+    var TENANTS_LABEL = @json(__('admin/users.email_with_tenants', ['count' => '__C__']));
+    var emailModal = coreui.Modal.getOrCreateInstance(document.getElementById('usrEmailModal'));
+    var emailUserId = null;
+    $(document).on('click', '.btn-usr-email', function () {
+        var $b = $(this), tenants = parseInt($b.data('tenants'), 10) || 0;
+        emailUserId = $b.data('id');
+        $('#usrEmailForm')[0].reset();
+        $('#usrEmailTitle').text(EMAIL_TITLE.replace('__N__', $b.data('name')));
+        $('#usrEmailOld').val($b.data('email'));
+        $('#usrEmailSelf').toggleClass('d-none', String($b.data('self')) !== '1');
+        $('#usrEmailTenantsWrap').toggleClass('d-none', tenants === 0);
+        $('#usrEmailTenantsLabel').text(TENANTS_LABEL.replace('__C__', tenants));
+        emailModal.show();
+        setTimeout(function () { $('#usrEmailNew').trigger('focus'); }, 200);
+    });
+    $('#usrEmailForm').on('submit', function (e) {
+        e.preventDefault();
+        var $btn = $('#usrEmailSave').prop('disabled', true);
+        $.ajax({ url: URL_STORE + '/' + emailUserId + '/email', type: 'POST', data: $(this).serialize(), dataType: 'json' })
             .done(function (res) {
                 Swal.fire({ title: L.info, text: res.pesan, icon: 'success' }).then(function () { window.location.reload(); });
             })

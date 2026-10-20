@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Mail\AdminUserCreated;
 use App\Support\AdminUsers;
+use App\Support\LoginEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -31,6 +32,34 @@ class AdminUserController extends Controller
             'defaultPassword' => AdminUsers::defaultPassword(),
             'mailEnabled'     => (bool) config('admin_users.mail.enabled'),
         ]);
+    }
+
+    /**
+     * Ganti email user administrator (termasuk email sendiri): email, with_tenants (1 = akun tenant
+     * dengan email yang sama ikut diubah). Validasi sama dengan View Profile (App\Support\LoginEmail).
+     */
+    public function email(Request $request, int $id)
+    {
+        $user = AdminUsers::find($id);
+        if (!$user) {
+            return response()->json(['status' => 'Failed', 'pesan' => __('admin/users.not_found')], 404);
+        }
+        $new = LoginEmail::normalize($request->input('email'));
+        if ($new === LoginEmail::normalize($user->email)) {
+            return response()->json(['status' => 'Failed', 'pesan' => __('admin/users.email_same')], 422);
+        }
+        $error = LoginEmail::validate($user->email, $new);
+        if ($error !== null) {
+            return response()->json(['status' => 'Failed', 'pesan' => $error], 422);
+        }
+
+        try {
+            AdminUsers::changeEmail($user, $new, $request->boolean('with_tenants'));
+        } catch (Throwable $e) {
+            report($e);
+            return response()->json(['status' => 'Failed', 'pesan' => __('admin/users.err_save', ['message' => $e->getMessage()])], 500);
+        }
+        return response()->json(['status' => 'OK', 'pesan' => __('admin/users.email_changed', ['name' => $user->name, 'old' => $user->email, 'new' => $new])]);
     }
 
     /**

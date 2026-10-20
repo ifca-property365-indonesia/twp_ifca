@@ -116,7 +116,70 @@ class AdminUsers
             ->where('l.tableforeign', 'administrator')
             ->orderBy('l.id')
             ->select('l.id', 'l.name', 'l.email', 'l.handphone', 'l.idforeign', 'a.name as group_name', 'a.admincall')
-            ->get();
+            ->get()
+            ->map(function ($u) {
+                // akun tenant yang memakai email yang sama (pilihan ikut diubah di dialog Edit email)
+                $u->tenant_accounts = self::tenantAccounts((string) $u->email);
+                return $u;
+            });
+    }
+
+    /** Jumlah akun tenant (all_login) dengan email ini. */
+    public static function tenantAccounts(string $email): int
+    {
+        return self::db()->table('mgr.all_login')
+            ->where('tableforeign', 'tenant')
+            ->whereRaw('LOWER(email) = ?', [LoginEmail::normalize($email)])
+            ->count();
+    }
+
+    /** Satu user administrator (all_login, tableforeign administrator). */
+    public static function find(int $id): ?object
+    {
+        return self::db()->table('mgr.all_login')->where('id', $id)->where('tableforeign', 'administrator')->first();
+    }
+
+    /**
+     * Ganti email user administrator. $withTenants = false: hanya baris administrator ini;
+     * true: semua akun dengan email lama ikut pindah (admin, tenant, pilihan bahasa) seperti View Profile.
+     * Session admin yang login ikut diperbarui bila email yang diubah adalah emailnya sendiri.
+     */
+    public static function changeEmail(object $user, string $newEmail, bool $withTenants): void
+    {
+        $old = (string) $user->email;
+        $new = LoginEmail::normalize($newEmail);
+        if (LoginEmail::normalize($old) === $new) {
+            return;
+        }
+        if ($withTenants) {
+            LoginEmail::change($old, $new);   // juga memperbarui session
+            return;
+        }
+
+        $db = self::db();
+        $db->transaction(function () use ($db, $user, $new) {
+            $db->table('mgr.all_login')->where('id', $user->id)->update(['email' => $new]);
+            // pilihan bahasa: salin ke email baru (akun tenant dengan email lama tetap memakai yang lama)
+            $locale = $db->table('mgr.user_locale')->where('email', LoginEmail::normalize($user->email))->value('locale');
+            if ($locale !== null && !$db->table('mgr.user_locale')->where('email', $new)->exists()) {
+                $db->table('mgr.user_locale')->insert(['email' => $new, 'locale' => $locale, 'updated_at' => now()]);
+            }
+        });
+
+        // email sendiri: session admin & menu pindah portal ikut diperbarui
+        if (LoginEmail::normalize(Session::get('Tsemail')) === LoginEmail::normalize($old)) {
+            Session::put('Tsemail', $new);
+            $portals = Session::get('portals');
+            if (!empty($portals['admin'])) {
+                $portals['admin']['email'] = $new;
+                Session::put('portals', $portals);
+            }
+            if ($user->tableforeign === 'administrator' && !self::tenantAccounts($old)) {
+                if (LoginEmail::normalize(Session::get('login_email')) === LoginEmail::normalize($old)) {
+                    Session::put('login_email', $new);
+                }
+            }
+        }
     }
 
     public static function emailExists(string $email): bool

@@ -79,6 +79,7 @@ Route::group(['middleware' => ['admin-auth', 'revalidate']], function () {
     // AdminUserController (Admin Users: tambah user administrator + grup baru)
     Route::get('/users', [AdminUsers::class, 'index']);
     Route::post('/users', [AdminUsers::class, 'store']);
+    Route::post('/users/{id}/email', [AdminUsers::class, 'email'])->whereNumber('id');
 
     // SysSpecController
     Route::get('/systemspec', [SysSpec::class, 'index']);
