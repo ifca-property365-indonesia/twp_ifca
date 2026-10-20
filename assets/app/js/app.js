@@ -101,6 +101,14 @@
 
     $(function () {
         initSelects();
+
+        // Filter kotak berikon (partials/header_filters): ganti pilihan = muat ulang halaman,
+        // klik ikon / judul kotak juga membuka dropdown-nya
+        $(document).on('change', '.fin-filters select', function () { this.form.submit(); });
+        $(document).on('click', '.fin-filters .fin-filter', function (e) {
+            if ($(e.target).closest('.select2-container').length) { return; }
+            $(this).find('select').select2('open');
+        });
         initDatepickers();
 
         if (window.MutationObserver) {

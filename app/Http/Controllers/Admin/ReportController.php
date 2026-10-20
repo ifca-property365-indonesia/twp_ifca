@@ -14,13 +14,17 @@ use ZipArchive;
  */
 class ReportController extends Controller
 {
-    /** Library report: selalu semua group; penyaringan lewat kotak cari (nama, perusahaan, file, pengunggah). */
-    public function index()
+    /** Library report; ?group= menyaring per perusahaan (filter Group di header, Consolidated = semua). */
+    public function index(Request $request)
     {
+        $groups = ReportDocuments::groups();
+        $group = array_key_exists((string) $request->query('group'), $groups) ? (string) $request->query('group') : 'consolidated';
+
         return view('admin.reports.index', [
-            'groups'       => ReportDocuments::groups(),
+            'groups'       => $groups,
+            'group'        => $group,
             'uploadGroups' => ReportDocuments::uploadGroups(),
-            'reports'      => ReportDocuments::reports(),
+            'reports'      => ReportDocuments::reports($group),
             'extensions' => ReportDocuments::EXTENSIONS,
             'inline'     => ReportDocuments::INLINE,
             'maxKb'      => ReportDocuments::MAX_KB,

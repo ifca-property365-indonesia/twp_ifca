@@ -68,8 +68,17 @@
 </style>
 @endpush
 
+{{-- filter Group: di header (layar >= 992px) dan di atas judul halaman (layar lebih sempit) --}}
+@php
+    $groupFilter = ['filters' => ['group' => 'cil-building'], 'options' => ['group' => $groups], 'filter' => ['group' => $group]];
+@endphp
+@push('header-tools')
+    @include('partials.header_filters', $groupFilter + ['class' => 'fin-filters-header fin-filters-lg'])
+@endpush
+
 @section('content')
 <div class="page-body">
+    @include('partials.header_filters', $groupFilter + ['class' => 'fin-filters-page fin-filters-lg mb-3'])
     <div class="page-head">
         <div class="page-head-row">
             <div class="page-head-content">
@@ -265,7 +274,9 @@ $(function () {
     // ---------- upload report baru ----------
     $('#btnUploadReport').on('click', function () {
         $('#rptUploadForm')[0].reset();
-        $('#rptGroup').val($('#rptGroup option:first').val()).trigger('change.select2');
+        // ikut filter Group kalau perusahaan; saat Consolidated pakai perusahaan pertama
+        var $g = $('#rptGroup'), current = @json($group);
+        $g.val($g.find('option[value="' + current + '"]').length ? current : $g.find('option:first').val()).trigger('change.select2');
         $('#rptUploadPick').empty(); $('#rptUploadTotal').text('');
         modal('rptUploadModal').show();
     });

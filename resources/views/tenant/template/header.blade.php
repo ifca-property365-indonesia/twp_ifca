@@ -17,6 +17,10 @@
             <span class="sub-text">{{ __('tenant.header.sub_title') }}</span>
             <span class="lead-text">{{ __('tenant.header.title') }}{{ $portalType ? " ({$portalType})" : '' }}</span>
         </div>
+        {{-- alat tambahan dari halaman, mis. filter Financials (@push('header-tools')) --}}
+        @if (trim($__env->yieldPushContent('header-tools')) !== '')
+            <div class="header-tools">@stack('header-tools')</div>
+        @endif
         <ul class="header-nav ms-auto">
             <li class="nav-item dropdown">
                 <a class="nav-link user-toggle py-0" data-coreui-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
