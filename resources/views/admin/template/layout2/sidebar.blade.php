@@ -6,6 +6,8 @@
     $overtimeOpen = request()->is('admin/overtime*') || request()->is('admin/history/overtime*');
     $passwordOpen = request()->is('admin/account/reset*') || request()->is('admin/systemspec/defaultpass*');
     $financialsOpen = request()->is('admin/financials*');
+    // menu per grup admin (config admin_users.restricted_menus, mis. executive_management hanya Financials)
+    $can = fn ($path) => \App\Support\AdminUsers::allows($path);
     $isExact = function ($path) {
         return rtrim(request()->path(), '/') === trim($path, '/');
     };
@@ -13,7 +15,7 @@
 <div class="sidebar sidebar-dark sidebar-fixed border-end" id="sidebar">
     <div class="sidebar-header border-bottom">
         <div class="sidebar-brand">
-            <a href="{{ url('/admin/dash') }}" class="d-flex align-items-center gap-2 text-decoration-none text-white">
+            <a href="{{ url(\App\Support\AdminUsers::homePath()) }}" class="d-flex align-items-center gap-2 text-decoration-none text-white">
                 <img src="{{ url('/images/logo/IFCA.png') }}" alt="IFCA">
                 <span class="fw-bold">{{ __('admin.menu.brand') }}</span>
             </a>
@@ -22,15 +24,18 @@
                 onclick="coreui.Sidebar.getInstance(document.querySelector('#sidebar')).toggle()"></button>
     </div>
     <ul class="sidebar-nav" data-coreui="navigation">
+        @if ($can('dash'))
         <li class="nav-title">{{ __('admin.menu.dashboards') }}</li>
         <li class="nav-item">
             <a class="nav-link {{ request()->is('admin/dash*') ? 'active' : '' }}" href="{{ url('/admin/dash') }}">
                 <i class="nav-icon cil-speedometer"></i> {{ __('admin.menu.dashboard') }}
             </a>
         </li>
+        @endif
 
         <li class="nav-title">{{ __('admin.menu.menu') }}</li>
 
+        @if ($can('news'))
         {{-- News feed --}}
         <li class="nav-group {{ $newsOpen ? 'show' : '' }}">
             <a class="nav-link nav-group-toggle" href="#"><i class="nav-icon cil-newspaper"></i> {{ __('admin.menu.news_feed') }}</a>
@@ -47,7 +52,9 @@
                 </li>
             </ul>
         </li>
+        @endif
 
+        @if ($can('usersurvey'))
         {{-- Online survey --}}
         <li class="nav-group {{ $surveyOpen ? 'show' : '' }}">
             <a class="nav-link nav-group-toggle" href="#"><i class="nav-icon cil-task"></i> {{ __('admin.menu.online_survey') }}</a>
@@ -64,8 +71,9 @@
                 </li>
             </ul>
         </li>
+        @endif
 
-        @if(Session::get('Tsuname') == 'Admin Management')
+        @if(Session::get('Tsuname') == 'Admin Management' && $can('management'))
         <li class="nav-item">
             <a class="nav-link {{ request()->is('admin/management*') ? 'active' : '' }}" href="{{ url('/admin/management') }}">
                 <i class="nav-icon cil-bar-chart"></i> {{ __('admin.menu.graph_management') }}
@@ -73,6 +81,7 @@
         </li>
         @endif
 
+        @if ($can('financials'))
         {{-- Financials: klik judul = Overview; submenu = tab lain (Profit & Loss, Balance Sheet, Cash Flow) --}}
         <li class="nav-group {{ $financialsOpen ? 'show' : '' }}">
             <a class="nav-link nav-group-toggle {{ $isExact('admin/financials') ? 'active' : '' }}" id="navFinancials" href="{{ url('/admin/financials') }}"><i class="nav-icon cil-chart-line"></i> {{ __('admin/financials.menu') }}</a>
@@ -94,20 +103,26 @@
                 </li>
             </ul>
         </li>
+        @endif
 
+        @if ($can('reports'))
         {{-- Reports & Documents: upload report per group dengan versi (Admin\ReportController) --}}
         <li class="nav-item">
             <a class="nav-link {{ request()->is('admin/reports*') ? 'active' : '' }}" href="{{ url('/admin/reports') }}">
                 <i class="nav-icon cil-folder-open"></i> {{ __('admin/reports.menu') }}
             </a>
         </li>
+        @endif
 
+        @if ($can('permit'))
         <li class="nav-item">
             <a class="nav-link {{ request()->is('admin/permit*') ? 'active' : '' }}" href="{{ url('/admin/permit/index') }}">
                 <i class="nav-icon cil-clipboard"></i> {{ __('admin.menu.letter_permit') }}
             </a>
         </li>
+        @endif
 
+        @if ($can('overtime'))
         {{-- Overtime --}}
         <li class="nav-group {{ $overtimeOpen ? 'show' : '' }}">
             <a class="nav-link nav-group-toggle" href="#"><i class="nav-icon cil-clock"></i> {{ __('admin.menu.overtime') }}</a>
@@ -134,7 +149,9 @@
                 </li>
             </ul>
         </li>
+        @endif
 
+        @if ($can('history'))
         {{-- History --}}
         <li class="nav-group {{ $historyOpen ? 'show' : '' }}">
             <a class="nav-link nav-group-toggle" href="#"><i class="nav-icon cil-history"></i> {{ __('admin.menu.history') }}</a>
@@ -151,7 +168,18 @@
                 </li>
             </ul>
         </li>
+        @endif
 
+        {{-- Admin Users: tambah user administrator & grup (Admin\AdminUserController); hanya grup admincall 'admin' --}}
+        @if (\App\Support\AdminUsers::canManage())
+        <li class="nav-item">
+            <a class="nav-link {{ request()->is('admin/users*') ? 'active' : '' }}" href="{{ url('/admin/users') }}">
+                <i class="nav-icon cil-people"></i> {{ __('admin/users.menu') }}
+            </a>
+        </li>
+        @endif
+
+        @if ($can('account/reset'))
         {{-- Password --}}
         <li class="nav-group {{ $passwordOpen ? 'show' : '' }}">
             <a class="nav-link nav-group-toggle" href="#"><i class="nav-icon cil-lock-locked"></i> {{ __('admin.menu.password') }}</a>
@@ -168,6 +196,7 @@
                 </li>
             </ul>
         </li>
+        @endif
     </ul>
 </div>
 <script>
