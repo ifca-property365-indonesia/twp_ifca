@@ -46,13 +46,19 @@ class LoginEmail
 
     /**
      * Password saat ini cocok untuk akun yang sedang login?
-     * $type = 'administrator' | 'tenant', $id = administrator.id / tenant.id.
+     * $type = 'administrator' | 'tenant', $id = administrator.id / tenant.id, $email = email login.
+     * Akun dicari lewat idforeign + email: satu grup administrator (atau tenant) bisa punya beberapa
+     * akun login, jadi tanpa email yang terambil akun pertama, bukan akun yang sedang login.
      */
-    public static function passwordMatches($type, $id, $plain): bool
+    public static function passwordMatches($type, $id, $plain, $email): bool
     {
+        if (self::normalize($email) === '' || (string) $plain === '') {
+            return false;
+        }
         $stored = DB::connection('ifcaadm')->table('mgr.all_login')
             ->where('tableforeign', $type)
             ->where('idforeign', (int) $id)
+            ->whereRaw('LOWER(email) = ?', [self::normalize($email)])
             ->value('password');
 
         return $stored !== null && Password::check($plain, $stored);

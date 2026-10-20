@@ -70,5 +70,9 @@ return [
     'email_same'        => 'Email baru sama dengan email saat ini.',
     'email_changed'     => 'Email ":name" diubah dari :old menjadi :new.',
     'not_found'         => 'User tidak ditemukan.',
+    'admin_password'    => 'Kata sandi Anda',
+    'admin_password_note' => 'Konfirmasi dengan kata sandi admin yang sedang login (:email).',
+    'err_admin_password_required' => 'Masukkan kata sandi Anda untuk konfirmasi.',
+    'err_admin_password_wrong' => 'Kata sandi Anda salah.',
     'err_save'          => 'Simpan gagal: :message',
 ];
