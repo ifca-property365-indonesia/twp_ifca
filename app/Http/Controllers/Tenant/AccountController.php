@@ -147,8 +147,8 @@ class AccountController extends Controller
                     Session::put('Tuname', $contact);
                 }
 
-                // header memakai nilai dari session
-                Session::put('Tdisplay_name', $name);
+                // header memakai nilai dari session; akun gabungan (App\Support\SharedLogin) tetap nama perusahaan
+                Session::put('Tdisplay_name', \App\Support\SharedLogin::isShared((int) Session::get('Tuser_id'), $email) ? (string) Session::get('TCompany') : $name);
                 if ($image !== null) {
                     Session::put('Tpict', $image);
                 }

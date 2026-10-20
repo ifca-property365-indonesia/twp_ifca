@@ -120,6 +120,8 @@ class AdminUsers
             ->map(function ($u) {
                 // akun tenant yang memakai email yang sama (pilihan ikut diubah di dialog Edit email)
                 $u->tenant_accounts = self::tenantAccounts((string) $u->email);
+                // tenant tanpa baris all_login sendiri yang login lewat akun ini (akun gabungan, App\Support\SharedLogin)
+                $u->shared_tenants = SharedLogin::sharedTenantCount((string) $u->email);
                 return $u;
             });
     }
@@ -168,7 +170,8 @@ class AdminUsers
         if (LoginEmail::normalize($old) === $new) {
             return;
         }
-        if ($withTenants) {
+        // akun gabungan: tenant tanpa baris all_login sendiri harus ikut pindah, kalau tidak aksesnya hilang
+        if ($withTenants || SharedLogin::sharedTenantCount($old) > 0) {
             LoginEmail::change($old, $new);   // juga memperbarui session
             return;
         }

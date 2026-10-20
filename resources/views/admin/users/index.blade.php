@@ -63,7 +63,7 @@
                                 <td class="text-end">
                                     <button type="button" class="btn btn-sm btn-outline-secondary btn-usr-email"
                                             data-id="{{ $u->id }}" data-name="{{ $u->name }}" data-email="{{ $u->email }}"
-                                            data-tenants="{{ $u->tenant_accounts }}" data-self="{{ strtolower($u->email) === strtolower((string) Session::get('Tsemail')) ? 1 : 0 }}">
+                                            data-tenants="{{ $u->tenant_accounts }}" data-shared="{{ $u->shared_tenants }}" data-self="{{ strtolower($u->email) === strtolower((string) Session::get('Tsemail')) ? 1 : 0 }}">
                                         <i class="cil-pencil"></i> {{ __('admin/users.edit_email') }}
                                     </button>
                                 </td>
@@ -249,17 +249,20 @@ $(function () {
     // ---------- edit email ----------
     var EMAIL_TITLE = @json(__('admin/users.edit_email_title', ['name' => '__N__']));
     var TENANTS_LABEL = @json(__('admin/users.email_with_tenants', ['count' => '__C__']));
+    var SHARED_LABEL = @json(__('admin/users.email_shared_tenants', ['count' => '__C__']));
     var emailModal = coreui.Modal.getOrCreateInstance(document.getElementById('usrEmailModal'));
     var emailUserId = null;
     $(document).on('click', '.btn-usr-email', function () {
-        var $b = $(this), tenants = parseInt($b.data('tenants'), 10) || 0;
+        var $b = $(this), tenants = parseInt($b.data('tenants'), 10) || 0, shared = parseInt($b.data('shared'), 10) || 0;
         emailUserId = $b.data('id');
         $('#usrEmailForm')[0].reset();
         $('#usrEmailTitle').text(EMAIL_TITLE.replace('__N__', $b.data('name')));
         $('#usrEmailOld').val($b.data('email'));
         $('#usrEmailSelf').toggleClass('d-none', String($b.data('self')) !== '1');
-        $('#usrEmailTenantsWrap').toggleClass('d-none', tenants === 0);
-        $('#usrEmailTenantsLabel').text(TENANTS_LABEL.replace('__C__', tenants));
+        // akun gabungan: tenant ikut akun ini -> selalu ikut diubah (tercentang & dikunci)
+        $('#usrEmailTenantsWrap').toggleClass('d-none', tenants === 0 && shared === 0);
+        $('#usrEmailTenants').prop('checked', shared > 0).prop('disabled', shared > 0);
+        $('#usrEmailTenantsLabel').text(shared > 0 ? SHARED_LABEL.replace('__C__', shared + tenants) : TENANTS_LABEL.replace('__C__', tenants));
         emailModal.show();
         setTimeout(function () { $('#usrEmailNew').trigger('focus'); }, 200);
     });

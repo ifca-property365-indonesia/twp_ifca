@@ -67,6 +67,7 @@ return [
     'email_new_note'    => 'The user logs in to the admin portal with this email from now on.',
     'email_self_note'   => 'This is your own account; you stay logged in with the new email.',
     'email_with_tenants' => 'Also change the :count tenant account(s) that use this email',
+    'email_shared_tenants' => 'This account is also the tenant login for :count tenant business(es); their email changes too.',
     'email_same'        => 'The new email is the same as the current email.',
     'email_changed'     => 'Email of ":name" changed from :old to :new.',
     'not_found'         => 'User not found.',

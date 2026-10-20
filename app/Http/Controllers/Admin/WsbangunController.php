@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Support\DefaultPassword;
+use App\Support\SharedLogin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -256,6 +257,9 @@ class WsbangunController extends Controller
                 $crit = array('tableforeign' => 'tenant', 'idforeign' => $tenant->id);
                 if ($db->table('mgr.all_login')->where($crit)->exists()) {
                     $db->table('mgr.all_login')->where($crit)->update(array('name' => $tenant->name, 'email' => $tenant->email));
+                } elseif (SharedLogin::adminFor($tenant->email)) {
+                    // akun gabungan: email ini sudah punya akun administrator -> tenant memakai akun itu
+                    continue;
                 } else {
                     // password awal akun tenant baru: tabel defaultpassword (menu Default Password)
                     $password = $password ?: DefaultPassword::hash();
