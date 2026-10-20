@@ -90,7 +90,7 @@ class AccountController extends Controller
             if ($error === null && trim((string) $request->current_password) === '') {
                 $error = __('shared/account.password_required');
             }
-            if ($error === null && !LoginEmail::passwordMatches('administrator', Session::get('Tsuser_id'), $request->current_password)) {
+            if ($error === null && !LoginEmail::passwordMatches('administrator', Session::get('Tsuser_id'), $request->current_password, $email)) {
                 $error = __('shared/account.password_wrong');
             }
             if ($error !== null) {
