@@ -43,6 +43,13 @@
     .fin-list .fin-total-row { font-weight: 700; border-top: 2px solid var(--cui-border-color); border-bottom: 0; }
     .fin-toggle .btn { min-width: 6rem; }
     .fin-filters { display: flex; flex-wrap: wrap; gap: .5rem; }
+    /* layar lebar (>= 1700px, muat satu baris dengan judul & user): filter di header; lebih sempit: di atas judul halaman */
+    .fin-filters-header { display: none; }
+    .header-tools { display: flex; align-items: center; min-width: 0; margin-left: 1.5rem; }
+    @media (min-width: 1700px) {
+        .fin-filters-header { display: flex; flex-wrap: nowrap; }
+        .fin-filters-page { display: none; }
+    }
     .fin-fx { margin-top: -.5rem; font-size: .75rem; color: var(--cui-secondary-color); }
     .fin-filter { display: flex; align-items: center; gap: .4rem; margin: 0; padding: .3rem .1rem .3rem .65rem; border: 1px solid var(--cui-border-color); border-radius: .5rem; background: var(--cui-body-bg); cursor: pointer; }
     .fin-filter:focus-within { border-color: #4f5bd5; box-shadow: 0 0 0 .2rem rgba(79, 91, 213, .15); }
@@ -66,19 +73,11 @@
 </style>
 @endpush
 
-<form method="get" action="{{ url()->current() }}" class="fin-filters mb-3" id="finFilters">
-    @foreach ($filters as $name => $icon)
-        <div class="fin-filter">
-            <i class="{{ $icon }}"></i>
-            <span class="fin-filter-label">{{ __('admin/financials.f_' . $name) }}</span>
-            <select name="{{ $name }}" class="form-select form-select-sm js-select" data-dropdown-class="fin-dropdown fin-dropdown-{{ $name }}">
-                @foreach ($options[$name] as $key => $label)
-                    <option value="{{ $key }}" @selected($filter[$name] === $key) @if ($name === 'group' && $key !== 'consolidated') data-sub="{{ __('admin/financials.businesses.' . $key) }}" @endif>{{ $label }}</option>
-                @endforeach
-            </select>
-        </div>
-    @endforeach
-</form>
+{{-- filter: di header pada layar lebar (stack header-tools), di sini pada layar lebih sempit --}}
+@push('header-tools')
+    @include('financials._filters', ['class' => 'fin-filters-header'])
+@endpush
+@include('financials._filters', ['class' => 'fin-filters-page mb-3'])
 {{-- keterangan kurs (Frankfurter API, base IDR; lihat FinancialsDemo::fxRates). Sementara disembunyikan;
      tampilkan lagi dengan FRANKFURTER_SHOW_RATE=true (config services.frankfurter.show_rate) --}}
 @if ($currency['code'] !== 'IDR' && config('services.frankfurter.show_rate'))
@@ -112,9 +111,9 @@
 @push('scripts')
 <script>
     // Filter: ganti pilihan langsung memuat ulang halaman (filter disimpan di session)
-    $('#finFilters select').on('change', function () { this.form.submit(); });
+    $('.fin-filters select').on('change', function () { this.form.submit(); });
     // klik ikon / judul kotak filter juga membuka dropdown-nya
-    $('#finFilters .fin-filter').on('click', function (e) {
+    $('.fin-filters .fin-filter').on('click', function (e) {
         if ($(e.target).closest('.select2-container').length) { return; }
         $(this).find('select').select2('open');
     });
