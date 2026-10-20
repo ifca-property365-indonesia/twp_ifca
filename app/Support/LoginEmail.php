@@ -60,6 +60,10 @@ class LoginEmail
             ->where('idforeign', (int) $id)
             ->whereRaw('LOWER(email) = ?', [self::normalize($email)])
             ->value('password');
+        // tenant akun gabungan (tanpa baris all_login sendiri): password akun administrator dengan email sama
+        if ($stored === null && $type === 'tenant' && SharedLogin::isShared((int) $id, $email)) {
+            $stored = SharedLogin::adminFor($email)->password ?? null;
+        }
 
         return $stored !== null && Password::check($plain, $stored);
     }

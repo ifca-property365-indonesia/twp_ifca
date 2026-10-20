@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Support\LoginLog;
 use App\Support\Password;
+use App\Support\SharedLogin;
 use App\Support\UserLocale;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -40,6 +41,10 @@ class LoginController extends Controller
             ->where('tableforeign', 'tenant')
             ->where('idforeign', $bsn)
             ->get();
+        // akun gabungan: tenant tanpa baris all_login sendiri memakai akun administrator dengan email tenant
+        if ($datas->isEmpty() && ($shared = SharedLogin::forTenant((int) $bsn))) {
+            $datas = collect([$shared]);
+        }
 
         foreach ($datas as $login) {
             if (!Password::check($plain, $login->password)) {
@@ -52,7 +57,7 @@ class LoginController extends Controller
                 $plain
             );
 
-            $this->createSession($login->idforeign);
+            $this->createSession((int) $bsn);
             UserLocale::load($login->email);   // bahasa pilihan user ini (default English)
             return redirect('/tenant/dash');
         }
@@ -98,7 +103,14 @@ class LoginController extends Controller
             ->where('email', $dataTenant->email)
             ->where('tableforeign', 'tenant')
             ->first();
-        Session::put('Tdisplay_name', $login->name ?? $dataTenant->name);
+        // akun gabungan (tanpa baris all_login tenant): foto dari akun administrator, nama header tetap
+        // nama perusahaan (mgr.tenant.name), bukan nama akun admin
+        $shared = false;
+        if (!$login && ($admin = SharedLogin::adminFor($dataTenant->email))) {
+            $login = $admin;
+            $shared = true;
+        }
+        Session::put('Tdisplay_name', $shared ? $dataTenant->name : ($login->name ?? $dataTenant->name));
         Session::put('Tpict', !empty($login->pict) ? $login->pict : '');
 
         // Akun yang juga administrator (login satu pintu mencatatnya di session 'portals')

@@ -67,6 +67,7 @@ return [
     'email_new_note'    => 'Mulai sekarang user login ke portal admin dengan email ini.',
     'email_self_note'   => 'Ini akun Anda sendiri; Anda tetap login dengan email baru.',
     'email_with_tenants' => 'Ubah juga :count akun tenant yang memakai email ini',
+    'email_shared_tenants' => 'Akun ini juga login tenant untuk :count bisnis tenant; emailnya ikut diubah.',
     'email_same'        => 'Email baru sama dengan email saat ini.',
     'email_changed'     => 'Email ":name" diubah dari :old menjadi :new.',
     'not_found'         => 'User tidak ditemukan.',

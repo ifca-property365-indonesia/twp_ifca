@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Admin\LoginController as AdminLogin;
 use App\Http\Controllers\Tenant\LoginController as TenantLogin;
 use App\Support\Password;
+use App\Support\SharedLogin;
 use App\Support\UserLocale;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -92,6 +93,17 @@ class PortalLoginController extends Controller
                     $login->password,
                     $plain
                 );
+            }
+
+            // akun gabungan (App\Support\SharedLogin): tenant tanpa baris all_login sendiri memakai
+            // akun administrator dengan email yang sama, jadi cocok bila password admin cocok
+            if ($adminOk) {
+                $ownRows = $logins->pluck('idforeign')->all();
+                foreach ($tenants as $t) {
+                    if (!in_array($t->id, $ownRows)) {
+                        $matchedIds[] = $t->id;
+                    }
+                }
             }
 
             foreach ($tenants as $t) {
@@ -184,6 +196,11 @@ class PortalLoginController extends Controller
             ->whereIn('idforeign', $tenants->pluck('id'))
             ->pluck('password')
             ->contains(function ($hash) use ($plain) { return Password::check($plain, $hash); });
+        // akun gabungan: tenant tanpa baris all_login sendiri memakai password akun administrator
+        if (!$passwordOk && SharedLogin::sharedTenantCount($email) > 0) {
+            $admin = SharedLogin::adminFor($email);
+            $passwordOk = $admin !== null && Password::check($plain, $admin->password);
+        }
         if (!$passwordOk) {
             return null;
         }
